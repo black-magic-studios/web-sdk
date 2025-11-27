@@ -992,7 +992,6 @@ const stateXstateDerived = {
   isBetting: () => matchesXstate(STATE_BET),
   isAutoBetting: () => matchesXstate(STATE_AUTOBET),
   isResumingBet: () => matchesXstate(STATE_RESUME_BET),
-  isForcingResult: () => matchesXstate(STATE_FORCE_RESULT),
   isPlaying: () => !matchesXstate(STATE_RENDERING) && !matchesXstate(STATE_IDLE),
 };
 ```
@@ -1011,7 +1010,6 @@ const gameMachine = setup({
     bet: intermediateMachines.bet,
     autoBet: intermediateMachines.autoBet,
     resumeBet: intermediateMachines.resumeBet,
-    forceResult: intermediateMachines.forceResult,
   },
 }).createMachine({
   initial: 'rendering',
@@ -1021,7 +1019,6 @@ const gameMachine = setup({
     [STATE_BET]: stateBet,
     [STATE_AUTOBET]: stateAutoBet,
     [STATE_RESUME_BET]: stateResumeBet,
-    [STATE_FORCE_RESULT]: stateForceResult,
   },
 });
 

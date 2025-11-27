@@ -18,7 +18,6 @@ export type EmitterEventUi =
 	| { type: 'soundPressGeneral' }
 	| { type: 'soundPressBet' }
 	// bet services
-	| { type: 'forceResult' }
 	| { type: 'resumeBet' }
 	| { type: 'autoBet' }
 	| { type: 'bet' };

@@ -34,7 +34,6 @@
 		bet: () => gameActor.send({ type: 'BET' }),
 		autoBet: () => gameActor.send({ type: 'AUTO_BET' }),
 		resumeBet: () => gameActor.send({ type: 'RESUME_BET' }),
-		forceResult: () => gameActor.send({ type: 'FORCE_RESULT' }),
 	});
 </script>
 

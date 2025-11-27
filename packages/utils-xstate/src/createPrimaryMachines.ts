@@ -1,8 +1,8 @@
 import { fromPromise } from 'xstate';
 
 import { API_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
-import { stateBet, stateUrlDerived, stateForce, stateForceDerived, stateModal } from 'state-shared';
-import { requestBet, requestForceResult, requestEndRound } from 'rgs-requests';
+import { stateBet, stateUrlDerived, stateModal } from 'state-shared';
+import { requestBet, requestEndRound } from 'rgs-requests';
 
 import type { BaseBet } from './types';
 
@@ -61,7 +61,6 @@ const handleRequestEndRound = async () => {
 			};
 		}
 	} catch (error) {
-		if (!stateForce.force) stateModal.modal = { name: 'error', error };
 		console.error(error);
 	}
 };
@@ -183,9 +182,6 @@ function createPrimaryMachines<TBet extends BaseBet>(options: Options<TBet>) {
 
 	// playGame
 	const playGame = fromPromise<void, { bet: TBet | null }>(async ({ input }) => {
-		if (stateForce.force && stateForce.forceType !== 'pastBets' && input.bet) {
-			stateForce.pastBets = [...stateForce.pastBets, input.bet];
-		}
 		if (input.bet) await onPlayGame(input.bet); // context.bet is hydrated from newGame
 	});
 
@@ -200,108 +196,11 @@ function createPrimaryMachines<TBet extends BaseBet>(options: Options<TBet>) {
 		},
 	);
 
-	// forceGame
-	const forceGame = fromPromise(async () => {
-		await onNewGameStart();
-
-		try {
-			const forceWithApi = async () => {
-				return await requestForceResult({
-					rgsUrl: stateUrlDerived.rgsUrl(),
-					mode: stateForce.forceBetModeKey.toUpperCase(),
-					search: {
-						bookID:
-							stateForce.forceSearch.bookID === undefined
-								? undefined
-								: Number(stateForce.forceSearch.bookID),
-						kind:
-							stateForce.forceSearch.kind === 'Any'
-								? undefined
-								: Number(stateForce.forceSearch.kind),
-						symbol:
-							stateForce.forceSearch.symbol === 'Any' ? undefined : stateForce.forceSearch.symbol,
-						hasWild:
-							stateForce.forceSearch.hasWild === 'Any'
-								? undefined
-								: stateForce.forceSearch.hasWild === 'True',
-						wildMult:
-							stateForce.forceSearch.wildMult === 'Any'
-								? undefined
-								: Number(stateForce.forceSearch.wildMult),
-						gameType:
-							stateForce.forceSearch.gameType === 'Any'
-								? undefined
-								: stateForce.forceSearch.gameType,
-					},
-				});
-			};
-
-			const forceWithJson = () => {
-				const forceJsonObject = JSON.parse(stateForce.forceJson);
-
-				return {
-					round: {
-						mode: stateForce.forceBetModeKey.toUpperCase(),
-						payoutMultiplier: 2,
-						state: forceJsonObject.events,
-					},
-					error: null,
-					balance: null,
-				};
-			};
-
-			const forceWithPastBets = () => {
-				return {
-					round: stateForceDerived.selectedPastBet(),
-					error: null,
-					balance: null,
-				};
-			};
-
-			const FORCE_FUNCTION_MAP = {
-				api: forceWithApi,
-				json: forceWithJson,
-				pastBets: forceWithPastBets,
-			};
-
-			const data = await FORCE_FUNCTION_MAP[stateForce.forceType]();
-
-			if (data?.error) {
-				throw data;
-			}
-
-			if (data?.round?.state && data?.round?.state?.length > 0) {
-				if (data?.balance?.amount !== undefined) {
-					handleUpdateBalance({ balanceAmountFromApi: data.balance.amount });
-				}
-
-				stateBet.wageredBetAmount = stateBet.betAmount;
-				if (data.round.mode) {
-					stateBet.activeBetModeKey = data.round.mode;
-				}
-
-				return { bet: data.round as TBet, rawBet: null };
-			} else {
-				throw {
-					error: 'Empty state in data.round',
-					message: JSON.stringify({ data }),
-				};
-			}
-		} catch (error) {
-			onNewGameError();
-			stateBet.autoSpinsCounter = 0;
-			stateModal.modal = { name: 'error', error };
-			console.error(error);
-			throw error;
-		}
-	});
-
 	return {
 		newGame,
 		playGame,
 		endGame,
 		resumeGame,
-		forceGame,
 	};
 }
 

@@ -9,7 +9,6 @@ import {
 	STATE_BET,
 	STATE_AUTOBET,
 	STATE_RESUME_BET,
-	STATE_FORCE_RESULT,
 } from './constants';
 
 // states
@@ -23,9 +22,6 @@ const stateRendering = {
 
 const stateIdle = {
 	on: {
-		FORCE_RESULT: {
-			target: 'forceResult',
-		},
 		RESUME_BET: {
 			target: 'resumeBet',
 		},
@@ -35,14 +31,6 @@ const stateIdle = {
 		AUTO_BET: {
 			target: 'autoBet',
 		},
-	},
-};
-
-const stateForceResult = {
-	invoke: {
-		id: 'forceResult',
-		src: 'forceResult' as const,
-		onDone: 'idle',
 	},
 };
 
@@ -80,7 +68,6 @@ const createGameActor = (intermediateMachines: IntermediateMachines) => {
 			bet: intermediateMachines.bet,
 			autoBet: intermediateMachines.autoBet,
 			resumeBet: intermediateMachines.resumeBet,
-			forceResult: intermediateMachines.forceResult,
 		},
 	}).createMachine({
 		context,
@@ -91,7 +78,6 @@ const createGameActor = (intermediateMachines: IntermediateMachines) => {
 			[STATE_BET]: stateBet,
 			[STATE_AUTOBET]: stateAutoBet,
 			[STATE_RESUME_BET]: stateResumeBet,
-			[STATE_FORCE_RESULT]: stateForceResult,
 		},
 	});
 

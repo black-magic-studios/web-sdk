@@ -12,7 +12,6 @@ export type Key =
 	| 'device'
 	| 'social'
 	| 'demo'
-	| 'force'
 	// keys for replay 
 	| 'replay'
 	| 'amount'
@@ -29,7 +28,6 @@ const lang = () =>
 	getUrlSearchParam('lang') === 'br' ? 'pt' : (getUrlSearchParam('lang') as Language) || 'en';
 const sessionID = () => getUrlSearchParam('sessionID') || '';
 const rgsUrl = () => getUrlSearchParam('rgs_url') || '';
-const force = () => getUrlSearchParam('force') === 'true';
 const social = () => getUrlSearchParam('social') === 'true';
 
 // params for replay
@@ -45,7 +43,6 @@ export const stateUrlDerived = {
 	lang,
 	sessionID,
 	rgsUrl,
-	force,
 	social,
 	// states for replay
 	replay,

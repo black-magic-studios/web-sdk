@@ -26,10 +26,6 @@ type ModalAutoSpinMessage = {
 	message: 'insufficientFunds' | 'lossLimitReached' | 'singleWinLimitReached';
 };
 
-type ModalForceResult = {
-	name: 'forceResult';
-};
-
 type ModalPayTable = {
 	name: 'payTable';
 };
@@ -50,7 +46,6 @@ type Modal =
 	| ModalBuyBonusConfirm
 	| ModalAutoSpin
 	| ModalAutoSpinMessage
-	| ModalForceResult
 	| ModalPayTable
 	| ModalGameRules
 	| ModalSettings;

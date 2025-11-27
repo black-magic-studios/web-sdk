@@ -7,7 +7,6 @@
 	import ModalBuyBonusConfirm from './ModalBuyBonusConfirm.svelte';
 	import ModalAutoSpin from './ModalAutoSpin.svelte';
 	import ModalAutoSpinMessage from './ModalAutoSpinMessage.svelte';
-	// import ModalForceResult from './ModalForceResult.svelte';
 	import ModalPayTable from './ModalPayTable.svelte';
 	import ModalGameRules from './ModalGameRules.svelte';
 	import ModalSettings from './ModalSettings.svelte';
@@ -25,7 +24,6 @@
 <ModalBuyBonusConfirm />
 <ModalAutoSpin />
 <ModalAutoSpinMessage />
-<!-- <ModalForceResult /> -->
 <ModalPayTable>
 	{@render props.version()}
 </ModalPayTable>

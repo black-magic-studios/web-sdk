@@ -52,30 +52,6 @@ export const requestEndEvent = async (options: {
 	return data;
 };
 
-export const requestForceResult = async (options: {
-	mode: string;
-	search: {
-		bookID?: number;
-		kind?: number;
-		symbol?: string;
-		hasWild?: boolean;
-		wildMult?: number;
-		gameType?: string;
-	};
-	rgsUrl: string;
-}) => {
-	const data = await rgsFetcher.post({
-		rgsUrl: options.rgsUrl,
-		url: '/game/search',
-		variables: {
-			mode: options.mode,
-			search: options.search,
-		},
-	});
-
-	return data;
-};
-
 export const requestBet = async (options: {
 	sessionID: string;
 	currency: string;
