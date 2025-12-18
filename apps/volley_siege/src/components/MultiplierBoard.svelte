@@ -1,123 +1,89 @@
 <script lang="ts" module>
-	export type EmitterEventMultiplierBoard =
-		| { type: 'multiplierBoardShow' }
-		| { type: 'multiplierBoardHide' }
-		| { type: 'multiplierBoardInit' }
-		| { type: 'multiplierBoardReset' }
-		| { type: 'multiplierBoardAnimate' }
-		| { type: 'multiplierBoardMove' };
+  // We keep the types to prevent import errors in other files
+  export type EmitterEventMultiplierBoard =
+    | { type: 'multiplierBoardShow' }
+    | { type: 'multiplierBoardHide' }
+    | { type: 'multiplierBoardInit' }
+    | { type: 'multiplierBoardReset' }
+    | { type: 'multiplierBoardAnimate' }
+    | { type: 'multiplierBoardMove' }
+    // Add our new event type here so subscribeOnMount accepts it
+    | { type: 'boardMultiplierInfo'; winInfo: any } 
+    | { type: 'spinStart' };
 </script>
 
 <script lang="ts">
-	import _ from 'lodash';
-	import { Tween } from 'svelte/motion';
-	import { quartInOut } from 'svelte/easing';
+  import { Container, Text } from 'pixi-svelte';
+  import BoardContainer from './BoardContainer.svelte';
+  import { getContext } from '../game/context';
+  
+  const context = getContext();
 
-	import { waitForResolve } from 'utils-shared/wait';
+  // --- Svelte 5 State ---
+  let show = $state(true); 
+  // Initialize as empty array
+  let multiplierMap = $state<number[][]>([]); 
 
-	import MultiplierBoardBase from './MultiplierBoardBase.svelte';
-	import BoardContainer from './BoardContainer.svelte';
-	import { getContext } from '../game/context';
-	import type { RawSymbol, SymbolState } from '../game/types';
-	import { getSymbolX, getSymbolY } from '../game/utils';
+  // --- CONFIGURATION ---
+  const CELL_WIDTH = 140; 
+  const CELL_HEIGHT = 140;
+  const OFFSET_X = 70; 
+  const OFFSET_Y = 70;
 
-	const context = getContext();
+  // --- EVENT LISTENERS ---
+  // We must use subscribeOnMount instead of .on()
+  context.eventEmitter.subscribeOnMount({
+    // 1. Standard Visibility Handlers
+    multiplierBoardShow: () => (show = true),
+    multiplierBoardHide: () => (show = false),
+    
+    // 2. Reset Logic (Triggered by spinStart OR multiplierBoardReset)
+    multiplierBoardReset: () => { multiplierMap = []; },
+    spinStart: () => { multiplierMap = []; },
 
-	let show = $state(false);
+    // 3. THE NEW LOGIC: Listen for Python Data
+    boardMultiplierInfo: (data: any) => {
+      // Safety Check: Ensure data exists before assigning
+      if (data?.winInfo?.multiplierMap) {
+        multiplierMap = data.winInfo.multiplierMap;
+        // console.log("Grid Updated:", multiplierMap); // Uncomment to debug
+      }
+    },
 
-	const createMultiplierSymbol = ({
-		rawSymbol,
-		reelIndex,
-		symbolIndex,
-		reelLength,
-	}: {
-		rawSymbol: RawSymbol;
-		reelIndex: number;
-		symbolIndex: number;
-		reelLength: number;
-	}) => {
-		if (rawSymbol.name === 'M' && symbolIndex > 0 && symbolIndex < reelLength - 1) {
-			const initX = getSymbolX(reelIndex);
-			const initY = getSymbolY(symbolIndex - 1);
-			const symbolX = new Tween(initX);
-			const symbolY = new Tween(initY);
-			const symbolState = 'win' as SymbolState;
-			const oncomplete = () => {};
+    // 4. Empty handlers to prevent crashes from legacy events
+    multiplierBoardInit: () => {},
+    multiplierBoardAnimate: async () => {},
+    multiplierBoardMove: async () => {},
+  });
 
-			const multiplierSymbol = $state({
-				initX,
-				initY,
-				symbolX,
-				symbolY,
-				rawSymbol,
-				symbolState,
-				oncomplete,
-			});
-
-			return multiplierSymbol;
-		}
-
-		return undefined;
-	};
-
-	const initMultiplierBoard = () => {
-		return context.stateGameDerived.boardRaw().map((rawSymbols, reelIndex) => {
-			return rawSymbols.map((rawSymbol, symbolIndex) =>
-				createMultiplierSymbol({
-					rawSymbol,
-					reelIndex,
-					symbolIndex,
-					reelLength: rawSymbols.length,
-				}),
-			);
-		});
-	};
-
-	context.eventEmitter.subscribeOnMount({
-		multiplierBoardShow: () => (show = true),
-		multiplierBoardHide: () => (show = false),
-		multiplierBoardInit: () => {
-			context.stateGame.multiplierBoard = initMultiplierBoard();
-		},
-		multiplierBoardReset: () => {
-			context.stateGame.multiplierBoard = [];
-		},
-		multiplierBoardAnimate: async () => {
-			const getPromises = () =>
-				_.flatten(
-					context.stateGame.multiplierBoard.map((multiplierReel) => {
-						return multiplierReel.filter(Boolean).map(async (multiplierSymbol) => {
-							await waitForResolve((resolve) => (multiplierSymbol!.oncomplete = resolve));
-						});
-					}),
-				);
-
-			await Promise.all(getPromises());
-		},
-		multiplierBoardMove: async () => {
-			const getPromises = () =>
-				_.flatten(
-					context.stateGame.multiplierBoard.map((multiplierReel) => {
-						return multiplierReel.filter(Boolean).map(async (multiplierSymbol) => {
-							const target = {
-								x: context.stateGameDerived.boardLayout().width * 0.5,
-								y: context.stateGameDerived.boardLayout().height * 0.5,
-							};
-							const tweenOptions = { duration: 500, easing: quartInOut };
-							const moveX = () => multiplierSymbol!.symbolX.set(target.x, tweenOptions);
-							const moveY = () => multiplierSymbol!.symbolY.set(target.y, tweenOptions);
-							await Promise.all([moveX(), moveY()]);
-						});
-					}),
-				);
-
-			await Promise.all(getPromises());
-		},
-	});
 </script>
 
-{#if show}
-	<BoardContainer>
-		<MultiplierBoardBase />
-	</BoardContainer>
+{#if show && multiplierMap.length > 0}
+  <BoardContainer>
+    <Container>
+      {#each multiplierMap as row, r}
+        {#each row as val, c}
+          {#if val > 1}
+            <Text
+              text={`x${val}`}
+              anchor={0.5}
+              x={c * CELL_WIDTH + OFFSET_X}
+              y={r * CELL_HEIGHT + OFFSET_Y}
+              style={{
+                fontFamily: 'Arial', 
+                fontSize: 60,
+                fontWeight: '900',
+                fill: 0xFFD700,
+                stroke: 0x000000,
+                strokeThickness: 6,
+                dropShadow: true,
+                dropShadowColor: 0x000000,
+                dropShadowDistance: 4,
+              }}
+            />
+          {/if}
+        {/each}
+      {/each}
+    </Container>
+  </BoardContainer>
 {/if}
