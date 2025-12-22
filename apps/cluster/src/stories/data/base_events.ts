@@ -463,4 +463,8 @@ export default {
 			},
 		],
 	},
+	wincap: {
+		type: 'wincap',
+		amount: 500000,
+	},
 };
