@@ -1,7 +1,7 @@
 export default {
-	providerName: 'sample_provider',
-	gameName: 'sample_lines',
-	gameID: '0_0_cluster',
+	providerName: 'Black_Magic_Studios',
+	gameName: 'multidrop',
+	gameID: '0_0_multidrop',
 	rtp: 0.97,
 	numReels: 7,
 	numRows: [7, 7, 7, 7, 7, 7, 7],
