@@ -1,12 +1,13 @@
 <script lang="ts" module>
+  // Define the events this component listens to
   export type EmitterEventMultiplierBoard =
     | { type: 'multiplierBoardShow' }
     | { type: 'multiplierBoardHide' }
     | { type: 'multiplierBoardInit' }
     | { type: 'multiplierBoardReset' }
     | { type: 'multiplierBoardAnimate' }
-    | { type: 'multiplierBoardMove' }
-    | { type: 'boardMultiplierInfo'; winInfo: any } 
+    // LISTEN TO SERVER DATA: Matches your bookEventHandlerMap
+    | { type: 'boardMultiplierInfo'; winInfo: { multiplierMap: number[][] } } 
     | { type: 'spinStart' };
 </script>
 
@@ -14,75 +15,76 @@
   import { Container, Text, Graphics } from 'pixi-svelte';
   import BoardContainer from './BoardContainer.svelte';
   import { getContext } from '../game/context';
-  import { onMount } from 'svelte';
+  
+  // Use game utils for perfect alignment (Same as Cluster)
+  import { getSymbolX, getSymbolY } from '../game/utils';
+  import { SYMBOL_SIZE } from '../game/constants';
 
   const context = getContext();
 
-  // --- Svelte 5 State ---
   let show = $state(true); 
+  // Initialize empty. Structure: [Row][Col] based on your backend data.
   let multiplierMap = $state<number[][]>([]); 
 
-  // --- CONFIGURATION ---
-  const CELL_WIDTH = 140; 
-  const CELL_HEIGHT = 140;
-  const OFFSET_X = 70; 
-  const OFFSET_Y = 70;
+  // --- ALIGNMENT CONFIG ---
+  // Center the badge on the symbol (half width)
+  const CENTER_OFFSET_X = SYMBOL_SIZE / 2;
+  // Nudge vertically if needed (e.g. -15% of size to sit slightly higher)
+  const VERTICAL_ADJUST = -(SYMBOL_SIZE * 0.15); 
 
-  // --- DRAWING THE BADGE ---
-  // We use 'any' type here to avoid importing 'pixi.js' manually
   const drawBadge = (g: any) => {
     g.clear();
-    g.circle(0, 0, 45); // Draw circle path
-    g.fill({ color: 0x1a469d, alpha: 0.9 }); // Fill Blue
-    g.stroke({ color: 0x4aaeff, width: 3 }); // Stroke Light Blue
+    g.circle(0, 0, SYMBOL_SIZE * 0.45); 
+    g.fill({ color: 0x1a469d, alpha: 0.9 });
+    g.stroke({ color: 0x4aaeff, width: 3 });
   };
 
-  // --- EVENT LISTENERS ---
   context.eventEmitter.subscribeOnMount({
     multiplierBoardShow: () => (show = true),
     multiplierBoardHide: () => (show = false),
+    
+    // Clear on new spin (Matches Cluster 'multiplierGridClear')
     multiplierBoardReset: () => { multiplierMap = []; },
     spinStart: () => { multiplierMap = []; },
-    boardMultiplierInfo: (data: any) => {
-      if (data?.winInfo?.multiplierMap) {
-        multiplierMap = data.winInfo.multiplierMap;
-      }
+
+    // --- SERVER DRIVEN UPDATE (Matches Cluster 'multiplierGridUpdate') ---
+    // Instead of calculating x2 -> x4 locally, we just accept the map from the server.
+    boardMultiplierInfo: (event) => {
+       if (event.winInfo && event.winInfo.multiplierMap) {
+         multiplierMap = event.winInfo.multiplierMap;
+       }
     },
+
     multiplierBoardInit: () => {},
     multiplierBoardAnimate: async () => {},
-    multiplierBoardMove: async () => {},
   });
 </script>
 
 {#if show && multiplierMap.length > 0}
   <BoardContainer>
     <Container>
-      {#each multiplierMap as row, r}
-        {#each row as val, c}
+      {#each multiplierMap as rowData, rowIndex}
+        {#each rowData as val, colIndex}
           {#if val > 1}
             <Container 
-              x={c * CELL_WIDTH + OFFSET_X} 
-              y={r * CELL_HEIGHT + OFFSET_Y}
+              x={getSymbolX(colIndex) + CENTER_OFFSET_X} 
+              y={getSymbolY(rowIndex) + VERTICAL_ADJUST}
             >
               <Graphics draw={drawBadge} />
-
               <Text
                 text={`x${val}`}
                 anchor={0.5}
-                x={0}
-                y={0}
                 style={{
                   fontFamily: 'Arial', 
-                  fontSize: 42,
+                  fontSize: SYMBOL_SIZE * 0.42,
                   fontWeight: '900',
                   fill: 0xFFFFFF,
-                  // In Pixi v8, stroke is an object containing width and color
                   stroke: { color: 0x000000, width: 6 }, 
                   dropShadow: {
                     color: 0x000000,
                     distance: 3,
                     blur: 2,
-                    angle: 45 // 45 degrees usually works well
+                    angle: 45
                   },
                   align: 'center',
                 }}

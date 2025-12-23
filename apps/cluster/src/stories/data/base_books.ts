@@ -71225,8 +71225,9 @@ export default [
 			},
 			{
 				"index": 154,
-				"type": "wincap",
-				"amount": 500000
+				"type": "setWin",
+				"amount": 74260,
+				"winLevel": 9
 			},
 			{
 				"index": 155,

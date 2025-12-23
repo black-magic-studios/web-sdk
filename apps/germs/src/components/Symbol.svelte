@@ -19,12 +19,22 @@
 	const context = getContext();
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
+    
+    // EXTRACT DENSITY (Defaults to 1 if your backend doesn't send it yet)
+    // You might need to add 'density' to your RawSymbol type definition later
+    const density = $derived(props.rawSymbol.density || 1); 
 </script>
 
 {#if isSprite}
-	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
+    <SymbolSprite 
+        {symbolInfo} 
+        x={props.x} 
+        y={props.y} 
+        density={density} 
+        oncomplete={props.oncomplete} 
+    />
 {:else}
-	<SymbolSpine
+    <SymbolSpine
 		loop={props.loop}
 		{symbolInfo}
 		x={props.x}
@@ -50,6 +60,20 @@
 		style={{
 			fontFamily: 'gold',
 			fontSize: 50,
+		}}
+	/>
+{/if}
+
+{#if density > 1}
+    <BitmapText
+		anchor={0.5}
+		x={(props.x || 0) + 40} 
+		y={(props.y || 0) - 40}
+		text={`x${density}`}
+		style={{
+			fontFamily: 'gold', // Using your existing font
+			fontSize: 30,
+            align: 'right'
 		}}
 	/>
 {/if}

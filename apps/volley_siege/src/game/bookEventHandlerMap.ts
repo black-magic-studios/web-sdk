@@ -46,7 +46,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
   reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
     eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
     
-    // FIX: Clear the multiplier board when a NEW spin starts
+    // Clear the multiplier board when a NEW spin starts
     eventEmitter.broadcast({ type: 'multiplierBoardReset' });
 
     const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
@@ -172,7 +172,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
     eventEmitter.broadcast({ type: 'drawerButtonHide' });
   },
   boardMultiplierInfo: async (bookEvent: BookEventOfType<'boardMultiplierInfo'>) => {
-    // 1. Pass data to board
+    // 1. Pass data to board (Server Driven)
     eventEmitter.broadcast({ type: 'boardMultiplierInfo', winInfo: bookEvent.winInfo });
 
     eventEmitter.broadcast({ type: 'tumbleWinAmountShow' });
@@ -186,12 +186,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
     eventEmitter.broadcast({ type: 'soundOnce', name: 'tumble_win_4' });
     await eventEmitter.broadcastAsync({ type: 'multiplierBoardAnimate' });
     
-    // 2. DISABLE HIDING/RESETTING HERE (So they stay on screen during tumbles)
-    // eventEmitter.broadcast({ type: 'boardWithMovingMultiplierTexts' });
-    // await eventEmitter.broadcastAsync({ type: 'multiplierBoardMove' });
-    // eventEmitter.broadcast({ type: 'multiplierBoardReset' });
-    // eventEmitter.broadcast({ type: 'multiplierBoardHide' });
-
     eventEmitter.broadcast({ type: 'multiplierTotalShow' });
     eventEmitter.broadcast({
       type: 'multiplierTotalUpdate',
