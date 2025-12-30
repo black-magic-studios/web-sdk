@@ -292,7 +292,7 @@ const explosion = {
 	sizeRatios: { width: 1, height: 1 },
 };
 
-const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1, height: 1 } };
+const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1.3, height: 1.3 } };
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
 const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
@@ -330,7 +330,7 @@ export const SYMBOL_INFO_MAP = {
 			type: 'spine',
 			assetKey: 'H1',
 			animationName: 'h1',
-			sizeRatios: { width: 0.5 * 1.15, height: HIGH_SYMBOL_SIZE * 0.57 },
+			sizeRatios: { width: 0.5 * 1.3, height: HIGH_SYMBOL_SIZE * 0.75 },
 		},
 		postWinStatic: h1Static,
 		static: h1Static,
@@ -343,7 +343,7 @@ export const SYMBOL_INFO_MAP = {
 			type: 'spine',
 			assetKey: 'H2',
 			animationName: 'h2',
-			sizeRatios: { width: 0.5, height: HIGH_SYMBOL_SIZE * 0.57 },
+			sizeRatios: { width: 0.5 * 1.3, height: HIGH_SYMBOL_SIZE * 0.75 },
 		},
 		postWinStatic: h2Static,
 		static: h2Static,
