@@ -326,12 +326,7 @@ const sSizeRatios = { width: 2.5, height: SPECIAL_SYMBOL_SIZE * 2.3 };
 export const SYMBOL_INFO_MAP = {
 	H1: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'H1',
-			animationName: 'h1',
-			sizeRatios: { width: 0.5 * 1.3, height: HIGH_SYMBOL_SIZE * 0.75 },
-		},
+		win: h1Static,
 		postWinStatic: h1Static,
 		static: h1Static,
 		spin: h1Static,
@@ -339,12 +334,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H2: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'H2',
-			animationName: 'h2',
-			sizeRatios: { width: 0.5 * 1.3, height: HIGH_SYMBOL_SIZE * 0.75 },
-		},
+		win: h2Static,
 		postWinStatic: h2Static,
 		static: h2Static,
 		spin: h2Static,
@@ -352,12 +342,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H3: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'H3',
-			animationName: 'h3',
-			sizeRatios: { width: 0.5 * 0.9, height: HIGH_SYMBOL_SIZE * 0.53 },
-		},
+		win: h3Static,
 		postWinStatic: h3Static,
 		static: h3Static,
 		spin: h3Static,
@@ -365,12 +350,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H4: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'H4',
-			animationName: 'h4',
-			sizeRatios: { width: 0.5 * 0.9, height: HIGH_SYMBOL_SIZE * 0.53 },
-		},
+		win: h4Static,
 		postWinStatic: h4Static,
 		static: h4Static,
 		spin: h4Static,
@@ -378,12 +358,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H5: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'H5',
-			animationName: 'h5',
-			sizeRatios: { width: 0.5 * 0.9, height: HIGH_SYMBOL_SIZE * 0.53 },
-		},
+		win: h5Static,
 		postWinStatic: h5Static,
 		static: h5Static,
 		spin: h5Static,
@@ -391,12 +366,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	L1: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'L1',
-			animationName: 'l1',
-			sizeRatios: { width: 0.5 * 0.75, height: LOW_SYMBOL_SIZE * 0.65 },
-		},
+		win: l1Static,
 		postWinStatic: l1Static,
 		static: l1Static,
 		spin: l1Static,
@@ -404,12 +374,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	L2: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'L2',
-			animationName: 'l2',
-			sizeRatios: { width: 0.5 * 0.75, height: LOW_SYMBOL_SIZE * 0.65 },
-		},
+		win: l2Static,
 		postWinStatic: l2Static,
 		static: l2Static,
 		spin: l2Static,
@@ -417,12 +382,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	L3: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'L3',
-			animationName: 'l3',
-			sizeRatios: { width: 0.5 * 0.75, height: LOW_SYMBOL_SIZE * 0.63 },
-		},
+		win: l3Static,
 		postWinStatic: l3Static,
 		static: l3Static,
 		spin: l3Static,
@@ -430,12 +390,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	L4: {
 		explosion,
-		win: {
-			type: 'spine',
-			assetKey: 'L4',
-			animationName: 'l4',
-			sizeRatios: { width: 0.5 * 0.75, height: LOW_SYMBOL_SIZE * 0.63 },
-		},
+		win: l4Static,
 		postWinStatic: l4Static,
 		static: l4Static,
 		spin: l4Static,
