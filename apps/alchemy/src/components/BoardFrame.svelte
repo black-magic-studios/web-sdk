@@ -11,9 +11,16 @@
 
 	const context = getContext();
 	const SPINE_SCALE = { width: 0.6, height: 0.6 };
-	const SPRITE_SCALE = { width: 1.07, height: 1.19 };
-	const BG_RATIO = 937 / 806;
-	const POSITION_ADJUSTMENT = 1.01;
+	
+	// Frame calculations for 2048x1706 image
+	// Board is 560x560, we need frame to be slightly larger (about 700px)
+	// 700 / 560 = 1.25, but frame ratio is 2048/1706 = 1.2
+	const NEW_FRAME_SCALE = 1.25; // Scale relative to board width
+	const FRAME_ASPECT = 1.0; // Tighter width (was 2048/1706 = 1.2)
+	
+	// Offset to center symbols in frame (adjust if content area isn't centered in image)
+	const X_OFFSET = 0; // Positive moves frame right
+	const Y_OFFSET = -20; // Negative moves frame up (symbols appear lower in frame)
 
 	type AnimationName = 'reelhouse_glow_start' | 'reelhouse_glow_idle' | 'reelhouse_glow_exit';
 
@@ -35,8 +42,8 @@
 	<SpineProvider
 		zIndex={-1}
 		key="reelhouse"
-		x={context.stateGameDerived.boardLayout().x * POSITION_ADJUSTMENT}
-		y={context.stateGameDerived.boardLayout().y * POSITION_ADJUSTMENT}
+		x={context.stateGameDerived.boardLayout().x}
+		y={context.stateGameDerived.boardLayout().y}
 		width={context.stateGameDerived.boardLayout().width * SPINE_SCALE.width}
 		height={context.stateGameDerived.boardLayout().height * SPINE_SCALE.height}
 	>
@@ -64,19 +71,10 @@
 {/if}
 
 <Sprite
-	key="frame_bg.png"
+	key="reelFrameEdge"
 	anchor={0.5}
-	x={context.stateGameDerived.boardLayout().x * POSITION_ADJUSTMENT}
-	y={context.stateGameDerived.boardLayout().y * POSITION_ADJUSTMENT}
-	width={context.stateGameDerived.boardLayout().width * BG_RATIO * SPRITE_SCALE.width}
-	height={context.stateGameDerived.boardLayout().width * SPRITE_SCALE.height}
-/>
-
-<Sprite
-	key="frame_edge.png"
-	anchor={0.5}
-	x={context.stateGameDerived.boardLayout().x * POSITION_ADJUSTMENT}
-	y={context.stateGameDerived.boardLayout().y * POSITION_ADJUSTMENT}
-	width={context.stateGameDerived.boardLayout().width * BG_RATIO * SPRITE_SCALE.width}
-	height={context.stateGameDerived.boardLayout().width * SPRITE_SCALE.height}
+	x={context.stateGameDerived.boardLayout().x + X_OFFSET}
+	y={context.stateGameDerived.boardLayout().y + Y_OFFSET}
+	width={context.stateGameDerived.boardLayout().width * FRAME_ASPECT * NEW_FRAME_SCALE}
+	height={context.stateGameDerived.boardLayout().width * NEW_FRAME_SCALE}
 />

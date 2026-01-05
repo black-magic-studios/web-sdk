@@ -1,4 +1,8 @@
 export default {
+	castleBackground: {
+		type: 'sprite',
+		src: new URL('../../assets/sprites/reelsFrame/myreels/castle_2560x1440_preserved.png', import.meta.url).href,
+	},
 	loader: {
 		type: 'spine',
 		src: {
@@ -120,6 +124,10 @@ export default {
 	reelsFrame: {
 		type: 'sprites',
 		src: new URL('../../assets/sprites/reelsFrame/reels_frame.json', import.meta.url).href,
+	},
+	reelFrameEdge: {
+		type: 'sprite',
+		src: new URL('../../assets/sprites/reelsFrame/myreels/reel_frame_edge_2048x1706.png', import.meta.url).href,
 	},
 	payFrame: {
 		type: 'sprite',
