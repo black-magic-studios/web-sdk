@@ -12,17 +12,21 @@
 	const context = getContext();
 	const SPINE_SCALE = { width: 0.6, height: 0.6 };
 	
-	// Frame calculations for 1500x1500 square image (stone_frame_1500x1500.png)
-	// Inner hole is 963x993px, aspect ~0.97 (nearly square, slightly taller)
-	// For 560px grid: scale = 560/963 = 0.58, frame = 872x872
-	// Using 1.56 scale factor: 560 * 1.56 = 874px (close match)
-	const NEW_FRAME_SCALE = 1.56; // Scale relative to board width
-	const FRAME_ASPECT = 1.0; // Square frame
+	// BACKUP - Frame calculations for 2048x1706 image (reel_frame_edge_2048x1706.png)
+	// Board is 560x560, we need frame to be slightly larger (about 700px)
+	// 700 / 560 = 1.25, but frame ratio is 2048/1706 = 1.2
+	const NEW_FRAME_SCALE = 1.25; // Scale relative to board width
+	const FRAME_ASPECT = 1.0; // Tighter width (was 2048/1706 = 1.2)
 	
-	// Offset to center symbols in frame
-	// Frame top border (273px) is thicker than bottom (234px), so hole is shifted down
+	// Offset to center symbols in frame (adjust if content area isn't centered in image)
 	const X_OFFSET = 0; // Positive moves frame right
-	const Y_OFFSET = -12; // Negative moves frame up to center symbols
+	const Y_OFFSET = -20; // Negative moves frame up (symbols appear lower in frame)
+
+	// BACKUP - Old asset path in assets.ts was:
+	// reelFrameEdge: {
+	//     type: 'sprite',
+	//     src: new URL('../../assets/sprites/reelsFrame/myreels/reel_frame_edge_2048x1706.png', import.meta.url).href,
+	// },
 
 	type AnimationName = 'reelhouse_glow_start' | 'reelhouse_glow_idle' | 'reelhouse_glow_exit';
 

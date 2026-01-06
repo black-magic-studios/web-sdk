@@ -127,7 +127,7 @@ export default {
 	},
 	reelFrameEdge: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/myreels/reel_frame_edge_2048x1706.png', import.meta.url).href,
+		src: new URL('../../assets/sprites/reelsFrame/myreels/stone_frame_1500x1500.png', import.meta.url).href,
 	},
 	payFrame: {
 		type: 'sprite',
