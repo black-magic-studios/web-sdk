@@ -12,17 +12,24 @@
 	const context = getContext();
 	const SPINE_SCALE = { width: 0.6, height: 0.6 };
 	
-	// Frame calculations for 1500x1500 square image (stone_frame_1500x1500.png)
-	// Inner hole is 963x993px, aspect ~0.97 (nearly square, slightly taller)
-	// For 560px grid: scale = 560/963 = 0.58, frame = 872x872
-	// Using 1.56 scale factor: 560 * 1.56 = 874px (close match)
-	const NEW_FRAME_SCALE = 1.56; // Scale relative to board width
-	const FRAME_ASPECT = 1.0; // Square frame
+	// ============================================================
+	// Frame calculations for 1400x1400 square image (reel_frame_1400.png)
+	// Target appearance: 1100×820 safe area with ~940×740 inner grid
+	// ============================================================
+	// 
+	// Target aspect ratio: 1100/820 = 1.34 (wider than tall)
+	// Current board = 560×560 (7×7 grid at 80px symbols)
+	// 
+	// To make square frame appear as 1100×820:
+	// - Scale width more than height
+	// Frame calculations for 1400x1400 square frame (uniform scaling, no distortion)
+	// Current board = 560px (7×7 grid at 80px symbols)
+	// Adjust FRAME_SCALE to fit symbols inside frame hole
+	const FRAME_SCALE = 1.50; // Slightly smaller frame
 	
-	// Offset to center symbols in frame
-	// Frame top border (273px) is thicker than bottom (234px), so hole is shifted down
-	const X_OFFSET = 0; // Positive moves frame right
-	const Y_OFFSET = -12; // Negative moves frame up to center symbols
+	// Offset frame relative to symbols (positive Y = frame moves down = symbols appear higher)
+	const X_OFFSET = 0;
+	const Y_OFFSET = 20; // Move frame down so symbols sit higher in the hole
 
 	type AnimationName = 'reelhouse_glow_start' | 'reelhouse_glow_idle' | 'reelhouse_glow_exit';
 
@@ -77,6 +84,6 @@
 	anchor={0.5}
 	x={context.stateGameDerived.boardLayout().x + X_OFFSET}
 	y={context.stateGameDerived.boardLayout().y + Y_OFFSET}
-	width={context.stateGameDerived.boardLayout().width * FRAME_ASPECT * NEW_FRAME_SCALE}
-	height={context.stateGameDerived.boardLayout().width * NEW_FRAME_SCALE}
+	width={context.stateGameDerived.boardLayout().width * FRAME_SCALE}
+	height={context.stateGameDerived.boardLayout().width * FRAME_SCALE}
 />

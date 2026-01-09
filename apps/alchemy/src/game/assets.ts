@@ -1,7 +1,7 @@
 export default {
 	castleBackground: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/myreels/castle_2560x1440_preserved.png', import.meta.url).href,
+		src: new URL('../../assets/sprites/background/throne_room_3000x1500_test.png', import.meta.url).href,
 	},
 	loader: {
 		type: 'spine',
@@ -127,7 +127,7 @@ export default {
 	},
 	reelFrameEdge: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/myreels/stone_frame_1500x1500.png', import.meta.url).href,
+		src: new URL('../../assets/sprites/reelsFrame/reel_frame_1400.png', import.meta.url).href,
 	},
 	payFrame: {
 		type: 'sprite',
