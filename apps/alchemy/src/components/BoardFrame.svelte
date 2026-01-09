@@ -47,6 +47,8 @@
 	});
 </script>
 
+<!-- DISABLED: Purple flashing glow effect during bonus mode
+     Uncomment to restore
 {#if animationName}
 	<SpineProvider
 		zIndex={-1}
@@ -78,6 +80,7 @@
 		/>
 	</SpineProvider>
 {/if}
+-->
 
 <Sprite
 	key="reelFrameEdge"
