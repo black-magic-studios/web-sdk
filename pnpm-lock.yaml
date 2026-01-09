@@ -1690,6 +1690,9 @@ importers:
       pixi-svelte:
         specifier: workspace:*
         version: link:../pixi-svelte
+      pixi.js:
+        specifier: 8.8.1
+        version: 8.8.1
       state-shared:
         specifier: workspace:*
         version: link:../state-shared

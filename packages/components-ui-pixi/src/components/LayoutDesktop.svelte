@@ -52,16 +52,8 @@
 			{@render props.buttonBuyBonus({ anchor: 0.5 })}
 		</Container>
 
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={160 + 150 * 4} scale={0.8}>
-			{@render props.buttonAutoSpin({ anchor: 0.5 })}
-		</Container>
-
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={160 + 150 * 5} scale={0.8}>
+		<Container y={DESKTOP_BASE_SIZE * 0.5} x={900} scale={1.2}>
 			{@render props.buttonBet({ anchor: 0.5 })}
-		</Container>
-
-		<Container y={DESKTOP_BASE_SIZE * 0.5} x={160 + 150 * 6} scale={0.8}>
-			{@render props.buttonTurbo({ anchor: 0.5 })}
 		</Container>
 
 		<Container y={DESKTOP_BASE_SIZE * 0.5} x={1440} scale={0.8}>

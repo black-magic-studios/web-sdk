@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Container, Text } from 'pixi-svelte';
+	import { onMount } from 'svelte';
+	import { Container, Text, BaseSprite, Circle } from 'pixi-svelte';
+	import { Texture, Assets } from 'pixi.js';
 	import { Button, type ButtonProps } from 'components-pixi';
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
@@ -11,7 +13,20 @@
 
 	const props: Partial<Omit<ButtonProps, 'children'>> = $props();
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
-	const sizes = { width: UI_BASE_SIZE, height: UI_BASE_SIZE };
+	// Play button image is 2816x1536, circle is centered with diameter = height (1536)
+	const buttonScale = 0.1;
+	const circleDiameter = 1536 * buttonScale;
+	const sizes = { width: circleDiameter, height: circleDiameter };
+
+	let texture = $state<Texture>(Texture.EMPTY);
+
+	onMount(async () => {
+		try {
+			texture = await Assets.load('/assets/sprites/buttons/play_button.png');
+		} catch (error) {
+			console.error('Failed to load play button texture:', error);
+		}
+	});
 </script>
 
 <ButtonBetProvider>
@@ -20,31 +35,23 @@
 		<Button {...props} {sizes} {onpress} {disabled}>
 			{#snippet children({ center, hovered })}
 				<Container {...center}>
-					<UiSprite
-						key="bet"
-						width={sizes.width}
-						height={sizes.height}
+					<!-- Circular hit area matching the button -->
+					<Circle
+						diameter={circleDiameter}
 						anchor={0.5}
-						{...disabled || ['spin_disabled', 'stop_disabled'].includes(key)
+						alpha={0}
+						backgroundColor={0xffffff}
+					/>
+					<BaseSprite
+						{texture}
+						width={circleDiameter}
+						height={circleDiameter}
+						anchor={0.5}
+						{...(disabled || ['spin_disabled', 'stop_disabled'].includes(key))
 							? {
-									backgroundColor: 0xaaaaaa,
+									tint: 0xaaaaaa,
 								}
 							: {}}
-					/>
-					<Text
-						anchor={0.5}
-						text={['spin_default', 'spin_disabled'].includes(key)
-							? i18nDerived.bet()
-							: i18nDerived.stop()}
-						style={{
-							align: 'center',
-							wordWrap: true,
-							wordWrapWidth: 200,
-							fontFamily: 'proxima-nova',
-							fontWeight: '600',
-							fontSize: UI_BASE_FONT_SIZE * 0.9,
-							fill: 0xffffff,
-						}}
 					/>
 				</Container>
 			{/snippet}
