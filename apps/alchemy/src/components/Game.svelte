@@ -4,10 +4,10 @@
 	import { EnablePixiExtension } from 'components-pixi';
 	import { EnableHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
-	import { App, Text, REM } from 'pixi-svelte';
+	import { App, Text, REM, Container } from 'pixi-svelte';
 	import { stateModal } from 'state-shared';
 
-	import { UI, UiGameName } from 'components-ui-pixi';
+	import { UiGameName } from 'components-ui-pixi';
 	import { GameVersion, Modals } from 'components-ui-html';
 
 	import { getContext } from '../game/context';
@@ -31,6 +31,7 @@
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
+	import PlayBar from './PlayBar.svelte';
 
 	const context = getContext();
 
@@ -82,24 +83,27 @@
 			<ClusterWinAmounts />
 		</MainContainer>
 
-		<UI>
-			{#snippet gameName()}
-				<UiGameName name="MULTIDROP" />
-			{/snippet}
-			{#snippet logo()}
-				<Text
-					anchor={{ x: 1, y: 0 }}
-					text="ADD YOUR LOGO"
-					style={{
-						fontFamily: 'proxima-nova',
-						fontSize: REM * 1.5,
-						fontWeight: '600',
-						lineHeight: REM * 2,
-						fill: 0xffffff,
-					}}
-				/>
-			{/snippet}
-		</UI>
+		<!-- Custom UI: PlayBar and minimal Header -->
+		<MainContainer>
+			<PlayBar />
+		</MainContainer>
+
+		<Container x={20}>
+			<UiGameName name="MULTIDROP" />
+		</Container>
+		<Container x={context.stateLayoutDerived.canvasSizes().width - 20}>
+			<Text
+				anchor={{ x: 1, y: 0 }}
+				text="ADD YOUR LOGO"
+				style={{
+					fontFamily: 'proxima-nova',
+					fontSize: REM * 1.5,
+					fontWeight: '600',
+					lineHeight: REM * 2,
+					fill: 0xffffff,
+				}}
+			/>
+		</Container>
 		<Win />
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
