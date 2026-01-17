@@ -129,6 +129,10 @@ export default {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/reelsFrame/reel_frame_1400.png', import.meta.url).href,
 	},
+	reelBackgroundPlate: {
+		type: 'sprite',
+		src: new URL('../../assets/sprites/reelsFrame/reel_frame_center.png', import.meta.url).href,
+	},
 	payFrame: {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/payFrame/payFrame.png', import.meta.url).href,

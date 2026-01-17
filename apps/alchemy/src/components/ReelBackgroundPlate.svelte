@@ -1,26 +1,16 @@
 <script lang="ts">
-	import { Rectangle } from 'pixi-svelte';
+	import { Sprite } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
 	import { SYMBOL_SIZE } from '../game/constants';
 
-	type Props = { debug?: boolean };
-
-	const props: Props = $props();
 	const context = getContext();
 </script>
 
-{#if props.debug}
-	<Rectangle
-		alpha={0.5}
-		backgroundColor={0xffffff}
-		width={context.stateGameDerived.boardLayout().width}
-		height={context.stateGameDerived.boardLayout().height}
-	/>
-{/if}
-
-<Rectangle
-	isMask
+<!-- Reel background plate sprite, extends beyond grid bounds to fill frame's visible area -->
+<Sprite
+	key="reelBackgroundPlate"
+	anchor={0}
 	x={-SYMBOL_SIZE}
 	y={-SYMBOL_SIZE * 0.5}
 	width={context.stateGameDerived.boardLayout().width + SYMBOL_SIZE * 2}

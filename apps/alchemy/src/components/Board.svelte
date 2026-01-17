@@ -19,6 +19,7 @@
 	import BoardContainer from './BoardContainer.svelte';
 	import BoardMask from './BoardMask.svelte';
 	import BoardBase from './BoardBase.svelte';
+	import ReelBackgroundPlate from './ReelBackgroundPlate.svelte';
 
 	const context = getContext();
 
@@ -49,6 +50,7 @@
 	<BoardContext animate={false}>
 		<BoardContainer>
 			<BoardMask />
+			<ReelBackgroundPlate />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
@@ -56,6 +58,14 @@
 	<BoardContext animate={true}>
 		<BoardContainer>
 			<BoardBase />
+		</BoardContainer>
+	</BoardContext>
+{:else}
+	<!-- Keep background plate visible during win animations -->
+	<BoardContext animate={false}>
+		<BoardContainer>
+			<BoardMask />
+			<ReelBackgroundPlate />
 		</BoardContainer>
 	</BoardContext>
 {/if}

@@ -63,14 +63,17 @@
 		-->
 		<Sound />
 
-		<MainContainer>
-			<BoardFrame />
-		</MainContainer>
+		<!-- Layer order (bottom → top):
+			1. Background scene (rendered above)
+			2. Reel background plate (inside Board, behind symbols)
+			3. Symbols (Board)
+			4. Symbol FX (Anticipations)
+			5. Multipliers (MultiplierGrid)
+			6. Win FX (TumbleWinAmount, GlobalMultiplier, TumbleBoard, ClusterWinAmounts)
+			7. Reel frame (BoardFrame)
+		-->
 
-		<MainContainer>
-			<MultiplierGrid />
-		</MainContainer>
-
+		<!-- Symbols layer (includes reel background plate as first child) -->
 		<MainContainer>
 			<Board />
 			<Anticipations />
@@ -78,9 +81,20 @@
 			<GlobalMultiplier />
 		</MainContainer>
 
+		<!-- Multipliers layer -->
+		<MainContainer>
+			<MultiplierGrid />
+		</MainContainer>
+
+		<!-- Win FX layer -->
 		<MainContainer>
 			<TumbleBoard />
 			<ClusterWinAmounts />
+		</MainContainer>
+
+		<!-- Reel frame - on top of everything -->
+		<MainContainer>
+			<BoardFrame />
 		</MainContainer>
 
 		<!-- Custom UI: PlayBar and minimal Header -->
