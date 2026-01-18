@@ -19,6 +19,7 @@
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
 	import books from './data/base_books';
+	import book_TEST_multiTumble_292 from './data/book_TEST_multi_tumble_292';
 
 	setContext();
 </script>
@@ -46,6 +47,19 @@
 			const data = books[index];
 			console.log('Running a book at index', index);
 			await playBet({ ...data, state: data.events });
+		},
+	})}
+	{template}
+/>
+
+<Story
+	name="TEST: multi-tumble win (id 292)"
+	args={templateArgs({
+		skipLoadingScreen: true,
+		data: {},
+		action: async () => {
+			console.log('Running TEST book id', book_TEST_multiTumble_292.id);
+			await playBet({ ...book_TEST_multiTumble_292, state: book_TEST_multiTumble_292.events });
 		},
 	})}
 	{template}

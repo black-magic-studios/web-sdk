@@ -96,10 +96,40 @@
 />
 
 <Story
+	name="TEST: winInfo (mult=5)"
+	args={templateArgs({
+		skipLoadingScreen: true,
+		data: events.winInfo_TEST_mult5,
+		action: async (data) => await playBookEvent(data, { bookEvents: [] }),
+	})}
+	{template}
+/>
+
+<Story
+	name="TEST: winInfo (centered, mult=5)"
+	args={templateArgs({
+		skipLoadingScreen: true,
+		data: events.winInfo_TEST_center,
+		action: async (data) => await playBookEvent(data, { bookEvents: [] }),
+	})}
+	{template}
+/>
+
+<Story
 	name="updateTumbleWin"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: events.updateTumbleWin,
+		action: async (data) => await playBookEvent(data, { bookEvents: [] }),
+	})}
+	{template}
+/>
+
+<Story
+	name="TEST: updateTumbleWin (total=150)"
+	args={templateArgs({
+		skipLoadingScreen: true,
+		data: events.updateTumbleWin_TEST_mult5,
 		action: async (data) => await playBookEvent(data, { bookEvents: [] }),
 	})}
 	{template}

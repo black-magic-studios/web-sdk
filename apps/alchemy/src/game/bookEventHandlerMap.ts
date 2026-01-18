@@ -67,8 +67,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 				wins: bookEvent.wins.map((win) => {
 					return {
 						win: win.meta.winWithoutMult,
-						mult: win.meta.globalMult,
-						result: win.meta.winWithoutMult * win.meta.globalMult,
+						mult: win.meta.clusterMult,
+						result: win.meta.winWithoutMult * win.meta.clusterMult,
 						reel: win.meta.overlay.reel,
 						row: win.meta.overlay.row,
 					};
