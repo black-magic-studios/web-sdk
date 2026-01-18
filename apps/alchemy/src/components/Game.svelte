@@ -118,7 +118,7 @@
 				}}
 			/>
 		</Container>
-		<Win />
+		<!-- <Win /> -->
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
 			<FreeSpinCounter />
