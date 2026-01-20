@@ -137,6 +137,11 @@ export default {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/payFrame/payFrame.png', import.meta.url).href,
 	},
+	winFrame: {
+		type: 'sprite',
+		// Served from SvelteKit static/ in dev & production.
+		src: '/assets/win_frame.png',
+	},
 	anticipation: {
 		type: 'spine',
 		src: {

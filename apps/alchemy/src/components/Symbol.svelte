@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { SpineProvider, SpineTrack } from 'pixi-svelte';
+	import { Sprite } from 'pixi-svelte';
+	// import { SpineProvider, SpineTrack } from 'pixi-svelte';
 
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
@@ -25,6 +26,10 @@
 		['win', 'postWinStatic', 'explosion'].includes(props.state) &&
 			!['S'].includes(props.rawSymbol.name),
 	);
+
+	const WIN_FRAME_HEIGHT = SYMBOL_SIZE * 1.3;
+	// win_frame.png is 618x512; preserve aspect ratio.
+	const WIN_FRAME_WIDTH = WIN_FRAME_HEIGHT * (618 / 512);
 </script>
 
 {#if isSprite}
@@ -47,7 +52,17 @@
 {/if}
 
 {#if showWinFrame}
+	<!--
 	<SpineProvider x={props.x} y={props.y} key="anticipation" width={SYMBOL_SIZE * 0.19}>
 		<SpineTrack trackIndex={0} animationName={'payframe'} loop />
 	</SpineProvider>
+	-->
+	<Sprite
+		key="winFrame"
+		x={props.x}
+		y={props.y}
+		anchor={0.5}
+		width={WIN_FRAME_WIDTH}
+		height={WIN_FRAME_HEIGHT}
+	/>
 {/if}

@@ -6,6 +6,12 @@
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
 	import { getContext } from '../game/context';
+	import {
+		getMaskDimensions,
+		BAR_WIDTH_RATIO,
+		REEL_PADDING_RATIO,
+		BUTTON_GAP_RATIO,
+	} from '../game/uiLayout';
 
 	const context = getContext();
 
@@ -22,41 +28,25 @@
 	// ============================================================
 	// CONFIGURATION - ALL VALUES ARE RATIOS (Resolution Independent)
 	// ============================================================
-	
-	// Play Bar width = 115% of Reel Frame width
-	const BAR_WIDTH_RATIO = 1.15;
-	
-	// Padding below Reel Frame as ratio of reel frame height (negative = overlap)
-	const REEL_PADDING_RATIO = -0.085;
-	
-	// Frame scale from BoardFrame.svelte (must match)
-	const FRAME_SCALE = 1.50;
-	
 	// Button sizes relative to Play Bar scaled height
-	const SPIN_BUTTON_SCALE_RATIO = 1.4;    // Spin button = 140% of bar height
-	const AUTO_BUTTON_SCALE_RATIO = 0.55;   // Autoplay = 55% of bar height
-	
+	const SPIN_BUTTON_SCALE_RATIO = 1.4; // Spin button = 140% of bar height
+	const AUTO_BUTTON_SCALE_RATIO = 0.55; // Autoplay = 55% of bar height
+
 	// Vertical position of buttons relative to bar height (0 = centered)
 	const BUTTON_Y_RATIO = 0;
-	
+
 	// Autoplay margin from right edge as ratio of bar width
 	const AUTOPLAY_MARGIN_RATIO = 0.06;
-	
-	// Gap between buttons as ratio of bar width
-	const BUTTON_GAP_RATIO = 0.02;
 
 	// ============================================================
 	// DERIVED LAYOUT (reactive - updates on resize)
 	// ============================================================
-	
+
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
-	
-	// Reel Frame dimensions
-	const reelFrameWidth = $derived(boardLayout.width * FRAME_SCALE);
-	const reelFrameHeight = $derived(boardLayout.width * FRAME_SCALE);
-	
-	// Target bar width (115% of reel frame)
-	const targetBarWidth = $derived(reelFrameWidth * BAR_WIDTH_RATIO);
+	const maskDims = $derived(getMaskDimensions(boardLayout));
+
+	// Target bar width (linked to mask width)
+	const targetBarWidth = $derived(maskDims.width * BAR_WIDTH_RATIO);
 	
 	// Bar scale factor (only the background scales, not buttons)
 	const barScale = $derived(barNativeWidth > 0 ? targetBarWidth / barNativeWidth : 1);
@@ -85,9 +75,9 @@
 	// X: Center of reels
 	const containerX = $derived(boardLayout.x);
 	
-	// Y: Bottom of reel frame + padding (ratio-based)
+	// Y: Bottom of mask + padding (ratio-based)
 	const containerY = $derived(
-		boardLayout.y + (reelFrameHeight * 0.5) + (reelFrameHeight * REEL_PADDING_RATIO)
+		boardLayout.y + (maskDims.height * 0.5) + (maskDims.height * REEL_PADDING_RATIO)
 	);
 
 	// Bet disabled state

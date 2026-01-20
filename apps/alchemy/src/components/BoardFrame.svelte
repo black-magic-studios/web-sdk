@@ -8,28 +8,18 @@
 	import { Sprite, SpineProvider, SpineTrack } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
+	import { getMaskDimensions, FRAME_X_OFFSET, FRAME_Y_OFFSET } from '../game/uiLayout';
 
 	const context = getContext();
 	const SPINE_SCALE = { width: 0.6, height: 0.6 };
-	
+
 	// ============================================================
-	// Frame calculations for 1400x1400 square image (reel_frame_1400.png)
-	// Target appearance: 1100×820 safe area with ~940×740 inner grid
+	// Frame scales to match the mask dimensions exactly
+	// The mask (916x742 aspect ratio) is the source of truth
 	// ============================================================
-	// 
-	// Target aspect ratio: 1100/820 = 1.34 (wider than tall)
-	// Current board = 560×560 (7×7 grid at 80px symbols)
-	// 
-	// To make square frame appear as 1100×820:
-	// - Scale width more than height
-	// Frame calculations for 1400x1400 square frame (uniform scaling, no distortion)
-	// Current board = 560px (7×7 grid at 80px symbols)
-	// Adjust FRAME_SCALE to fit symbols inside frame hole
-	const FRAME_SCALE = 1.50; // Slightly smaller frame
-	
-	// Offset frame relative to symbols (positive Y = frame moves down = symbols appear higher)
-	const X_OFFSET = 0;
-	const Y_OFFSET = 20; // Move frame down so symbols sit higher in the hole
+
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const maskDims = $derived(getMaskDimensions(boardLayout));
 
 	type AnimationName = 'reelhouse_glow_start' | 'reelhouse_glow_idle' | 'reelhouse_glow_exit';
 
@@ -85,8 +75,8 @@
 <Sprite
 	key="reelFrameEdge"
 	anchor={0.5}
-	x={context.stateGameDerived.boardLayout().x + X_OFFSET}
-	y={context.stateGameDerived.boardLayout().y + Y_OFFSET}
-	width={context.stateGameDerived.boardLayout().width * FRAME_SCALE}
-	height={context.stateGameDerived.boardLayout().width * FRAME_SCALE}
+	x={boardLayout.x + FRAME_X_OFFSET}
+	y={boardLayout.y + FRAME_Y_OFFSET}
+	width={maskDims.width}
+	height={maskDims.height}
 />

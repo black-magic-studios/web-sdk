@@ -7,6 +7,8 @@
 </script>
 
 <script lang="ts">
+	import { createApp, setContextApp, type Assets } from 'pixi-svelte';
+
 	import {
 		StoryGameTemplate,
 		StoryLocale,
@@ -15,14 +17,32 @@
 	} from 'components-storybook';
 	import { randomInteger } from 'utils-shared/random';
 
-	import Game from '../components/Game.svelte';
+	import Game from './components/GameArtOverrides.svelte';
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
 	import books from './data/base_books';
-	import book_TEST_multiTumble_292 from './data/book_TEST_multi_tumble_292';
-	import book_TEST_multiTumble_test from './data/book_TEST_multi_tumble_test';
+	import defaultAssets from '../game/assets';
 
+	// Keep the normal game contexts (event emitter, layout, xstate, etc)
 	setContext();
+
+	// Create a story-local Pixi app with story-local assets.
+	// Edit the overrides below to swap background/reel-frame ONLY for this story.
+	const assets = {
+		...defaultAssets,
+		reelMask: { type: 'sprite', src: '/assets/sprites/reelsFrame/reel_mask/reel_mask.png' },
+		reelFrameEdge: {
+			type: 'sprite',
+			src: '/assets/sprites/reelsFrame/cursed_clusters_reel_frame.png',
+		},
+		// Example overrides (served from apps/alchemy/static):
+		// castleBackground: { type: 'sprite', src: '/assets/my_background.png' },
+		// reelFrameEdge: { type: 'sprite', src: '/assets/my_reel_frame_1400.png' },
+		// reelBackgroundPlate: { type: 'sprite', src: '/assets/my_reel_frame_center.png' },
+	} satisfies Assets;
+
+	const { stateApp } = createApp({ assets });
+	setContextApp({ stateApp });
 </script>
 
 {#snippet template(args: TemplateArgs<any>)}
@@ -39,7 +59,7 @@
 {/snippet}
 
 <Story
-	name="random"
+	name="random (art overrides)"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
@@ -48,32 +68,6 @@
 			const data = books[index];
 			console.log('Running a book at index', index);
 			await playBet({ ...data, state: data.events });
-		},
-	})}
-	{template}
-/>
-
-<Story
-	name="TEST: multi-tumble win (id 292)"
-	args={templateArgs({
-		skipLoadingScreen: true,
-		data: {},
-		action: async () => {
-			console.log('Running TEST book id', book_TEST_multiTumble_292.id);
-			await playBet({ ...book_TEST_multiTumble_292, state: book_TEST_multiTumble_292.events });
-		},
-	})}
-	{template}
-/>
-
-<Story
-	name="multi tumble test"
-	args={templateArgs({
-		skipLoadingScreen: true,
-		data: {},
-		action: async () => {
-			console.log('Running TEST book id', book_TEST_multiTumble_test.id);
-			await playBet({ ...book_TEST_multiTumble_test, state: book_TEST_multiTumble_test.events });
 		},
 	})}
 	{template}

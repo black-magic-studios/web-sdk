@@ -4,6 +4,7 @@
 	import { Container } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
+	import { GRID_SCALE } from '../game/uiLayout';
 
 	type Props = {
 		children: Snippet;
@@ -12,9 +13,6 @@
 	const props: Props = $props();
 
 	const context = getContext();
-	
-	// Scale down the symbol grid area (1.0 = full size, 0.9 = 90% size)
-	const GRID_SCALE = 0.96;
 </script>
 
 <Container
