@@ -3,7 +3,7 @@ import { stateBet } from 'state-shared';
 import { createPlayBookUtils } from 'utils-book';
 import { createGetEmptyPaddedBoard } from 'utils-slots';
 
-import { SYMBOL_WIDTH, SYMBOL_HEIGHT, REEL_PADDING, SYMBOL_INFO_MAP, BOARD_DIMENSIONS } from './constants';
+import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_INFO_MAP, BOARD_DIMENSIONS } from './constants';
 import { eventEmitter } from './eventEmitter';
 import type { Bet, BookEventOfType } from './typesBookEvent';
 import { bookEventHandlerMap } from './bookEventHandlerMap';
@@ -49,7 +49,8 @@ export const convertTorResumableBet = (betToResume: Bet) => {
 };
 
 // other utils
-export const getSymbolX = (reelIndex: number) => SYMBOL_WIDTH * (reelIndex + REEL_PADDING);
+// Center symbols in their grid cells
+export const getSymbolX = (reelIndex: number) => SYMBOL_WIDTH * (reelIndex + 0.5);
 export const getSymbolY = (symbolIndexOfBoard: number) => (symbolIndexOfBoard + 0.5) * SYMBOL_HEIGHT;
 
 export const getSymbolKey = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {

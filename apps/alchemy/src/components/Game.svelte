@@ -17,7 +17,6 @@
 	import Sound from './Sound.svelte';
 	import Background from './Background.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
-	import OuterFrameSprite from './OuterFrameSprite.svelte';
 	import MultiplierGrid from './MultiplierGrid.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
@@ -32,7 +31,6 @@
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
 	import PlayBar from './PlayBar.svelte';
-	import ReelMaskSprite from './ReelMaskSprite.svelte';
 	import { MASK_WIDTH, MASK_HEIGHT } from '../game/constants';
 
 	const context = getContext();
@@ -90,17 +88,13 @@
 			Scene layout (single coordinate space)
 			- sceneRoot
 				- boardRoot (positioned once, scaled once)
-					- maskGfx (Graphics rectangle, invisible)
-					- reelsContainer (symbols clipped by mask)
-					- outerFrameSprite
+					- reelsContainer (symbols)
 					- playBarContainer
 		-->
 		<MainContainer>
 			<Container key="sceneRoot">
 				<Container key="boardRoot" x={boardRoot.x} y={boardRoot.y} scale={boardRoot.scale}>
 					<Container key="reelsContainer">
-							<ReelMaskSprite isMask inBoardSpace />
-
 						<Board />
 						<Anticipations />
 						<TumbleWinAmount />
@@ -110,7 +104,6 @@
 						<ClusterWinAmounts />
 					</Container>
 
-					<OuterFrameSprite />
 					<PlayBar />
 				</Container>
 			</Container>

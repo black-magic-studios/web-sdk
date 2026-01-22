@@ -24,7 +24,8 @@ export const SYMBOL_HEIGHT = MASK_HEIGHT / GRID_ROWS; // ~106
 // Gradually migrate these to use SYMBOL_WIDTH/HEIGHT
 export const SYMBOL_SIZE = (SYMBOL_WIDTH + SYMBOL_HEIGHT) / 2; // ~118.4
 
-export const REEL_PADDING = 0.53;
+// Horizontal padding for first symbol (0 = symbols start at left edge)
+export const REEL_PADDING = 0;
 
 // initial board (padded top and bottom)
 export const INITIAL_BOARD: RawSymbol[][] = [
