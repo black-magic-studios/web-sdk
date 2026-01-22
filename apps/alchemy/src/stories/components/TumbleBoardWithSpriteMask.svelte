@@ -27,6 +27,7 @@
 	import { getSymbolY } from '../../game/utils';
 	import { getContext } from '../../game/context';
 	import ReelMaskSprite from './ReelMaskSprite.svelte';
+	import ReelMaskRect from './ReelMaskRect.svelte';
 
 	const context = getContext();
 
@@ -138,12 +139,14 @@
 
 	<BoardContext animate={false}>
 		<BoardContainer>
+			<ReelMaskRect />
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
 
 	<BoardContext animate={true}>
 		<BoardContainer>
+			<ReelMaskRect />
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>

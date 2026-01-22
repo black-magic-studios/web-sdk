@@ -16,8 +16,6 @@
 	import { BoardContext } from 'components-shared';
 
 	import { getContext } from '../game/context';
-	import BoardContainer from './BoardContainer.svelte';
-	import BoardMask from './BoardMask.svelte';
 	import BoardBase from './BoardBase.svelte';
 	import ReelBackgroundPlate from './ReelBackgroundPlate.svelte';
 
@@ -48,24 +46,16 @@
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer>
-			<BoardMask />
-			<ReelBackgroundPlate />
-			<BoardBase />
-		</BoardContainer>
+		<ReelBackgroundPlate />
+		<BoardBase />
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer>
-			<BoardBase />
-		</BoardContainer>
+		<BoardBase />
 	</BoardContext>
 {:else}
 	<!-- Keep background plate visible during win animations -->
 	<BoardContext animate={false}>
-		<BoardContainer>
-			<BoardMask />
-			<ReelBackgroundPlate />
-		</BoardContainer>
+		<ReelBackgroundPlate />
 	</BoardContext>
 {/if}

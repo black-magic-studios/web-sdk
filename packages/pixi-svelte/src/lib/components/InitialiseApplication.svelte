@@ -17,6 +17,10 @@
 	const initialiseApplication = async () => {
 		PIXI.Assets.reset();
 
+		// Enable mipmaps globally for better downscaling quality
+		PIXI.TextureSource.defaultOptions.autoGenerateMipmaps = true;
+		PIXI.TextureSource.defaultOptions.scaleMode = 'linear';
+
 		await preloadFont();
 		context.stateApp.pixiApplication = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>();
 		await context.stateApp.pixiApplication.init({

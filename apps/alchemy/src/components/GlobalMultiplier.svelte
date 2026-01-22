@@ -22,7 +22,7 @@
 
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
-	import { SYMBOL_SIZE } from '../game/constants';
+	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
 
 	type AnimationName = 'static' | 'win' | 'reset' | 'increment';
 
@@ -31,11 +31,11 @@
 	const scale = $derived(context.stateLayoutDerived.isStacked() ? 1.28 : 1);
 	const desktopPosition = $derived({
 		x: context.stateGameDerived.boardLayout().width - PANEL_WIDTH * 1.3,
-		y: -SYMBOL_SIZE * 0.47,
+		y: -SYMBOL_HEIGHT * 0.47,
 	});
 	const portraitPosition = $derived({
 		x: context.stateGameDerived.boardLayout().width - PANEL_WIDTH * 1.5,
-		y: -SYMBOL_SIZE * 0.55,
+		y: -SYMBOL_HEIGHT * 0.55,
 	});
 	const position = $derived(
 		context.stateLayoutDerived.isStacked() ? portraitPosition : desktopPosition,

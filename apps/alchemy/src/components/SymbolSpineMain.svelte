@@ -3,7 +3,7 @@
 	import { stateBetDerived } from 'state-shared';
 
 	import { getSymbolInfo } from '../game/utils';
-	import { SYMBOL_SIZE } from '../game/constants';
+	import { SYMBOL_HEIGHT } from '../game/constants';
 
 	type Props = {
 		symbolInfo: ReturnType<typeof getSymbolInfo>;
@@ -20,7 +20,7 @@
 	x={props.x}
 	y={props.y}
 	key={props.symbolInfo.assetKey}
-	height={SYMBOL_SIZE * props.symbolInfo.sizeRatios.height}
+	height={SYMBOL_HEIGHT * props.symbolInfo.sizeRatios.height}
 >
 	<SpineTrack
 		loop={props.loop}

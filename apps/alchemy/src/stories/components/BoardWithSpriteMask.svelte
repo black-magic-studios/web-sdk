@@ -19,6 +19,7 @@
 	import BoardContainer from '../../components/BoardContainer.svelte';
 	import BoardBase from '../../components/BoardBase.svelte';
 	import ReelMaskSprite from './ReelMaskSprite.svelte';
+	import ReelMaskRect from './ReelMaskRect.svelte';
 
 	const context = getContext();
 
@@ -52,12 +53,14 @@
 {#if show}
 	<BoardContext animate={false}>
 		<BoardContainer>
+			<ReelMaskRect />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
 
 	<BoardContext animate={true}>
 		<BoardContainer>
+			<ReelMaskRect />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>

@@ -2,16 +2,11 @@
 	import { onMount } from 'svelte';
 	import { BaseSprite, Container, Circle } from 'pixi-svelte';
 	import { Assets, Texture } from 'pixi.js';
-	import { Button } from 'components-pixi';
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
+	import { BAR_WIDTH_RATIO, REEL_PADDING_RATIO, BUTTON_GAP_RATIO } from '../game/uiLayout';
+	import { MASK_WIDTH, MASK_HEIGHT } from '../game/constants';
 	import { getContext } from '../game/context';
-	import {
-		getMaskDimensions,
-		BAR_WIDTH_RATIO,
-		REEL_PADDING_RATIO,
-		BUTTON_GAP_RATIO,
-	} from '../game/uiLayout';
 
 	const context = getContext();
 
@@ -42,11 +37,10 @@
 	// DERIVED LAYOUT (reactive - updates on resize)
 	// ============================================================
 
-	const boardLayout = $derived(context.stateGameDerived.boardLayout());
-	const maskDims = $derived(getMaskDimensions(boardLayout));
+	const boardRect = $derived({ x: 0, y: 0, width: MASK_WIDTH, height: MASK_HEIGHT });
 
 	// Target bar width (linked to mask width)
-	const targetBarWidth = $derived(maskDims.width * BAR_WIDTH_RATIO);
+	const targetBarWidth = $derived(boardRect.width * BAR_WIDTH_RATIO);
 	
 	// Bar scale factor (only the background scales, not buttons)
 	const barScale = $derived(barNativeWidth > 0 ? targetBarWidth / barNativeWidth : 1);
@@ -73,12 +67,10 @@
 	// ============================================================
 	
 	// X: Center of reels
-	const containerX = $derived(boardLayout.x);
+	const containerX = $derived(boardRect.width * 0.5);
 	
 	// Y: Bottom of mask + padding (ratio-based)
-	const containerY = $derived(
-		boardLayout.y + (maskDims.height * 0.5) + (maskDims.height * REEL_PADDING_RATIO)
-	);
+	const containerY = $derived(boardRect.height + (boardRect.height * REEL_PADDING_RATIO));
 
 	// Bet disabled state
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());

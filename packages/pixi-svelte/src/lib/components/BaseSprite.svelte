@@ -17,6 +17,9 @@
 	const parentContext = getContextParent();
 	const sprite = new PIXI.Sprite(props.texture);
 
+	// Snap to integer pixels to prevent sub-pixel blur
+	sprite.roundPixels = true;
+
 	propsSyncEffect({ props, target: sprite, ignore: ['isMask'] });
 
 	$effect(() => {

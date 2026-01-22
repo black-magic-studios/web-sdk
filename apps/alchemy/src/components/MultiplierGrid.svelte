@@ -12,7 +12,7 @@
 
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
-	import { SYMBOL_SIZE } from '../game/constants';
+	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
 
 	const context = getContext();
 	const DEFAULT_GRID = [
@@ -28,7 +28,7 @@
 	let show = $state(false);
 	let grid = $state(DEFAULT_GRID);
 
-	const WIN_FRAME_HEIGHT = SYMBOL_SIZE * 1.3;
+	const WIN_FRAME_HEIGHT = SYMBOL_HEIGHT * 1.3;
 	// win_frame.png is 618x512; preserve aspect ratio.
 	const WIN_FRAME_WIDTH = WIN_FRAME_HEIGHT * (618 / 512);
 
@@ -45,7 +45,7 @@
 		{#each grid as reel, reelIndex}
 			{#each reel as multiplier, rowIndex}
 				{#if multiplier > 1}
-					<Container x={(reelIndex + 0.5) * SYMBOL_SIZE} y={(rowIndex + 0.5) * SYMBOL_SIZE}>
+					<Container x={(reelIndex + 0.5) * SYMBOL_WIDTH} y={(rowIndex + 0.5) * SYMBOL_HEIGHT}>
 						<!--
 						<SpineProvider key="anticipation" width={SYMBOL_SIZE * 0.19}>
 							<SpineTrack trackIndex={0} animationName={'payframe'} loop />
@@ -53,7 +53,7 @@
 						-->
 						<Sprite key="winFrame" anchor={0.5} width={WIN_FRAME_WIDTH} height={WIN_FRAME_HEIGHT} />
 						<BitmapText
-							x={-SYMBOL_SIZE * 0.05}
+							x={-SYMBOL_WIDTH * 0.05}
 							anchor={{
 								x: 0.5,
 								y: 0.5,

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Sprite } from 'pixi-svelte';
 
-	import { getContext } from '../../game/context';
-	import { getMaskDimensions, FRAME_X_OFFSET, FRAME_Y_OFFSET } from '../../game/uiLayout';
+	import { getContext } from '../game/context';
+	import { getMaskDimensions, FRAME_X_OFFSET, FRAME_Y_OFFSET } from '../game/uiLayout';
 
 	type Props = {
 		isMask?: boolean;
@@ -30,7 +30,7 @@
 </script>
 
 <!--
-	Sprite-based reel mask overlay (story-only).
+	Sprite-based reel mask overlay.
 	Must be at MainContainer level to share coordinate space with BoardFrame.
 	Mask dimensions are the source of truth - frame scales to match.
 -->

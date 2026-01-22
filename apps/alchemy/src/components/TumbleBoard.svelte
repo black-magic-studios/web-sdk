@@ -23,8 +23,6 @@
 	import { waitForResolve } from 'utils-shared/wait';
 
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
-	import BoardContainer from './BoardContainer.svelte';
-	import BoardMask from './BoardMask.svelte';
 	import { getSymbolY } from '../game/utils';
 	import { getContext } from '../game/context';
 
@@ -134,15 +132,10 @@
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer>
-			<BoardMask />
-			<TumbleBoardBase />
-		</BoardContainer>
+		<TumbleBoardBase />
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer>
-			<TumbleBoardBase />
-		</BoardContainer>
+		<TumbleBoardBase />
 	</BoardContext>
 {/if}

@@ -2,7 +2,27 @@ import _ from 'lodash';
 
 import type { RawSymbol, SymbolState } from './types';
 
-export const SYMBOL_SIZE = 80;
+// ============================================================
+// MASK-DRIVEN LAYOUT SYSTEM
+// Everything derives from the mask dimensions (916 × 742)
+// ============================================================
+
+// Mask dimensions (source of truth - from reel_mask.png)
+export const MASK_WIDTH = 916;
+export const MASK_HEIGHT = 742;
+export const MASK_ASPECT = MASK_WIDTH / MASK_HEIGHT; // ~1.234 (wider than tall)
+
+// Grid configuration
+export const GRID_COLS = 7;
+export const GRID_ROWS = 7;
+
+// Symbol dimensions derived from mask
+export const SYMBOL_WIDTH = MASK_WIDTH / GRID_COLS;   // ~130.86
+export const SYMBOL_HEIGHT = MASK_HEIGHT / GRID_ROWS; // ~106
+
+// Legacy SYMBOL_SIZE - use average for components that expect square
+// Gradually migrate these to use SYMBOL_WIDTH/HEIGHT
+export const SYMBOL_SIZE = (SYMBOL_WIDTH + SYMBOL_HEIGHT) / 2; // ~118.4
 
 export const REEL_PADDING = 0.53;
 
@@ -213,11 +233,12 @@ export const INITIAL_BOARD: RawSymbol[][] = [
 	],
 ];
 
-export const BOARD_DIMENSIONS = { x: INITIAL_BOARD.length, y: INITIAL_BOARD[0].length - 2 };
+export const BOARD_DIMENSIONS = { x: GRID_COLS, y: GRID_ROWS };
 
+// Board now matches mask dimensions exactly
 export const BOARD_SIZES = {
-	width: SYMBOL_SIZE * BOARD_DIMENSIONS.x,
-	height: SYMBOL_SIZE * BOARD_DIMENSIONS.y,
+	width: MASK_WIDTH,
+	height: MASK_HEIGHT,
 };
 
 export const BACKGROUND_RATIO = 2039 / 1000;

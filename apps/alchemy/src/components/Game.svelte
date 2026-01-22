@@ -4,7 +4,7 @@
 	import { EnablePixiExtension } from 'components-pixi';
 	import { EnableHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
-	import { App, Text, REM, Container } from 'pixi-svelte';
+	import { App, Text, REM, Container, Graphics } from 'pixi-svelte';
 	import { stateModal } from 'state-shared';
 
 	import { UiGameName } from 'components-ui-pixi';
@@ -17,7 +17,7 @@
 	import Sound from './Sound.svelte';
 	import Background from './Background.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
-	import BoardFrame from './BoardFrame.svelte';
+	import OuterFrameSprite from './OuterFrameSprite.svelte';
 	import MultiplierGrid from './MultiplierGrid.svelte';
 	import Board from './Board.svelte';
 	import Anticipations from './Anticipations.svelte';
@@ -32,8 +32,31 @@
 	import Transition from './Transition.svelte';
 	import I18nTest from './I18nTest.svelte';
 	import PlayBar from './PlayBar.svelte';
+	import ReelMaskSprite from './ReelMaskSprite.svelte';
+	import { MASK_WIDTH, MASK_HEIGHT } from '../game/constants';
 
 	const context = getContext();
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const mainLayout = $derived(context.stateLayoutDerived.mainLayout());
+	
+	// Calculate scale to fit the board within the main container with padding
+	// Leave space for UI elements (playbar at bottom, etc.)
+	const UI_PADDING = { top: 40, bottom: 120, left: 40, right: 40 };
+	const availableWidth = $derived(mainLayout.width - UI_PADDING.left - UI_PADDING.right);
+	const availableHeight = $derived(mainLayout.height - UI_PADDING.top - UI_PADDING.bottom);
+	
+	// Scale to fit available space while maintaining aspect ratio
+	const boardScaleX = $derived(availableWidth / MASK_WIDTH);
+	const boardScaleY = $derived(availableHeight / MASK_HEIGHT);
+	const boardScale = $derived(Math.min(boardScaleX, boardScaleY));
+	
+	const boardRect = $derived({ x: 0, y: 0, width: MASK_WIDTH, height: MASK_HEIGHT });
+	const boardRoot = $derived({
+		// Center horizontally, but account for top padding to shift down slightly
+		x: mainLayout.width * 0.5 - boardRect.width * boardScale * 0.5,
+		y: UI_PADDING.top + (availableHeight - boardRect.height * boardScale) * 0.5,
+		scale: boardScale,
+	});
 
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
 
@@ -63,43 +86,34 @@
 		-->
 		<Sound />
 
-		<!-- Layer order (bottom → top):
-			1. Background scene (rendered above)
-			2. Reel background plate (inside Board, behind symbols)
-			3. Symbols (Board)
-			4. Symbol FX (Anticipations)
-			5. Multipliers (MultiplierGrid)
-			6. Win FX (TumbleWinAmount, GlobalMultiplier, TumbleBoard, ClusterWinAmounts)
-			7. Reel frame (BoardFrame)
+		<!--
+			Scene layout (single coordinate space)
+			- sceneRoot
+				- boardRoot (positioned once, scaled once)
+					- maskGfx (Graphics rectangle, invisible)
+					- reelsContainer (symbols clipped by mask)
+					- outerFrameSprite
+					- playBarContainer
 		-->
-
-		<!-- Symbols layer (includes reel background plate as first child) -->
 		<MainContainer>
-			<Board />
-			<Anticipations />
-			<TumbleWinAmount />
-			<GlobalMultiplier />
-		</MainContainer>
+			<Container key="sceneRoot">
+				<Container key="boardRoot" x={boardRoot.x} y={boardRoot.y} scale={boardRoot.scale}>
+					<Container key="reelsContainer">
+							<ReelMaskSprite isMask inBoardSpace />
 
-		<!-- Multipliers layer -->
-		<MainContainer>
-			<MultiplierGrid />
-		</MainContainer>
+						<Board />
+						<Anticipations />
+						<TumbleWinAmount />
+						<GlobalMultiplier />
+						<MultiplierGrid />
+						<TumbleBoard />
+						<ClusterWinAmounts />
+					</Container>
 
-		<!-- Win FX layer -->
-		<MainContainer>
-			<TumbleBoard />
-			<ClusterWinAmounts />
-		</MainContainer>
-
-		<!-- Reel frame - on top of everything -->
-		<MainContainer>
-			<BoardFrame />
-		</MainContainer>
-
-		<!-- Custom UI: PlayBar and minimal Header -->
-		<MainContainer>
-			<PlayBar />
+					<OuterFrameSprite />
+					<PlayBar />
+				</Container>
+			</Container>
 		</MainContainer>
 
 		<Container x={20}>

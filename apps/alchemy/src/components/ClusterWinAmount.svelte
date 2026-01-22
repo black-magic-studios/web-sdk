@@ -20,7 +20,7 @@
 	import { waitForTimeout } from 'utils-shared/wait';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 
-	import { SYMBOL_SIZE } from '../game/constants';
+	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
 	import { getContext } from '../game/context';
 
 	type Props = { win: Win };
@@ -51,7 +51,7 @@
 
 	// update y
 	onMount(async () => {
-		await y.set(-SYMBOL_SIZE, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
+		await y.set(-SYMBOL_HEIGHT, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
 		show = false;
 	});
 </script>
@@ -63,8 +63,8 @@
 	}}
 >
 	<BitmapText
-		x={SYMBOL_SIZE * (props.win.reel + 0.5)}
-		y={SYMBOL_SIZE * (props.win.row - 0.5) + y.current}
+		x={SYMBOL_WIDTH * (props.win.reel + 0.5)}
+		y={SYMBOL_HEIGHT * (props.win.row - 0.5) + y.current}
 		scale={scale.current}
 		text={showMultiplier
 			? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`

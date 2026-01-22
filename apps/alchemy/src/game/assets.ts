@@ -127,7 +127,14 @@ export default {
 	},
 	reelFrameEdge: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/reel_frame_1400.png', import.meta.url).href,
+		src: new URL(
+			'../../assets/sprites/reelsFrame/reelframe_overlay_1024x832.png',
+			import.meta.url,
+		).href,
+	},
+	reelMask: {
+		type: 'sprite',
+		src: new URL('../../assets/sprites/reelsFrame/reel_mask/reel_mask.png', import.meta.url).href,
 	},
 	reelBackgroundPlate: {
 		type: 'sprite',
