@@ -1,0 +1,19 @@
+{
+	"frames": {
+		"arctic_frame.png": {
+			"frame": {"x": 0, "y": 0, "w": 2454, "h": 1669},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x": 0, "y": 0, "w": 2454, "h": 1669},
+			"sourceSize": {"w": 2454, "h": 1669}
+		}
+	},
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"image": "arctic_clusters_reel_frame.png",
+		"format": "RGBA8888",
+		"size": {"w": 2454, "h": 1669},
+		"scale": "1"
+	}
+}

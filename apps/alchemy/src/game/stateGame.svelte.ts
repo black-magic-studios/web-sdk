@@ -11,13 +11,17 @@ import { winLevelMap } from './winLevelMap';
 import { eventEmitter } from './eventEmitter';
 import {
 	SYMBOL_HEIGHT,
-	BOARD_SIZES,
 	INITIAL_BOARD,
 	BOARD_DIMENSIONS,
 	SPIN_OPTIONS_DEFAULT,
 	SPIN_OPTIONS_FAST,
 	INITIAL_SYMBOL_STATE,
 	SCATTER_LAND_SOUND_MAP,
+	BOARD_ASPECT_RATIO,
+	GRID_COLS,
+	GRID_ROWS,
+	GRID_GAP_X,
+	GRID_GAP_Y,
 } from './constants';
 
 const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
@@ -88,13 +92,58 @@ export const stateGame = $state({
 	scatterCounter: 0,
 });
 
-const boardLayout = () => ({
-	x: stateLayoutDerived.mainLayout().width * 0.5,
-	y: stateLayoutDerived.mainLayout().height * 0.5, // Centered vertically
-	anchor: { x: 0.5, y: 0.5 },
-	pivot: { x: BOARD_SIZES.width / 2, y: BOARD_SIZES.height / 2 },
-	...BOARD_SIZES,
-});
+// ============================================================
+// DYNAMIC BOARD LAYOUT - Computed once, derived from it
+// Board scales to fit available screen space while maintaining aspect ratio
+// ============================================================
+
+const boardLayout = () => {
+	const canvas = stateLayoutDerived.canvasSizes();
+
+	// Use only a portion of the canvas so we leave room for the reel frame + UI
+	// while keeping the board centered and responsive.
+	const BOARD_CANVAS_RATIO = 0.7;
+	const availableWidth = canvas.width * BOARD_CANVAS_RATIO;
+	const availableHeight = canvas.height * BOARD_CANVAS_RATIO;
+
+	// Fit board maintaining aspect ratio
+	let width: number;
+	let height: number;
+
+	if (availableWidth / availableHeight > BOARD_ASPECT_RATIO) {
+		// Screen is wider than board aspect - constrain by height
+		height = availableHeight;
+		width = height * BOARD_ASPECT_RATIO;
+	} else {
+		// Screen is taller than board aspect - constrain by width
+		width = availableWidth;
+		height = width / BOARD_ASPECT_RATIO;
+	}
+
+	// Center position (relative to full canvas)
+	const centerX = canvas.width / 2;
+	const centerY = canvas.height / 2;
+
+	return {
+		x: centerX,
+		y: centerY,
+		anchor: { x: 0.5, y: 0.5 },
+		pivot: { x: width / 2, y: height / 2 },
+		width,
+		height,
+	};
+};
+
+// Derived symbol dimensions (cached - only recalculates when boardLayout changes)
+const symbolWidth = () =>
+	(boardLayout().width - (GRID_COLS - 1) * GRID_GAP_X) / GRID_COLS;
+const symbolHeight = () =>
+	(boardLayout().height - (GRID_ROWS - 1) * GRID_GAP_Y) / GRID_ROWS;
+const symbolSize = () => (symbolWidth() + symbolHeight()) / 2;
+
+// Derived mask dimensions (same as board for masking)
+const maskWidth = () => boardLayout().width;
+const maskHeight = () => boardLayout().height;
 
 const boardRaw = () =>
 	board.map((reel) => reel.reelState.symbols.map((reelSymbol) => reelSymbol.rawSymbol));
@@ -131,4 +180,10 @@ export const stateGameDerived = {
 	scatterLandIndex,
 	enhancedBoard,
 	getWinLevelDataByWinLevelAlias,
+	// Dynamic dimensions (cached via Svelte's $derived when used in components)
+	symbolWidth,
+	symbolHeight,
+	symbolSize,
+	maskWidth,
+	maskHeight,
 };

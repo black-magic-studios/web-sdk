@@ -17,9 +17,9 @@
 
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
-	import BoardMask from './BoardMask.svelte';
 	import BoardBase from './BoardBase.svelte';
-	import ReelBackgroundPlate from './ReelBackgroundPlate.svelte';
+	import ReelMaskSprite from './ReelMaskSprite.svelte';
+	import MultiplierGrid from './MultiplierGrid.svelte';
 
 	const context = getContext();
 
@@ -49,8 +49,8 @@
 {#if show}
 	<BoardContext animate={false}>
 		<BoardContainer>
-			<BoardMask />
-			<ReelBackgroundPlate />
+			<ReelMaskSprite inBoardSpace />
+			<MultiplierGrid inBoardSpace />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
@@ -61,11 +61,11 @@
 		</BoardContainer>
 	</BoardContext>
 {:else}
-	<!-- Keep background plate visible during win animations -->
+	<!-- Keep board space reserved during win animations -->
 	<BoardContext animate={false}>
 		<BoardContainer>
-			<BoardMask />
-			<ReelBackgroundPlate />
+			<ReelMaskSprite inBoardSpace />
+			<MultiplierGrid inBoardSpace />
 		</BoardContainer>
 	</BoardContext>
 {/if}

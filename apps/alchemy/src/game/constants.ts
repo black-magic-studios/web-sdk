@@ -3,26 +3,40 @@ import _ from 'lodash';
 import type { RawSymbol, SymbolState } from './types';
 
 // ============================================================
-// MASK-DRIVEN LAYOUT SYSTEM
-// Everything derives from the mask dimensions (916 × 742)
+// DYNAMIC LAYOUT SYSTEM
+// Board scales to fit available screen space while maintaining aspect ratio.
+// All dimensions are computed reactively in stateGame.svelte.ts
 // ============================================================
 
-// Mask dimensions (source of truth - from reel_mask.png)
-export const MASK_WIDTH = 916;
-export const MASK_HEIGHT = 742;
-export const MASK_ASPECT = MASK_WIDTH / MASK_HEIGHT; // ~1.234 (wider than tall)
+// Board aspect ratio (source of truth - the shape we want to maintain)
+// Square 1:1 ratio for arctic clusters theme
+export const BOARD_ASPECT_RATIO = 1; // Square board
 
-// Grid configuration
+// Grid configuration (fixed - determines symbol count)
 export const GRID_COLS = 7;
 export const GRID_ROWS = 7;
+// Grid gaps between cells (in board units)
+export const GRID_GAP_X = 0;
+export const GRID_GAP_Y = 0;
 
-// Symbol dimensions derived from mask
+// UI padding ratios (relative to screen dimensions)
+export const UI_PADDING_RATIO = {
+	top: 0.02,      // 2% of screen height for top margin
+	bottom: 0.12,   // 12% for playbar area
+	left: 0.02,     // 2% side margins
+	right: 0.02,
+};
+
+// ============================================================
+// LEGACY STATIC VALUES (for components not yet migrated to dynamic)
+// These will be removed once all components use stateGameDerived
+// ============================================================
+export const MASK_WIDTH = 916;
+export const MASK_HEIGHT = 916; // Square mask to match 1:1 aspect ratio
+export const MASK_ASPECT = MASK_WIDTH / MASK_HEIGHT; // 1:1
 export const SYMBOL_WIDTH = MASK_WIDTH / GRID_COLS;   // ~130.86
-export const SYMBOL_HEIGHT = MASK_HEIGHT / GRID_ROWS; // ~106
-
-// Legacy SYMBOL_SIZE - use average for components that expect square
-// Gradually migrate these to use SYMBOL_WIDTH/HEIGHT
-export const SYMBOL_SIZE = (SYMBOL_WIDTH + SYMBOL_HEIGHT) / 2; // ~118.4
+export const SYMBOL_HEIGHT = MASK_HEIGHT / GRID_ROWS; // ~130.86
+export const SYMBOL_SIZE = (SYMBOL_WIDTH + SYMBOL_HEIGHT) / 2; // ~130.86
 
 // Horizontal padding for first symbol (0 = symbols start at left edge)
 export const REEL_PADDING = 0;

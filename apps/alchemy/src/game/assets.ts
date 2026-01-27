@@ -1,7 +1,8 @@
 export default {
 	castleBackground: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/background/throne_room_3000x1500_test.png', import.meta.url).href,
+		// Served from SvelteKit static/ in dev & production.
+		src: '/assets/sprites/symbolsStatic/cool_clusters/cool_clusters_background.png',
 	},
 	loader: {
 		type: 'spine',
@@ -125,16 +126,20 @@ export default {
 		type: 'sprites',
 		src: new URL('../../assets/sprites/reelsFrame/reels_frame.json', import.meta.url).href,
 	},
+	arcticFrame: {
+		type: 'sprites',
+		// Arctic Clusters reel frame atlas
+		src: new URL('../../assets/sprites/reelsFrame/arctic_frame.json', import.meta.url).href,
+	},
 	reelFrameEdge: {
 		type: 'sprite',
-		src: new URL(
-			'../../assets/sprites/reelsFrame/reelframe_overlay_1024x832.png',
-			import.meta.url,
-		).href,
+		// Served from SvelteKit static/ in dev & production.
+		src: '/assets/sprites/reelsFrame/arctic_clusters_square_reel_frame_2048.png',
 	},
 	reelMask: {
 		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/reel_mask/reel_mask.png', import.meta.url).href,
+		// Served from SvelteKit static/ in dev & production.
+		src: '/assets/sprites/reelsFrame/reel_mask/arctic_clusters_square_reel_mask.png',
 	},
 	reelBackgroundPlate: {
 		type: 'sprite',

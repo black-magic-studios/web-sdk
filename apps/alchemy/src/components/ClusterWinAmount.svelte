@@ -20,13 +20,16 @@
 	import { waitForTimeout } from 'utils-shared/wait';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 
-	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
+	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
 	import { getContext } from '../game/context';
 
 	type Props = { win: Win };
 
 	const props: Props = $props();
 	const context = getContext();
+	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
+	const symbolSize = $derived((symbolWidth + symbolHeight) / 2);
 	const y = new Tween(0);
 	const scale = new Tween(1);
 	let show = $state(true);
@@ -51,7 +54,7 @@
 
 	// update y
 	onMount(async () => {
-		await y.set(-SYMBOL_HEIGHT, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
+		await y.set(-symbolHeight, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
 		show = false;
 	});
 </script>
@@ -63,8 +66,8 @@
 	}}
 >
 	<BitmapText
-		x={SYMBOL_WIDTH * (props.win.reel + 0.5)}
-		y={SYMBOL_HEIGHT * (props.win.row - 0.5) + y.current}
+		x={getSymbolXDynamic(props.win.reel, symbolWidth)}
+		y={getSymbolYDynamic(props.win.row - 1, symbolHeight) + y.current}
 		scale={scale.current}
 		text={showMultiplier
 			? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
@@ -72,7 +75,7 @@
 		anchor={0.5}
 		style={{
 			fontFamily: 'gold',
-			fontSize: SYMBOL_SIZE * 0.5,
+			fontSize: symbolSize * 0.5,
 		}}
 	/>
 </FadeContainer>

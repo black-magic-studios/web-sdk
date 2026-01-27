@@ -12,7 +12,14 @@
 
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
-	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
+	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
+
+	type Props = {
+		/** Render inside an existing BoardContainer (board-local coordinates). */
+		inBoardSpace?: boolean;
+	};
+
+	const props: Props = $props();
 
 	const context = getContext();
 	const DEFAULT_GRID = [
@@ -28,9 +35,13 @@
 	let show = $state(false);
 	let grid = $state(DEFAULT_GRID);
 
-	const WIN_FRAME_HEIGHT = SYMBOL_HEIGHT * 1.3;
+	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
+	const symbolSize = $derived(context.stateGameDerived.symbolSize());
+
+	const WIN_FRAME_HEIGHT = $derived(symbolHeight * 1.3);
 	// win_frame.png is 618x512; preserve aspect ratio.
-	const WIN_FRAME_WIDTH = WIN_FRAME_HEIGHT * (618 / 512);
+	const WIN_FRAME_WIDTH = $derived(WIN_FRAME_HEIGHT * (618 / 512));
 
 	context.eventEmitter.subscribeOnMount({
 		multiplierGridShow: () => (show = true),
@@ -40,20 +51,18 @@
 	});
 </script>
 
-<BoardContainer>
+{#snippet content()}
 	{#if show}
 		{#each grid as reel, reelIndex}
 			{#each reel as multiplier, rowIndex}
 				{#if multiplier > 1}
-					<Container x={(reelIndex + 0.5) * SYMBOL_WIDTH} y={(rowIndex + 0.5) * SYMBOL_HEIGHT}>
-						<!--
-						<SpineProvider key="anticipation" width={SYMBOL_SIZE * 0.19}>
-							<SpineTrack trackIndex={0} animationName={'payframe'} loop />
-						</SpineProvider>
-						-->
+					<Container
+						x={getSymbolXDynamic(reelIndex, symbolWidth)}
+						y={getSymbolYDynamic(rowIndex, symbolHeight)}
+					>
 						<Sprite key="winFrame" anchor={0.5} width={WIN_FRAME_WIDTH} height={WIN_FRAME_HEIGHT} />
 						<BitmapText
-							x={-SYMBOL_WIDTH * 0.05}
+							x={-symbolWidth * 0.05}
 							anchor={{
 								x: 0.5,
 								y: 0.5,
@@ -61,7 +70,7 @@
 							text={`${multiplier} X`}
 							style={{
 								fontFamily: 'gold',
-								fontSize: SYMBOL_SIZE * 0.5,
+								fontSize: symbolSize * 0.5,
 								letterSpacing: -5,
 							}}
 						/>
@@ -70,4 +79,12 @@
 			{/each}
 		{/each}
 	{/if}
-</BoardContainer>
+{/snippet}
+
+{#if props.inBoardSpace}
+	{@render content()}
+{:else}
+	<BoardContainer>
+		{@render content()}
+	</BoardContainer>
+{/if}

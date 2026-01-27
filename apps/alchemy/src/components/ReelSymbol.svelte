@@ -1,8 +1,10 @@
 <script lang="ts">
 	import Symbol from './Symbol.svelte';
 	import SymbolWrap from './SymbolWrap.svelte';
-	import { getSymbolInfo, getSymbolX } from '../game/utils';
+	import { getSymbolInfo, getSymbolXDynamic } from '../game/utils';
 	import type { ReelSymbol } from '../game/stateGame.svelte';
+	import { getContext } from '../game/context';
+	import { SYMBOL_HEIGHT } from '../game/constants';
 
 	type Props = {
 		reelIndex: number;
@@ -10,14 +12,20 @@
 	};
 
 	const props: Props = $props();
+	const context = getContext();
+	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
+	const scaledY = $derived(
+		(props.reelSymbol.symbolY.current / SYMBOL_HEIGHT) * symbolHeight,
+	);
 	const symbolInfo = $derived(
 		getSymbolInfo({ rawSymbol: props.reelSymbol.rawSymbol, state: props.reelSymbol.symbolState }),
 	);
 </script>
 
 <SymbolWrap
-	x={getSymbolX(props.reelIndex)}
-	y={props.reelSymbol.symbolY.current}
+	x={getSymbolXDynamic(props.reelIndex, symbolWidth)}
+	y={scaledY}
 	animating={symbolInfo.type === 'spine' &&
 		(props.reelSymbol.symbolState === 'land' || props.reelSymbol.symbolState === 'win')}
 >

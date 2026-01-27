@@ -5,10 +5,11 @@
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
 	import { BAR_WIDTH_RATIO, REEL_PADDING_RATIO, BUTTON_GAP_RATIO } from '../game/uiLayout';
-	import { MASK_WIDTH, MASK_HEIGHT } from '../game/constants';
 	import { getContext } from '../game/context';
 
 	const context = getContext();
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const canvas = $derived(context.stateLayoutDerived.canvasSizes());
 
 	// Texture state
 	let barTexture = $state<Texture>(Texture.EMPTY);
@@ -35,12 +36,11 @@
 
 	// ============================================================
 	// DERIVED LAYOUT (reactive - updates on resize)
+	// Uses dynamic board dimensions from stateGameDerived
 	// ============================================================
 
-	const boardRect = $derived({ x: 0, y: 0, width: MASK_WIDTH, height: MASK_HEIGHT });
-
-	// Target bar width (linked to mask width)
-	const targetBarWidth = $derived(boardRect.width * BAR_WIDTH_RATIO);
+	// Target bar width (linked to dynamic board width)
+	const targetBarWidth = $derived(boardLayout.width * BAR_WIDTH_RATIO);
 	
 	// Bar scale factor (only the background scales, not buttons)
 	const barScale = $derived(barNativeWidth > 0 ? targetBarWidth / barNativeWidth : 1);
@@ -63,14 +63,22 @@
 	
 	// ============================================================
 	// BOTTOM UI CONTAINER POSITION
-	// Position the entire UI container relative to the reels
+	// Position the entire UI container directly centered under the symbols
+	// Uses the same boardLayout logic as the symbols for consistency
 	// ============================================================
 	
-	// X: Center of reels
-	const containerX = $derived(boardRect.width * 0.5);
+	// X: Use board center X for proper alignment with symbols
+	const containerX = $derived(boardLayout.x);
 	
-	// Y: Bottom of mask + padding (ratio-based)
-	const containerY = $derived(boardRect.height + (boardRect.height * REEL_PADDING_RATIO));
+	// Y: Position directly below the board with consistent margin
+	// boardLayout.y is the center of the board, add half height to get bottom edge
+	const boardBottomY = $derived(boardLayout.y + boardLayout.height * 0.5);
+	const barMargin = $derived(scaledBarHeight * 0.15); // Small gap between board and bar
+	const halfBarHeight = $derived(scaledBarHeight * 0.5);
+	const desiredY = $derived(boardBottomY + halfBarHeight + barMargin);
+	const safeMargin = $derived(canvas.height * 0.02);
+	const maxY = $derived(canvas.height - halfBarHeight - safeMargin);
+	const containerY = $derived(Math.min(maxY, desiredY));
 
 	// Bet disabled state
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());

@@ -4,7 +4,7 @@
 	import { Container } from 'pixi-svelte';
 	import { getContextBoard } from 'components-shared';
 
-	import { SYMBOL_SIZE, BOARD_DIMENSIONS } from '../game/constants';
+	import { getContext } from '../game/context';
 
 	type Props = {
 		x: number;
@@ -14,13 +14,23 @@
 	};
 
 	const props: Props = $props();
+	const context = getContext();
 	const boardContext = getContextBoard();
+
+	// Use dynamic board width/height for bounds check (cached via $derived)
+	const boardWidth = $derived(context.stateGameDerived.boardLayout().width);
+	const boardHeight = $derived(context.stateGameDerived.boardLayout().height);
+
 	const show = $derived(
 		(boardContext.animate && props.animating) || (!boardContext.animate && !props.animating),
 	);
+	const left = 0;
 	const top = 0;
-	const bottom = SYMBOL_SIZE * BOARD_DIMENSIONS.y;
-	const inFrame = $derived(props.y >= top && props.y <= bottom);
+	const right = $derived(boardWidth);
+	const bottom = $derived(boardHeight);
+	const inFrame = $derived(
+		props.x >= left && props.x <= right && props.y >= top && props.y <= bottom,
+	);
 </script>
 
 {#if show && inFrame}

@@ -3,7 +3,7 @@
 	import { stateBetDerived } from 'state-shared';
 
 	import { getSymbolInfo } from '../game/utils';
-	import { SYMBOL_HEIGHT } from '../game/constants';
+	import { getContext } from '../game/context';
 
 	type Props = {
 		symbolInfo: ReturnType<typeof getSymbolInfo>;
@@ -14,13 +14,15 @@
 	};
 
 	const props: Props = $props();
+	const context = getContext();
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 </script>
 
 <SpineProvider
 	x={props.x}
 	y={props.y}
 	key={props.symbolInfo.assetKey}
-	height={SYMBOL_HEIGHT * props.symbolInfo.sizeRatios.height}
+	height={symbolHeight * props.symbolInfo.sizeRatios.height}
 >
 	<SpineTrack
 		loop={props.loop}

@@ -3,7 +3,14 @@ import { stateBet } from 'state-shared';
 import { createPlayBookUtils } from 'utils-book';
 import { createGetEmptyPaddedBoard } from 'utils-slots';
 
-import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_INFO_MAP, BOARD_DIMENSIONS } from './constants';
+import {
+	SYMBOL_WIDTH,
+	SYMBOL_HEIGHT,
+	SYMBOL_INFO_MAP,
+	BOARD_DIMENSIONS,
+	GRID_GAP_X,
+	GRID_GAP_Y,
+} from './constants';
 import { eventEmitter } from './eventEmitter';
 import type { Bet, BookEventOfType } from './typesBookEvent';
 import { bookEventHandlerMap } from './bookEventHandlerMap';
@@ -48,10 +55,22 @@ export const convertTorResumableBet = (betToResume: Bet) => {
 	return { ...betToResume, state: stateToResume };
 };
 
-// other utils
-// Center symbols in their grid cells
+// ============================================================
+// SYMBOL POSITION UTILS
+// Legacy static versions (for components not yet migrated)
+// ============================================================
 export const getSymbolX = (reelIndex: number) => SYMBOL_WIDTH * (reelIndex + 0.5);
 export const getSymbolY = (symbolIndexOfBoard: number) => (symbolIndexOfBoard + 0.5) * SYMBOL_HEIGHT;
+
+// ============================================================
+// DYNAMIC SYMBOL POSITION UTILS
+// Use these with reactive dimensions from stateGameDerived
+// ============================================================
+export const getSymbolXDynamic = (reelIndex: number, symbolWidth: number) => 
+	symbolWidth * (reelIndex + 0.5) + GRID_GAP_X * reelIndex;
+
+export const getSymbolYDynamic = (symbolIndexOfBoard: number, symbolHeight: number) => 
+	(symbolIndexOfBoard + 0.5) * symbolHeight + GRID_GAP_Y * symbolIndexOfBoard;
 
 export const getSymbolKey = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
 	if (rawSymbol.multiplier !== undefined) {

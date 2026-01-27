@@ -5,7 +5,6 @@
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
 	import type { SymbolState, RawSymbol } from '../game/types';
-	import { SYMBOL_HEIGHT } from '../game/constants';
 	import { getSymbolInfo } from '../game/utils';
 	import { getContext } from '../game/context';
 
@@ -20,6 +19,7 @@
 
 	const props: Props = $props();
 	const context = getContext();
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
 	const showWinFrame = $derived(
@@ -27,7 +27,7 @@
 			!['S'].includes(props.rawSymbol.name),
 	);
 
-	const WIN_FRAME_HEIGHT = SYMBOL_HEIGHT * 1.3;
+	const WIN_FRAME_HEIGHT = symbolHeight * 1.3;
 	// win_frame.png is 618x512; preserve aspect ratio.
 	const WIN_FRAME_WIDTH = WIN_FRAME_HEIGHT * (618 / 512);
 </script>
