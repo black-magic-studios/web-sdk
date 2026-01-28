@@ -7,6 +7,7 @@
 
 	type Props = {
 		children: Snippet;
+		zIndex?: number;
 	};
 
 	const props: Props = $props();
@@ -19,6 +20,7 @@
 	x={boardLayout.x}
 	y={boardLayout.y}
 	pivot={boardLayout.pivot}
+	zIndex={props.zIndex}
 >
 	{@render props.children()}
 </Container>

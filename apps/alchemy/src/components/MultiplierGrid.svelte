@@ -39,9 +39,10 @@
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolSize = $derived(context.stateGameDerived.symbolSize());
 
-	const WIN_FRAME_HEIGHT = $derived(symbolHeight * 1.3);
-	// win_frame.png is 618x512; preserve aspect ratio.
-	const WIN_FRAME_WIDTH = $derived(WIN_FRAME_HEIGHT * (618 / 512));
+	// Square frame - size based on symbol dimensions with slight padding
+	const WIN_FRAME_SIZE = $derived(symbolSize * 1.3);
+	const WIN_FRAME_WIDTH = $derived(WIN_FRAME_SIZE);
+	const WIN_FRAME_HEIGHT = $derived(WIN_FRAME_SIZE);
 
 	context.eventEmitter.subscribeOnMount({
 		multiplierGridShow: () => (show = true),
@@ -84,7 +85,7 @@
 {#if props.inBoardSpace}
 	{@render content()}
 {:else}
-	<BoardContainer>
+	<BoardContainer zIndex={100}>
 		{@render content()}
 	</BoardContainer>
 {/if}

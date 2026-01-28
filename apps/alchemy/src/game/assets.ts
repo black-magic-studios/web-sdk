@@ -141,6 +141,11 @@ export default {
 		// Served from SvelteKit static/ in dev & production.
 		src: '/assets/sprites/reelsFrame/reel_mask/arctic_clusters_square_reel_mask.png',
 	},
+	cellBackground: {
+		type: 'sprite',
+		// Cell background for 7x7 grid - rendered behind multipliers and symbols
+		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
+	},
 	reelBackgroundPlate: {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/reelsFrame/reel_frame_center.png', import.meta.url).href,

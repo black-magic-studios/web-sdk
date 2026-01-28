@@ -30,7 +30,7 @@
 	});
 </script>
 
-<BoardContainer>
+<BoardContainer zIndex={200}>
 	{#each wins as win}
 		<ClusterWinAmount {win} />
 	{/each}
