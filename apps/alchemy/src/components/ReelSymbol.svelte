@@ -26,7 +26,7 @@
 <SymbolWrap
 	x={getSymbolXDynamic(props.reelIndex, symbolWidth)}
 	y={scaledY}
-	animating={symbolInfo.type === 'spine' &&
+	animating={(symbolInfo.type === 'spine' || symbolInfo.type === 'spriteSheet') &&
 		(props.reelSymbol.symbolState === 'land' || props.reelSymbol.symbolState === 'win')}
 >
 	<Symbol

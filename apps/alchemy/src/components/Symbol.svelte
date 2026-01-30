@@ -4,6 +4,7 @@
 
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
+	import SymbolSpriteSheet from './SymbolSpriteSheet.svelte';
 	import type { SymbolState, RawSymbol } from '../game/types';
 	import { getSymbolInfo } from '../game/utils';
 	import { getContext } from '../game/context';
@@ -22,6 +23,7 @@
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
+	const isSpriteSheet = $derived(symbolInfo.type === 'spriteSheet');
 	const showWinFrame = $derived(
 		['win', 'postWinStatic', 'explosion'].includes(props.state) &&
 			!['S'].includes(props.rawSymbol.name),
@@ -34,6 +36,8 @@
 
 {#if isSprite}
 	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
+{:else if isSpriteSheet}
+	<SymbolSpriteSheet {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
 {:else}
 	<SymbolSpine
 		loop={props.loop}

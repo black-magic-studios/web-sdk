@@ -54,7 +54,7 @@
 
 	// update y
 	onMount(async () => {
-		await y.set(-symbolHeight, { duration: (SECOND * 2) / stateBetDerived.timeScale() });
+		await y.set(-symbolHeight, { duration: (SECOND * 0.8) / stateBetDerived.timeScale() });
 		show = false;
 	});
 </script>

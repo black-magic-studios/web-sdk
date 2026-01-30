@@ -322,13 +322,23 @@ export const zIndexes = {
 };
 
 const explosion = {
-	type: 'spine',
-	assetKey: 'explosion',
+	type: 'spriteSheet',
+	assetKey: 'snowPuff',
 	animationName: 'explosion',
-	sizeRatios: { width: 1, height: 1 },
+	sizeRatios: { width: 1.5, height: 1.5 },
+	animationSpeed: 7,
 };
 
 const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1.0, height: 1.0 } };
+const h1Win = { 
+	type: 'spriteSheet', 
+	assetKey: 'h1WinAnimation', 
+	animationName: 'h1_win', 
+	sizeRatios: { width: 1.0, height: 1.0 },
+	frameHeight: 256,
+	frameCount: 32,
+	animationSpeed: 0.7,
+};
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
 const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
@@ -364,7 +374,7 @@ const sSizeRatios = { width: 2.5, height: -(SPECIAL_SYMBOL_SIZE * 2.3) };
 export const SYMBOL_INFO_MAP = {
 	H1: {
 		explosion,
-		win: h1Static,
+		win: h1Win,
 		postWinStatic: h1Static,
 		static: h1Static,
 		spin: h1Static,
