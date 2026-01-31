@@ -1,14 +1,11 @@
 <script lang="ts" module>
 	export type EmitterEventMultiplierGrid =
-		| { type: 'multiplierGridShow' }
-		| { type: 'multiplierGridHide' }
 		| { type: 'multiplierGridUpdate'; grid: number[][] }
 		| { type: 'multiplierGridClear' };
 </script>
 
 <script lang="ts">
 	import { BitmapText, Container, Sprite } from 'pixi-svelte';
-	// import { BitmapText, Container, SpineProvider, SpineTrack } from 'pixi-svelte';
 
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
@@ -32,28 +29,57 @@
 		[0, 0, 0, 0, 0, 0, 0],
 	];
 
-	let show = $state(false);
 	let grid = $state(DEFAULT_GRID);
 
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolSize = $derived(context.stateGameDerived.symbolSize());
 
-	// Square frame - size based on symbol dimensions with slight padding
-	const WIN_FRAME_SIZE = $derived(symbolSize * 1.3);
-	const WIN_FRAME_WIDTH = $derived(WIN_FRAME_SIZE);
-	const WIN_FRAME_HEIGHT = $derived(WIN_FRAME_SIZE);
+	// Cell size - match CellGrid sizing (0.96 gap ratio)
+	const CELL_GAP_RATIO = 0.96;
+	const cellWidth = $derived(symbolWidth * CELL_GAP_RATIO);
+	const cellHeight = $derived(symbolHeight * CELL_GAP_RATIO);
+
+	// Check if grid has any multipliers > 1
+	const hasMultipliers = $derived(grid.some((reel) => reel.some((m) => m > 1)));
+
+	// Tint colors for each multiplier level
+	const MULTIPLIER_TINTS: Record<number, number> = {
+		2: 0x44ff44,     // Green
+		4: 0x4488ff,     // Blue
+		8: 0xaa44ff,     // Purple
+		16: 0xffaa44,    // Orange
+		32: 0xff4444,    // Red
+		64: 0xffff44,    // Gold
+		128: 0x44ffff,   // Cyan
+		256: 0xff44aa,   // Pink
+		512: 0xffffff,   // White
+		1024: 0xff00ff,  // Magenta
+	};
+
+	function getMultiplierTint(multiplier: number): number {
+		return MULTIPLIER_TINTS[multiplier] ?? 0xffffff;
+	}
 
 	context.eventEmitter.subscribeOnMount({
-		multiplierGridShow: () => (show = true),
-		multiplierGridHide: () => (show = false),
-		multiplierGridUpdate: (emitterEvent) => (grid = emitterEvent.grid),
-		multiplierGridClear: () => (grid = DEFAULT_GRID),
+		multiplierGridUpdate: (emitterEvent) => {
+			console.log('[MultiplierGrid] multiplierGridUpdate received:', emitterEvent.grid);
+			grid = emitterEvent.grid;
+		},
+		multiplierGridClear: () => {
+			console.log('[MultiplierGrid] multiplierGridClear received');
+			grid = DEFAULT_GRID;
+		},
+	});
+
+	// Debug effect
+	$effect(() => {
+		console.log('[MultiplierGrid] State:', { hasMultipliers, cellWidth, cellHeight, grid: JSON.stringify(grid) });
 	});
 </script>
 
 {#snippet content()}
-	{#if show}
+	{#if hasMultipliers && cellWidth > 0 && cellHeight > 0}
 		{#each grid as reel, reelIndex}
 			{#each reel as multiplier, rowIndex}
 				{#if multiplier > 1}
@@ -61,7 +87,13 @@
 						x={getSymbolXDynamic(reelIndex, symbolWidth)}
 						y={getSymbolYDynamic(rowIndex, symbolHeight)}
 					>
-						<Sprite key="winFrame" anchor={0.5} width={WIN_FRAME_WIDTH} height={WIN_FRAME_HEIGHT} />
+						<Sprite
+							key="multiplierCell"
+							anchor={0.5}
+							width={cellWidth}
+							height={cellHeight}
+							tint={getMultiplierTint(multiplier)}
+						/>
 						<BitmapText
 							x={-symbolWidth * 0.05}
 							anchor={{
@@ -85,7 +117,7 @@
 {#if props.inBoardSpace}
 	{@render content()}
 {:else}
-	<BoardContainer zIndex={100}>
+	<BoardContainer zIndex={5}>
 		{@render content()}
 	</BoardContainer>
 {/if}

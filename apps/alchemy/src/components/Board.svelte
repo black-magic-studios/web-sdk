@@ -20,6 +20,7 @@
 	import BoardBase from './BoardBase.svelte';
 	import ReelMaskSprite from './ReelMaskSprite.svelte';
 	import CellGrid from './CellGrid.svelte';
+	import MultiplierGrid from './MultiplierGrid.svelte';
 
 	const context = getContext();
 
@@ -51,6 +52,7 @@
 		<BoardContainer>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
+			<MultiplierGrid inBoardSpace />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
@@ -66,6 +68,7 @@
 		<BoardContainer>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
+			<MultiplierGrid inBoardSpace />
 		</BoardContainer>
 	</BoardContext>
 {/if}

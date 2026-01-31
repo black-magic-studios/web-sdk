@@ -29,10 +29,36 @@
 	const animationDurationMs = $derived((frameCount / animationSpeed) * (1000 / 60));
 
 	let play = $state(true);
+	let lastAssetKey = $state(props.symbolInfo.assetKey);
+
+	// Reset play when animation changes (e.g., H1 win spriteSheet -> explosion spriteSheet)
+	$effect(() => {
+		if (props.symbolInfo.assetKey !== lastAssetKey) {
+			console.log('[SymbolSpriteSheet] Asset changed, resetting play:', lastAssetKey, '->', props.symbolInfo.assetKey);
+			lastAssetKey = props.symbolInfo.assetKey;
+			play = true;
+		}
+	});
+
+	// Debug logging
+	$effect(() => {
+		console.log('[SymbolSpriteSheet] Rendering:', {
+			assetKey: props.symbolInfo.assetKey,
+			animationName: props.symbolInfo.animationName,
+			frameCount,
+			animationSpeed,
+			animationDurationMs,
+			play,
+			scale,
+			x: props.x,
+			y: props.y,
+		});
+	});
 
 	$effect(() => {
 		if (play && props.oncomplete) {
 			const timeout = setTimeout(() => {
+				console.log('[SymbolSpriteSheet] Animation complete:', props.symbolInfo.assetKey);
 				play = false;
 				props.oncomplete?.();
 			}, animationDurationMs);

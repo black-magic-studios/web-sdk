@@ -34,7 +34,7 @@
 </script>
 
 {#if show && inFrame}
-	<Container x={props.x} y={props.y}>
+	<Container x={props.x} y={props.y} zIndex={props.animating ? 1000 : 0}>
 		{@render props.children()}
 	</Container>
 {/if}

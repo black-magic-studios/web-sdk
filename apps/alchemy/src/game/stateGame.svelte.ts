@@ -89,6 +89,8 @@ export const stateGame = $state({
 	tumbleBoardAdding: [] as TumbleSymbol[][],
 	tumbleBoardBase: [] as TumbleSymbol[][],
 	multiplierBoard: [] as (MultiplierSymbol | undefined)[][],
+	// Pending multiplier grid to be applied after explosion animation
+	pendingMultiplierGrid: null as number[][] | null,
 	scatterCounter: 0,
 });
 

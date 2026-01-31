@@ -199,14 +199,25 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
 	},
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
+		console.log('[bookEventHandlerMap] tumbleBoard: starting');
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
+		console.log('[bookEventHandlerMap] tumbleBoard: starting explosion');
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardExplode',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
+		console.log('[bookEventHandlerMap] tumbleBoard: explosion complete');
+		// Apply pending multiplier grid after explosion animation completes
+		if (stateGame.pendingMultiplierGrid) {
+			console.log('[bookEventHandlerMap] tumbleBoard: applying pending grid', stateGame.pendingMultiplierGrid);
+			eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: stateGame.pendingMultiplierGrid });
+			stateGame.pendingMultiplierGrid = null;
+		} else {
+			console.log('[bookEventHandlerMap] tumbleBoard: no pending grid to apply');
+		}
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
 		await eventEmitter.broadcastAsync({ type: 'tumbleBoardSlideDown' });
 		eventEmitter.broadcast({
@@ -218,6 +229,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
 		eventEmitter.broadcast({ type: 'boardShow' });
+		console.log('[bookEventHandlerMap] tumbleBoard: complete');
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
@@ -233,12 +245,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'winHide' });
 	},
 	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
-		eventEmitter.broadcast({ type: 'multiplierGridShow' });
-		eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: bookEvent.gridMultipliers });
+		// Store pending grid - will be applied after explosion animation in tumbleBoard
+		console.log('[bookEventHandlerMap] updateGrid: storing pending grid', bookEvent.gridMultipliers);
+		stateGame.pendingMultiplierGrid = bookEvent.gridMultipliers;
 	},
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {
 		eventEmitter.broadcast({ type: 'multiplierGridClear' });
-		eventEmitter.broadcast({ type: 'multiplierGridHide' });
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 	},

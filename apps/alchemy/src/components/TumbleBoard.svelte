@@ -81,14 +81,22 @@
 			context.stateGame.tumbleBoardBase = [];
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
+			console.log('[TumbleBoard] tumbleBoardExplode called with positions:', explodingPositions);
+			
+			// Small delay to ensure any previous spriteSheet animations are cleared
+			await new Promise(resolve => setTimeout(resolve, 50));
+			
 			const getPromises = () =>
 				explodingPositions.map(async (position) => {
 					const tumbleSymbol = context.stateGame.tumbleBoardBase[position.reel][position.row];
+					console.log('[TumbleBoard] Setting symbol to explosion:', tumbleSymbol.rawSymbol.name, 'at', position);
 					tumbleSymbol.symbolState = 'explosion';
 					await waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve));
+					console.log('[TumbleBoard] Explosion complete for:', tumbleSymbol.rawSymbol.name);
 				});
 
 			await Promise.all(getPromises());
+			console.log('[TumbleBoard] All explosions complete');
 		},
 		tumbleBoardRemoveExploded: () => {
 			context.stateGame.tumbleBoardBase.forEach((tumbleReel, reelIndex) => {
@@ -139,7 +147,7 @@
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer>
+		<BoardContainer zIndex={10}>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>

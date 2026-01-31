@@ -146,6 +146,11 @@ export default {
 		// Cell background for 7x7 grid - rendered behind multipliers and symbols
 		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
 	},
+	multiplierCell: {
+		type: 'sprite',
+		// Multiplier cell overlay - rendered on top of cellBackground, tinted per multiplier level
+		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_multi_cell.png',
+	},
 	reelBackgroundPlate: {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/reelsFrame/reel_frame_center.png', import.meta.url).href,
@@ -153,11 +158,6 @@ export default {
 	payFrame: {
 		type: 'sprite',
 		src: new URL('../../assets/sprites/payFrame/payFrame.png', import.meta.url).href,
-	},
-	winFrame: {
-		type: 'sprite',
-		// Served from SvelteKit static/ in dev & production.
-		src: '/assets/win_frame.png',
 	},
 	anticipation: {
 		type: 'spine',

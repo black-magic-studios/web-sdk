@@ -24,7 +24,6 @@
 	import TumbleBoard from './TumbleBoard.svelte';
 	import TumbleWinAmount from './TumbleWinAmount.svelte';
 	import GlobalMultiplier from './GlobalMultiplier.svelte';
-	import MultiplierGrid from './MultiplierGrid.svelte';
 	import MultiplierFlyOut from './MultiplierFlyOut.svelte';
 	import Win from './Win.svelte';
 	import FreeSpinIntro from './FreeSpinIntro.svelte';
@@ -70,7 +69,6 @@
 		<TumbleWinAmount />
 		<GlobalMultiplier />
 		<TumbleBoard />
-		<MultiplierGrid />
 		<MultiplierFlyOut />
 		<ClusterWinAmounts />
 

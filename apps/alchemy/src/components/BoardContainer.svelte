@@ -21,6 +21,7 @@
 	y={boardLayout.y}
 	pivot={boardLayout.pivot}
 	zIndex={props.zIndex}
+	sortableChildren={true}
 >
 	{@render props.children()}
 </Container>
