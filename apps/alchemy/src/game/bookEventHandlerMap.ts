@@ -44,7 +44,11 @@ const animateSymbols = async ({ positions }: { positions: Position[] }) => {
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
+		console.log(`[bookEventHandlerMap] 🎰 REVEAL at ${Date.now()} - new spin starting`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
+		// Clear multiplier grid at start of new spin
+		console.log(`[bookEventHandlerMap] 🧹 Broadcasting multiplierGridClear at ${Date.now()}`);
+		eventEmitter.broadcast({ type: 'multiplierGridClear' });
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
 		if (isBonusGame) {
 			eventEmitter.broadcast({ type: 'stopButtonEnable' });
@@ -56,9 +60,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
+		console.log(`[bookEventHandlerMap] 🏆 WIN_INFO at ${Date.now()}`, { totalWin: bookEvent.totalWin });
 		const promise1 = async () => {
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_small' });
 			await animateSymbols({ positions: _.flatten(bookEvent.wins.map((win) => win.positions)) });
+			console.log(`[bookEventHandlerMap] 🏆 WIN_INFO animation complete at ${Date.now()}`);
 		};
 
 		const promise2 = async () => {
@@ -199,27 +205,30 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
 	},
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
-		console.log('[bookEventHandlerMap] tumbleBoard: starting');
+		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start at ${Date.now()}`);
+		console.log(`[bookEventHandlerMap] 📤 Broadcasting boardHide at ${Date.now()}`);
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
-		console.log('[bookEventHandlerMap] tumbleBoard: starting explosion');
+		console.log(`[bookEventHandlerMap] 💥 Starting explosion at ${Date.now()}`);
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardExplode',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
-		console.log('[bookEventHandlerMap] tumbleBoard: explosion complete');
+		console.log(`[bookEventHandlerMap] 💥 Explosion complete at ${Date.now()}`);
 		// Apply pending multiplier grid after explosion animation completes
 		if (stateGame.pendingMultiplierGrid) {
-			console.log('[bookEventHandlerMap] tumbleBoard: applying pending grid', stateGame.pendingMultiplierGrid);
+			console.log(`[bookEventHandlerMap] 📤 Applying pending grid at ${Date.now()}`, stateGame.pendingMultiplierGrid);
 			eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: stateGame.pendingMultiplierGrid });
 			stateGame.pendingMultiplierGrid = null;
 		} else {
-			console.log('[bookEventHandlerMap] tumbleBoard: no pending grid to apply');
+			console.log(`[bookEventHandlerMap] ⚠️ No pending grid to apply at ${Date.now()}`);
 		}
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
+		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown at ${Date.now()}`);
 		await eventEmitter.broadcastAsync({ type: 'tumbleBoardSlideDown' });
+		console.log(`[bookEventHandlerMap] ⬇️ SlideDown complete at ${Date.now()}`);
 		eventEmitter.broadcast({
 			type: 'boardSettle',
 			board: stateGameDerived
@@ -228,8 +237,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		});
 		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
+		console.log(`[bookEventHandlerMap] 📤 Broadcasting boardShow at ${Date.now()}`);
 		eventEmitter.broadcast({ type: 'boardShow' });
-		console.log('[bookEventHandlerMap] tumbleBoard: complete');
+		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD complete at ${Date.now()}`);
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
@@ -246,11 +256,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
 		// Store pending grid - will be applied after explosion animation in tumbleBoard
-		console.log('[bookEventHandlerMap] updateGrid: storing pending grid', bookEvent.gridMultipliers);
+		const multiplierCount = bookEvent.gridMultipliers.flat().filter(m => m > 1).length;
+		console.log(`[bookEventHandlerMap] 📊 UPDATE_GRID at ${Date.now()}`, { multiplierCount, grid: bookEvent.gridMultipliers });
 		stateGame.pendingMultiplierGrid = bookEvent.gridMultipliers;
 	},
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {
-		eventEmitter.broadcast({ type: 'multiplierGridClear' });
+		console.log(`[bookEventHandlerMap] 🏁 FINAL_WIN at ${Date.now()} - cascade sequence ended`);
+		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 	},

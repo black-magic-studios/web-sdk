@@ -91,6 +91,16 @@ export const stateGame = $state({
 	multiplierBoard: [] as (MultiplierSymbol | undefined)[][],
 	// Pending multiplier grid to be applied after explosion animation
 	pendingMultiplierGrid: null as number[][] | null,
+	// Active multiplier grid - persists across component remounts
+	multiplierGrid: [
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+	] as number[][],
 	scatterCounter: 0,
 });
 

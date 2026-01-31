@@ -5,6 +5,7 @@
 </script>
 
 <script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
 	import { BitmapText, Container, Sprite } from 'pixi-svelte';
 
 	import BoardContainer from './BoardContainer.svelte';
@@ -14,6 +15,8 @@
 	type Props = {
 		/** Render inside an existing BoardContainer (board-local coordinates). */
 		inBoardSpace?: boolean;
+		/** Whether this is the persistent instance (for debugging) */
+		persistent?: boolean;
 	};
 
 	const props: Props = $props();
@@ -29,7 +32,20 @@
 		[0, 0, 0, 0, 0, 0, 0],
 	];
 
-	let grid = $state(DEFAULT_GRID);
+	// Instance ID for tracking mount/unmount
+	const instanceId = Math.random().toString(36).slice(2, 8);
+
+	// Use GLOBAL state from context - survives component remounts!
+	const grid = $derived(context.stateGame.multiplierGrid);
+
+	// Lifecycle logging
+	onMount(() => {
+		console.log(`[MultiplierGrid:${instanceId}] 🟢 MOUNTED at ${Date.now()}, inBoardSpace=${props.inBoardSpace}, persistent=${props.persistent}`);
+	});
+
+	onDestroy(() => {
+		console.log(`[MultiplierGrid:${instanceId}] 🔴 DESTROYED at ${Date.now()}, inBoardSpace=${props.inBoardSpace}, persistent=${props.persistent}`);
+	});
 
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
@@ -63,18 +79,34 @@
 
 	context.eventEmitter.subscribeOnMount({
 		multiplierGridUpdate: (emitterEvent) => {
-			console.log('[MultiplierGrid] multiplierGridUpdate received:', emitterEvent.grid);
-			grid = emitterEvent.grid;
+			const multiplierCount = emitterEvent.grid.flat().filter(m => m > 1).length;
+			console.log(`[MultiplierGrid:${instanceId}] 📥 UPDATE at ${Date.now()}`, {
+				multiplierCount,
+				grid: JSON.stringify(emitterEvent.grid),
+			});
+			// Update GLOBAL state - persists across component remounts
+			context.stateGame.multiplierGrid = emitterEvent.grid;
 		},
 		multiplierGridClear: () => {
-			console.log('[MultiplierGrid] multiplierGridClear received');
-			grid = DEFAULT_GRID;
+			console.log(`[MultiplierGrid:${instanceId}] 🧹 CLEAR at ${Date.now()}`);
+			console.trace('[MultiplierGrid] Clear call stack:');
+			// Update GLOBAL state
+			context.stateGame.multiplierGrid = DEFAULT_GRID;
 		},
 	});
 
-	// Debug effect
+	// Track hasMultipliers changes
+	let prevHasMultipliers = false;
 	$effect(() => {
-		console.log('[MultiplierGrid] State:', { hasMultipliers, cellWidth, cellHeight, grid: JSON.stringify(grid) });
+		if (hasMultipliers !== prevHasMultipliers) {
+			console.log(`[MultiplierGrid:${instanceId}] 👁️ VISIBILITY changed at ${Date.now()}:`, {
+				from: prevHasMultipliers,
+				to: hasMultipliers,
+				cellWidth,
+				cellHeight,
+			});
+			prevHasMultipliers = hasMultipliers;
+		}
 	});
 </script>
 

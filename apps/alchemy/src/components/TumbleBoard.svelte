@@ -26,10 +26,22 @@
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
 	import { getSymbolY } from '../game/utils';
 	import { getContext } from '../game/context';
+	import { SYMBOL_HEIGHT } from '../game/constants';
 
 	const context = getContext();
 
 	let show = $state(false);
+
+	// Constrained backOut easing - limits overshoot to stay within cell boundary
+	// Standard backOut overshoots by ~10% which can cross into adjacent cells
+	// This version caps the overshoot to 10% of cell height
+	const constrainedBackOut = (t: number): number => {
+		const result = backOut(t);
+		// backOut can return values > 1 (overshoot). Cap at 1.1 to limit overshoot to 10% of travel distance
+		// Since symbols travel 1 cell height, this keeps overshoot within ~10% of cell height
+		const maxOvershoot = 1.05; // Allow only 5% overshoot to be safe
+		return Math.min(result, maxOvershoot);
+	};
 
 	const createTumbleSymbol = ({ initY, rawSymbol }: { initY: number; rawSymbol: RawSymbol }) => {
 		const symbolY = new Tween(initY);
@@ -116,7 +128,7 @@
 
 								await tumbleSymbol.symbolY.set(targetY, {
 									duration: bounceDuration,
-									easing: backOut,
+									easing: constrainedBackOut,
 								});
 
 								if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {

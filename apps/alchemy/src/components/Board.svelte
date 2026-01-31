@@ -26,11 +26,22 @@
 
 	let show = $state(true);
 
+	// Track show state changes
+	$effect(() => {
+		console.log(`[Board] 👁️ show state changed at ${Date.now()}:`, show);
+	});
+
 	context.eventEmitter.subscribeOnMount({
 		stopButtonClick: () => context.stateGameDerived.enhancedBoard.stop(),
 		boardSettle: ({ board }) => context.stateGameDerived.enhancedBoard.settle(board),
-		boardShow: () => (show = true),
-		boardHide: () => (show = false),
+		boardShow: () => {
+			console.log(`[Board] 📥 boardShow event at ${Date.now()}`);
+			show = true;
+		},
+		boardHide: () => {
+			console.log(`[Board] 📥 boardHide event at ${Date.now()}`);
+			show = false;
+		},
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
 			const getPromises = () =>
 				symbolPositions.map(async (position) => {
@@ -63,7 +74,7 @@
 		</BoardContainer>
 	</BoardContext>
 {:else}
-	<!-- Keep board space reserved during win animations -->
+	<!-- Keep board space reserved during tumble - MultiplierGrid state persists via context -->
 	<BoardContext animate={false}>
 		<BoardContainer>
 			<ReelMaskSprite inBoardSpace />
