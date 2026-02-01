@@ -23,18 +23,35 @@
 
 		await preloadFont();
 		context.stateApp.pixiApplication = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>();
+
+		// Check WebGPU support before attempting to use it
+		const webGPUSupported = await (async () => {
+			try {
+				if (!navigator.gpu) return false;
+				const adapter = await navigator.gpu.requestAdapter();
+				return !!adapter;
+			} catch {
+				return false;
+			}
+		})();
+
 		await context.stateApp.pixiApplication.init({
 			autoDensity: true,
 			backgroundAlpha: 0,
 			hello: true,
 			multiView: false,
-			antialias: true,
+			// WebGPU has stricter antialias requirements - disable if using WebGPU
+			antialias: !webGPUSupported,
 			clearBeforeRender: true,
-			preference: 'webgpu',
+			// Prefer WebGPU but fall back to WebGL if not supported
+			preference: webGPUSupported ? 'webgpu' : 'webgl',
 			powerPreference: 'high-performance',
-			resolution: devicePixelRatio.current,
+			// Cap resolution to avoid exceeding GPU texture limits with WebGPU
+			resolution: Math.min(devicePixelRatio.current ?? 1, 2),
 			resizeTo: window,
 		});
+
+		console.log(`PixiJS renderer: ${webGPUSupported ? 'WebGPU' : 'WebGL'} (antialias: ${!webGPUSupported})`);
 
 		wrap.appendChild(context.stateApp.pixiApplication.canvas);
 

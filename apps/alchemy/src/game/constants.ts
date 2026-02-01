@@ -349,8 +349,9 @@ const l2Static = { type: 'sprite', assetKey: 'l2.webp', sizeRatios: { width: 1, 
 const l3Static = { type: 'sprite', assetKey: 'l3.webp', sizeRatios: { width: 1, height: 1 } };
 const l4Static = { type: 'sprite', assetKey: 'l4.webp', sizeRatios: { width: 1, height: 1 } };
 
-const sStatic = { type: 'sprite', assetKey: 's.png', sizeRatios: { width: 1.243, height: 1.243 } };
-const wStatic = { type: 'sprite', assetKey: 'w.png', sizeRatios: { width: 1.12, height: 1.12 } };
+// S and W use spine for all states since static PNGs don't exist
+const sSizeRatiosStatic = { width: 2.5, height: -(SPECIAL_SYMBOL_SIZE * 2.3) };
+const wSizeRatiosStatic = { width: 1.5 * 0.9, height: SPECIAL_SYMBOL_SIZE * 1.15 };
 
 const m2Static = {
 	type: 'sprite',
@@ -451,8 +452,8 @@ export const SYMBOL_INFO_MAP = {
 			assetKey: 'explodedW.png',
 			sizeRatios: { width: 0.85, height: 0.85 },
 		},
-		static: wStatic,
-		spin: wStatic,
+		static: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite_land', sizeRatios: wSizeRatios },
+		spin: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite_land', sizeRatios: wSizeRatios },
 		win: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite', sizeRatios: wSizeRatios },
 		land: {
 			type: 'spine',
@@ -463,8 +464,8 @@ export const SYMBOL_INFO_MAP = {
 	},
 	S: {
 		explosion,
-		postWinStatic: sStatic,
-		static: sStatic,
+		postWinStatic: { type: 'spine', assetKey: 'S', animationName: 'scatter_land', sizeRatios: sSizeRatios },
+		static: { type: 'spine', assetKey: 'S', animationName: 'scatter_land', sizeRatios: sSizeRatios },
 		spin: {
 			type: 'spine',
 			assetKey: 'S',

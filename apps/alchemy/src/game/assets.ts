@@ -1,9 +1,4 @@
 export default {
-	castleBackground: {
-		type: 'sprite',
-		// Served from SvelteKit static/ in dev & production.
-		src: '/assets/sprites/symbolsStatic/cool_clusters/cool_clusters_background.png',
-	},
 	loader: {
 		type: 'spine',
 		src: {
@@ -122,15 +117,6 @@ export default {
 			scale: 2,
 		},
 	},
-	reelsFrame: {
-		type: 'sprites',
-		src: new URL('../../assets/sprites/reelsFrame/reels_frame.json', import.meta.url).href,
-	},
-	arcticFrame: {
-		type: 'sprites',
-		// Arctic Clusters reel frame atlas
-		src: new URL('../../assets/sprites/reelsFrame/arctic_frame.json', import.meta.url).href,
-	},
 	reelFrameEdge: {
 		type: 'sprite',
 		// Served from SvelteKit static/ in dev & production.
@@ -150,10 +136,6 @@ export default {
 		type: 'sprite',
 		// Multiplier cell overlay - rendered on top of cellBackground, tinted per multiplier level
 		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_multi_cell.png',
-	},
-	reelBackgroundPlate: {
-		type: 'sprite',
-		src: new URL('../../assets/sprites/reelsFrame/reel_frame_center.png', import.meta.url).href,
 	},
 	payFrame: {
 		type: 'sprite',
