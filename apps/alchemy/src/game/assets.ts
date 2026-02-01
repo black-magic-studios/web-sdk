@@ -1,4 +1,9 @@
 export default {
+	background: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/cool_clusters/cool_clusters_background.png',
+		preload: true,
+	},
 	loader: {
 		type: 'spine',
 		src: {

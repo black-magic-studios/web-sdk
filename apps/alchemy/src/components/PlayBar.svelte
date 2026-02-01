@@ -4,12 +4,12 @@
 	import { Assets, Texture } from 'pixi.js';
 	import { OnHotkey } from 'components-shared';
 	import { stateBetDerived } from 'state-shared';
-	import { BAR_WIDTH_RATIO, REEL_PADDING_RATIO, BUTTON_GAP_RATIO } from '../game/uiLayout';
+	import { BAR_WIDTH_RATIO, BUTTON_GAP_RATIO } from '../game/uiLayout';
 	import { getContext } from '../game/context';
+	import BoardContainer from './BoardContainer.svelte';
 
 	const context = getContext();
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
-	const canvas = $derived(context.stateLayoutDerived.canvasSizes());
 
 	// Texture state
 	let barTexture = $state<Texture>(Texture.EMPTY);
@@ -18,31 +18,30 @@
 	let assetsLoaded = $state(false);
 
 	// Original bar texture dimensions (for scale calculation)
-	let barNativeWidth = $state(1);
-	let barNativeHeight = $state(1);
+	// Use reasonable defaults based on expected asset size to prevent initial bad positioning
+	const DEFAULT_BAR_WIDTH = 1200;
+	const DEFAULT_BAR_HEIGHT = 120;
+	let barNativeWidth = $state(DEFAULT_BAR_WIDTH);
+	let barNativeHeight = $state(DEFAULT_BAR_HEIGHT);
 
 	// ============================================================
 	// CONFIGURATION - ALL VALUES ARE RATIOS (Resolution Independent)
 	// ============================================================
-	// Button sizes relative to Play Bar scaled height
-	const SPIN_BUTTON_SCALE_RATIO = 1.4; // Spin button = 140% of bar height
-	const AUTO_BUTTON_SCALE_RATIO = 0.55; // Autoplay = 55% of bar height
-
-	// Vertical position of buttons relative to bar height (0 = centered)
-	const BUTTON_Y_RATIO = 0;
-
-	// Autoplay margin from right edge as ratio of bar width
+	const SPIN_BUTTON_SCALE_RATIO = 1.4;
+	const AUTO_BUTTON_SCALE_RATIO = 0.55;
 	const AUTOPLAY_MARGIN_RATIO = 0.06;
+	
+	// Margin below the board as ratio of board height
+	const PLAYBAR_MARGIN_RATIO = 0.05;
 
 	// ============================================================
 	// DERIVED LAYOUT (reactive - updates on resize)
-	// Uses dynamic board dimensions from stateGameDerived
 	// ============================================================
 
 	// Target bar width (linked to dynamic board width)
 	const targetBarWidth = $derived(boardLayout.width * BAR_WIDTH_RATIO);
 	
-	// Bar scale factor (only the background scales, not buttons)
+	// Bar scale factor
 	const barScale = $derived(barNativeWidth > 0 ? targetBarWidth / barNativeWidth : 1);
 	
 	// Scaled bar dimensions
@@ -53,32 +52,28 @@
 	const spinButtonSize = $derived(scaledBarHeight * SPIN_BUTTON_SCALE_RATIO);
 	const autoButtonSize = $derived(scaledBarHeight * AUTO_BUTTON_SCALE_RATIO);
 	
-	// Dynamic button Y position (relative to bar height)
-	const buttonY = $derived(scaledBarHeight * BUTTON_Y_RATIO);
-	
-	// Dynamic button X positions (relative to bar width)
+	// Dynamic button X positions (relative to bar center at x=0)
 	const autoplayX = $derived((scaledBarWidth * 0.5) - (scaledBarWidth * AUTOPLAY_MARGIN_RATIO) - (autoButtonSize * 0.5));
 	const buttonGap = $derived(scaledBarWidth * BUTTON_GAP_RATIO);
 	const spinButtonX = $derived(autoplayX - (autoButtonSize * 0.5) - buttonGap - (spinButtonSize * 0.5));
 	
 	// ============================================================
-	// BOTTOM UI CONTAINER POSITION
-	// Position the entire UI container directly centered under the symbols
-	// Uses the same boardLayout logic as the symbols for consistency
+	// POSITION RELATIVE TO BOARD
+	// BoardContainer has pivot at (width/2, height/2), which means:
+	// - Local (0, 0) = TOP-LEFT of board
+	// - Local (width/2, height/2) = CENTER of board
+	// - Local (width/2, height) = BOTTOM-CENTER of board
 	// ============================================================
 	
-	// X: Use board center X for proper alignment with symbols
-	const containerX = $derived(boardLayout.x);
+	// X: Center horizontally = half the board width
+	const containerX = $derived(boardLayout.width / 2);
 	
-	// Y: Position directly below the board with consistent margin
-	// boardLayout.y is the center of the board, add half height to get bottom edge
-	const boardBottomY = $derived(boardLayout.y + boardLayout.height * 0.5);
-	const barMargin = $derived(scaledBarHeight * 0.15); // Small gap between board and bar
-	const halfBarHeight = $derived(scaledBarHeight * 0.5);
-	const desiredY = $derived(boardBottomY + halfBarHeight + barMargin);
-	const safeMargin = $derived(canvas.height * 0.02);
-	const maxY = $derived(canvas.height - halfBarHeight - safeMargin);
-	const containerY = $derived(Math.min(maxY, desiredY));
+	// Y: Position below the board
+	// boardLayout.height = bottom edge of board (in local coords)
+	// + scaledBarHeight / 2 = offset so bar's center is below board
+	// + margin = gap between board and bar
+	const margin = $derived(boardLayout.height * PLAYBAR_MARGIN_RATIO);
+	const containerY = $derived(boardLayout.height + (scaledBarHeight / 2) + margin);
 
 	// Bet disabled state
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
@@ -103,9 +98,19 @@
 			autoTexture = auto;
 			
 			assetsLoaded = true;
-			console.log('PlayBar assets loaded - Bar native size:', bar.width, 'x', bar.height);
+			console.log('PlayBar: Assets loaded, native bar size:', bar.width, 'x', bar.height);
+			console.log('PlayBar: Board dimensions:', boardLayout.width, 'x', boardLayout.height);
+			console.log('PlayBar: Container position will be x:', containerX, 'y:', containerY);
 		} catch (error) {
 			console.error('Failed to load PlayBar assets:', error);
+		}
+	});
+	
+	// Debug: Log position changes
+	$effect(() => {
+		if (assetsLoaded) {
+			console.log('PlayBar position updated - x:', containerX, 'y:', containerY, 
+				'boardHeight:', boardLayout.height, 'scaledBarHeight:', scaledBarHeight);
 		}
 	});
 	
@@ -123,12 +128,13 @@
 </script>
 
 <!--
-	BOTTOM UI CONTAINER
-	- Positioned at: Reels.CenterX, Reels.BottomY + Padding
-	- All children use local coordinates relative to this container's center
-	- All sizing/positioning uses RATIOS for resolution independence
+	PLAYBAR - Inside BoardContainer for proper scaling/positioning
+	- zIndex: 20 (highest, always on top of symbols)
+	- Position: Below the board, relative to board center
+	- BoardContainer pivot is (width/2, height/2), so x=0,y=0 is board center
 -->
-<Container x={containerX} y={containerY} zIndex={10}>
+<BoardContainer zIndex={20}>
+	<Container x={containerX} y={containerY}>
 	
 	{#if assetsLoaded}
 		<!--
@@ -200,6 +206,7 @@
 		</Container>
 	{/if}
 	
-</Container>
+	</Container>
+</BoardContainer>
 
 

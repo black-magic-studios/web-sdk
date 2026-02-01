@@ -60,7 +60,7 @@
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer>
+		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
 			<MultiplierGrid inBoardSpace />
@@ -69,14 +69,14 @@
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer>
+		<BoardContainer zIndex={10}>
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
 {:else}
 	<!-- Keep board space reserved during tumble - MultiplierGrid state persists via context -->
 	<BoardContext animate={false}>
-		<BoardContainer>
+		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
 			<MultiplierGrid inBoardSpace />

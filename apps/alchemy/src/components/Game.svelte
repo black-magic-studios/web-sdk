@@ -71,10 +71,7 @@
 		<TumbleBoard />
 		<MultiplierFlyOut />
 		<ClusterWinAmounts />
-
-		<MainContainer>
-			<PlayBar />
-		</MainContainer>
+		<PlayBar />
 
 		<Container x={20}>
 			<UiGameName name="MULTIDROP" />

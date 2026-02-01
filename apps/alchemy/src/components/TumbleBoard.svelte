@@ -153,7 +153,7 @@
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer>
+		<BoardContainer zIndex={0}>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
