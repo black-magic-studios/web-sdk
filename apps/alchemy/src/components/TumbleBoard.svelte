@@ -153,13 +153,13 @@
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer zIndex={0}>
+		<BoardContainer zIndex={0} masked>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer zIndex={10}>
+		<BoardContainer zIndex={10} masked>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>

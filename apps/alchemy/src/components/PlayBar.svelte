@@ -15,6 +15,7 @@
 	let barTexture = $state<Texture>(Texture.EMPTY);
 	let playTexture = $state<Texture>(Texture.EMPTY);
 	let autoTexture = $state<Texture>(Texture.EMPTY);
+	let buyTexture = $state<Texture>(Texture.EMPTY);
 	let assetsLoaded = $state(false);
 
 	// Original bar texture dimensions (for scale calculation)
@@ -29,7 +30,9 @@
 	// ============================================================
 	const SPIN_BUTTON_SCALE_RATIO = 1.4;
 	const AUTO_BUTTON_SCALE_RATIO = 0.55;
+	const BUY_BUTTON_SCALE_RATIO = 1.4 * 0.8; // 80% of play button size
 	const AUTOPLAY_MARGIN_RATIO = 0.06;
+	const BUY_MARGIN_RATIO = 0.06; // Margin from right edge for buy button
 	
 	// Margin below the board as ratio of board height
 	const PLAYBAR_MARGIN_RATIO = 0.05;
@@ -51,11 +54,19 @@
 	// Dynamic button sizes based on bar height
 	const spinButtonSize = $derived(scaledBarHeight * SPIN_BUTTON_SCALE_RATIO);
 	const autoButtonSize = $derived(scaledBarHeight * AUTO_BUTTON_SCALE_RATIO);
+	const buyButtonSize = $derived(scaledBarHeight * BUY_BUTTON_SCALE_RATIO);
 	
 	// Dynamic button X positions (relative to bar center at x=0)
-	const autoplayX = $derived((scaledBarWidth * 0.5) - (scaledBarWidth * AUTOPLAY_MARGIN_RATIO) - (autoButtonSize * 0.5));
 	const buttonGap = $derived(scaledBarWidth * BUTTON_GAP_RATIO);
-	const spinButtonX = $derived(autoplayX - (autoButtonSize * 0.5) - buttonGap - (spinButtonSize * 0.5));
+	
+	// Spin button: positioned toward the right side of the bar
+	const spinButtonX = $derived((scaledBarWidth * 0.5) - (scaledBarWidth * AUTOPLAY_MARGIN_RATIO) - (spinButtonSize * 0.5));
+	
+	// Autoplay: to the LEFT of spin button
+	const autoplayX = $derived(spinButtonX - (spinButtonSize * 0.5) - buttonGap - (autoButtonSize * 0.5));
+	
+	// Buy button: positioned to the RIGHT of the bar (outside the bar area)
+	const buyButtonX = $derived((scaledBarWidth * 0.5) + (scaledBarWidth * BUY_MARGIN_RATIO) + (buyButtonSize * 0.5));
 	
 	// ============================================================
 	// POSITION RELATIVE TO BOARD
@@ -84,10 +95,11 @@
 	
 	onMount(async () => {
 		try {
-			const [bar, play, auto] = await Promise.all([
+			const [bar, play, auto, buy] = await Promise.all([
 				Assets.load('/assets/sprites/buttons/play_bar_new.png'),
 				Assets.load('/assets/sprites/buttons/play_button.png'),
 				Assets.load('/assets/sprites/buttons/auto_play_square.png'),
+				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button.png'),
 			]);
 			
 			barTexture = bar;
@@ -96,6 +108,7 @@
 			
 			playTexture = play;
 			autoTexture = auto;
+			buyTexture = buy;
 			
 			assetsLoaded = true;
 			console.log('PlayBar: Assets loaded, native bar size:', bar.width, 'x', bar.height);
@@ -124,6 +137,10 @@
 	
 	const handleAutoPlay = () => {
 		context.eventEmitter.broadcast({ type: 'autoSpinOpen' });
+	};
+	
+	const handleBuyBonus = () => {
+		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 </script>
 
@@ -199,6 +216,27 @@
 					texture={autoTexture}
 					width={autoButtonSize}
 					height={autoButtonSize}
+					anchor={0.5}
+				/>
+			</Container>
+			
+			<!-- BUY BONUS BUTTON (to the right of the bar) -->
+			<Container x={buyButtonX} y={0}>
+				<!-- Hit area (invisible) -->
+				<Circle
+					diameter={buyButtonSize}
+					anchor={0.5}
+					alpha={0}
+					backgroundColor={0xffffff}
+					eventMode="static"
+					cursor="pointer"
+					onpointerup={handleBuyBonus}
+				/>
+				<!-- Visual (centered with anchor 0.5) -->
+				<BaseSprite
+					texture={buyTexture}
+					width={buyButtonSize}
+					height={buyButtonSize}
 					anchor={0.5}
 				/>
 			</Container>
