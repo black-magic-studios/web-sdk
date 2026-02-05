@@ -15,6 +15,8 @@
 	let barTexture = $state<Texture>(Texture.EMPTY);
 	let playTexture = $state<Texture>(Texture.EMPTY);
 	let autoTexture = $state<Texture>(Texture.EMPTY);
+	let fastPlayTexture = $state<Texture>(Texture.EMPTY);
+	let evenFasterTexture = $state<Texture>(Texture.EMPTY);
 	let buyTexture = $state<Texture>(Texture.EMPTY);
 	let assetsLoaded = $state(false);
 
@@ -29,10 +31,11 @@
 	// CONFIGURATION - ALL VALUES ARE RATIOS (Resolution Independent)
 	// ============================================================
 	const SPIN_BUTTON_SCALE_RATIO = 1.4;
-	const AUTO_BUTTON_SCALE_RATIO = 0.55;
+	const SMALL_BUTTON_SCALE_RATIO = 1.4 * 0.5; // 50% of play button size
 	const BUY_BUTTON_SCALE_RATIO = 1.4 * 0.8; // 80% of play button size
-	const AUTOPLAY_MARGIN_RATIO = 0.06;
-	const BUY_MARGIN_RATIO = 0.06; // Margin from right edge for buy button
+	const SPIN_BUTTON_MARGIN_RATIO = 0.06; // Margin from right edge for spin button
+	const BUY_MARGIN_RATIO = 0.06; // Margin from left edge for buy button
+	const SMALL_BUTTON_GAP_RATIO = 0.01; // Horizontal gap between small buttons
 	
 	// Margin below the board as ratio of board height
 	const PLAYBAR_MARGIN_RATIO = 0.05;
@@ -53,20 +56,23 @@
 	
 	// Dynamic button sizes based on bar height
 	const spinButtonSize = $derived(scaledBarHeight * SPIN_BUTTON_SCALE_RATIO);
-	const autoButtonSize = $derived(scaledBarHeight * AUTO_BUTTON_SCALE_RATIO);
+	const smallButtonSize = $derived(scaledBarHeight * SMALL_BUTTON_SCALE_RATIO);
 	const buyButtonSize = $derived(scaledBarHeight * BUY_BUTTON_SCALE_RATIO);
 	
 	// Dynamic button X positions (relative to bar center at x=0)
-	const buttonGap = $derived(scaledBarWidth * BUTTON_GAP_RATIO);
+	const smallButtonGap = $derived(scaledBarWidth * SMALL_BUTTON_GAP_RATIO);
 	
-	// Spin button: positioned toward the right side of the bar
-	const spinButtonX = $derived((scaledBarWidth * 0.5) - (scaledBarWidth * AUTOPLAY_MARGIN_RATIO) - (spinButtonSize * 0.5));
+	// Spin button: positioned toward the right side, leaving room for small buttons on the right
+	const spinButtonX = $derived(0);
 	
-	// Autoplay: to the LEFT of spin button
-	const autoplayX = $derived(spinButtonX - (spinButtonSize * 0.5) - buttonGap - (autoButtonSize * 0.5));
+	// Small buttons in a row to the RIGHT of spin button: autoplay, fast play, even faster play
+	// They go left to right after the spin button (can overlap bar edge)
+	const autoplayX = $derived(spinButtonX + (spinButtonSize * 0.5) + smallButtonGap + (smallButtonSize * 0.5));
+	const fastPlayX = $derived(autoplayX + smallButtonSize + smallButtonGap);
+	const evenFasterX = $derived(fastPlayX + smallButtonSize + smallButtonGap);
 	
-	// Buy button: positioned to the RIGHT of the bar (outside the bar area)
-	const buyButtonX = $derived((scaledBarWidth * 0.5) + (scaledBarWidth * BUY_MARGIN_RATIO) + (buyButtonSize * 0.5));
+	// Buy button: positioned to the LEFT of the bar (outside the bar area)
+	const buyButtonX = $derived(-(scaledBarWidth * 0.5) - (scaledBarWidth * BUY_MARGIN_RATIO) - (buyButtonSize * 0.5));
 	
 	// ============================================================
 	// POSITION RELATIVE TO BOARD
@@ -95,10 +101,12 @@
 	
 	onMount(async () => {
 		try {
-			const [bar, play, auto, buy] = await Promise.all([
+			const [bar, play, auto, fastPlay, evenFaster, buy] = await Promise.all([
 				Assets.load('/assets/sprites/buttons/play_bar_new.png'),
 				Assets.load('/assets/sprites/buttons/play_button.png'),
-				Assets.load('/assets/sprites/buttons/auto_play_square.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_even_faster_play.png'),
 				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button.png'),
 			]);
 			
@@ -108,6 +116,8 @@
 			
 			playTexture = play;
 			autoTexture = auto;
+			fastPlayTexture = fastPlay;
+			evenFasterTexture = evenFaster;
 			buyTexture = buy;
 			
 			assetsLoaded = true;
@@ -137,6 +147,15 @@
 	
 	const handleAutoPlay = () => {
 		context.eventEmitter.broadcast({ type: 'autoSpinOpen' });
+	};
+	
+	const handleFastPlay = () => {
+		context.eventEmitter.broadcast({ type: 'turboToggle' });
+	};
+	
+	const handleEvenFasterPlay = () => {
+		// TODO: Implement even faster play mode
+		context.eventEmitter.broadcast({ type: 'turboToggle' });
 	};
 	
 	const handleBuyBonus = () => {
@@ -172,11 +191,11 @@
 		<!--
 			LAYER 2: BUTTONS CONTAINER
 			- Positioned at y=0 (vertical center of bar)
-			- Both buttons share this y position for perfect alignment
+			- All buttons share this y position for perfect alignment
 		-->
 		<Container x={0} y={0} zIndex={1}>
 			
-			<!-- SPIN BUTTON -->
+			<!-- SPIN BUTTON (centered) -->
 			<Container x={spinButtonX} y={0}>
 				<OnHotkey hotkey="Space" {disabled} onpress={handleSpin} />
 				<!-- Hit area (invisible) -->
@@ -199,11 +218,11 @@
 				/>
 			</Container>
 
-			<!-- AUTOPLAY BUTTON -->
+			<!-- AUTOPLAY BUTTON (right of spin button) -->
 			<Container x={autoplayX} y={0}>
 				<!-- Hit area (invisible) -->
 				<Circle
-					diameter={autoButtonSize}
+					diameter={smallButtonSize}
 					anchor={0.5}
 					alpha={0}
 					backgroundColor={0xffffff}
@@ -214,13 +233,55 @@
 				<!-- Visual (centered with anchor 0.5) -->
 				<BaseSprite
 					texture={autoTexture}
-					width={autoButtonSize}
-					height={autoButtonSize}
+					width={smallButtonSize}
+					height={smallButtonSize}
 					anchor={0.5}
 				/>
 			</Container>
 			
-			<!-- BUY BONUS BUTTON (to the right of the bar) -->
+			<!-- FAST PLAY BUTTON (right of autoplay) -->
+			<Container x={fastPlayX} y={0}>
+				<!-- Hit area (invisible) -->
+				<Circle
+					diameter={smallButtonSize}
+					anchor={0.5}
+					alpha={0}
+					backgroundColor={0xffffff}
+					eventMode="static"
+					cursor="pointer"
+					onpointerup={handleFastPlay}
+				/>
+				<!-- Visual (centered with anchor 0.5) -->
+				<BaseSprite
+					texture={fastPlayTexture}
+					width={smallButtonSize}
+					height={smallButtonSize}
+					anchor={0.5}
+				/>
+			</Container>
+			
+			<!-- EVEN FASTER PLAY BUTTON (right of fast play) -->
+			<Container x={evenFasterX} y={0}>
+				<!-- Hit area (invisible) -->
+				<Circle
+					diameter={smallButtonSize}
+					anchor={0.5}
+					alpha={0}
+					backgroundColor={0xffffff}
+					eventMode="static"
+					cursor="pointer"
+					onpointerup={handleEvenFasterPlay}
+				/>
+				<!-- Visual (centered with anchor 0.5) -->
+				<BaseSprite
+					texture={evenFasterTexture}
+					width={smallButtonSize}
+					height={smallButtonSize}
+					anchor={0.5}
+				/>
+			</Container>
+			
+			<!-- BUY BONUS BUTTON (to the left of the bar) -->
 			<Container x={buyButtonX} y={0}>
 				<!-- Hit area (invisible) -->
 				<Circle

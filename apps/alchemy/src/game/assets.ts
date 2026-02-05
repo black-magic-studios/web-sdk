@@ -137,10 +137,47 @@ export default {
 		// Cell background for 7x7 grid - rendered behind multipliers and symbols
 		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
 	},
-	multiplierCell: {
+	// Aurora-borealis gradient multiplier cells (pre-rendered for performance)
+	// Each tier's gradient starts with the previous tier's end color for continuity
+	multiplierCell2x: {
 		type: 'sprite',
-		// Multiplier cell overlay - rendered on top of cellBackground, tinted per multiplier level
-		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_multi_cell.png',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_2x.png',
+	},
+	multiplierCell4x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_4x.png',
+	},
+	multiplierCell8x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_8x.png',
+	},
+	multiplierCell16x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_16x.png',
+	},
+	multiplierCell32x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_32x.png',
+	},
+	multiplierCell64x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_64x.png',
+	},
+	multiplierCell128x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_128x.png',
+	},
+	multiplierCell256x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_256x.png',
+	},
+	multiplierCell512x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_512x.png',
+	},
+	multiplierCell1024x: {
+		type: 'sprite',
+		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_1024x.png',
 	},
 	payFrame: {
 		type: 'sprite',
@@ -246,7 +283,7 @@ export default {
 	},
 	snowPuff: {
 		type: 'spriteSheet',
-		src: new URL('../../assets/spines/tumbleWin/snow_puff_spritesheet_16x12_512_rgba.json', import.meta.url).href,
+		src: new URL('../../assets/spines/tumbleWin/aurora_win_spritesheet.json', import.meta.url).href,
 	},
 	h1WinAnimation: {
 		type: 'spriteSheet',

@@ -59,22 +59,29 @@
 	// Check if grid has any multipliers > 1
 	const hasMultipliers = $derived(grid.some((reel) => reel.some((m) => m > 1)));
 
-	// Tint colors for each multiplier level
-	const MULTIPLIER_TINTS: Record<number, number> = {
-		2: 0x44ff44,     // Green
-		4: 0x4488ff,     // Blue
-		8: 0xaa44ff,     // Purple
-		16: 0xffaa44,    // Orange
-		32: 0xff4444,    // Red
-		64: 0xffff44,    // Gold
-		128: 0x44ffff,   // Cyan
-		256: 0xff44aa,   // Pink
-		512: 0xffffff,   // White
-		1024: 0xff00ff,  // Magenta
+	// Aurora-borealis gradient multiplier cells (pre-rendered for performance)
+	// Each tier uses a unique gradient asset for maximum visual quality
+	type MultiplierAssetKey = 
+		| 'multiplierCell2x' | 'multiplierCell4x' | 'multiplierCell8x' 
+		| 'multiplierCell16x' | 'multiplierCell32x' | 'multiplierCell64x'
+		| 'multiplierCell128x' | 'multiplierCell256x' | 'multiplierCell512x' 
+		| 'multiplierCell1024x';
+
+	const MULTIPLIER_ASSETS: Record<number, MultiplierAssetKey> = {
+		2: 'multiplierCell2x',
+		4: 'multiplierCell4x',
+		8: 'multiplierCell8x',
+		16: 'multiplierCell16x',
+		32: 'multiplierCell32x',
+		64: 'multiplierCell64x',
+		128: 'multiplierCell128x',
+		256: 'multiplierCell256x',
+		512: 'multiplierCell512x',
+		1024: 'multiplierCell1024x',
 	};
 
-	function getMultiplierTint(multiplier: number): number {
-		return MULTIPLIER_TINTS[multiplier] ?? 0xffffff;
+	function getMultiplierAssetKey(multiplier: number): MultiplierAssetKey {
+		return MULTIPLIER_ASSETS[multiplier] ?? 'multiplierCell2x';
 	}
 
 	context.eventEmitter.subscribeOnMount({
@@ -120,11 +127,10 @@
 						y={getSymbolYDynamic(rowIndex, symbolHeight)}
 					>
 						<Sprite
-							key="multiplierCell"
+							key={getMultiplierAssetKey(multiplier)}
 							anchor={0.5}
 							width={cellWidth}
 							height={cellHeight}
-							tint={getMultiplierTint(multiplier)}
 						/>
 						<BitmapText
 							x={-symbolWidth * 0.05}

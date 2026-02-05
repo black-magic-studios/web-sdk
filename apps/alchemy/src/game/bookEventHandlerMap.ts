@@ -212,18 +212,40 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
 		console.log(`[bookEventHandlerMap] 💥 Starting explosion at ${Date.now()}`);
+		
+		// Aurora win animation: 16 frames at 0.5 speed = (16/0.5) * (1000/60) ≈ 533ms total
+		// Show multiplier grid when 6th frame appears
+		const EXPLOSION_FRAME_COUNT = 16;
+		const EXPLOSION_ANIMATION_SPEED = 0.5;
+		const TRIGGER_FRAME = 6; // 6th frame (1-indexed)
+		const animationDurationMs = (EXPLOSION_FRAME_COUNT / EXPLOSION_ANIMATION_SPEED) * (1000 / 60);
+		const triggerFrameTime = ((TRIGGER_FRAME - 1) / EXPLOSION_FRAME_COUNT) * animationDurationMs;
+		
+		// Schedule multiplier grid to appear exactly when 6th frame is shown
+		let multiplierGridApplied = false;
+		const multiplierGridTimeout = setTimeout(() => {
+			if (stateGame.pendingMultiplierGrid && !multiplierGridApplied) {
+				console.log(`[bookEventHandlerMap] 📤 Applying pending grid at FRAME ${TRIGGER_FRAME} ${Date.now()}`, stateGame.pendingMultiplierGrid);
+				eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: stateGame.pendingMultiplierGrid });
+				stateGame.pendingMultiplierGrid = null;
+				multiplierGridApplied = true;
+			}
+		}, triggerFrameTime);
+		
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardExplode',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
 		console.log(`[bookEventHandlerMap] 💥 Explosion complete at ${Date.now()}`);
-		// Apply pending multiplier grid after explosion animation completes
-		if (stateGame.pendingMultiplierGrid) {
-			console.log(`[bookEventHandlerMap] 📤 Applying pending grid at ${Date.now()}`, stateGame.pendingMultiplierGrid);
+		
+		// Clear timeout if not fired yet (shouldn't happen but safety measure)
+		clearTimeout(multiplierGridTimeout);
+		
+		// Apply any remaining pending grid (fallback if timeout didn't fire)
+		if (stateGame.pendingMultiplierGrid && !multiplierGridApplied) {
+			console.log(`[bookEventHandlerMap] 📤 Applying pending grid (fallback) at ${Date.now()}`, stateGame.pendingMultiplierGrid);
 			eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: stateGame.pendingMultiplierGrid });
 			stateGame.pendingMultiplierGrid = null;
-		} else {
-			console.log(`[bookEventHandlerMap] ⚠️ No pending grid to apply at ${Date.now()}`);
 		}
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
 		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown at ${Date.now()}`);

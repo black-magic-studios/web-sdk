@@ -58,11 +58,13 @@
 	};
 
 	const initTumbleBoardAdding = ({ addingBoard }: { addingBoard: AddingBoard }) => {
+		console.log('[TumbleBoard] 🎰 initTumbleBoardAdding - New symbols dropping in from above');
 		return context.stateGameDerived.boardRaw().map((_, reelIndex) => {
 			const addingReel = addingBoard[reelIndex] ?? [];
 
 			const tumbleReelAdding = addingReel.map((rawSymbol, symbolIndex) => {
 				const initY = getSymbolY(symbolIndex - 1 - addingReel.length);
+				console.log(`[TumbleBoard]   Reel ${reelIndex}, Adding symbol ${symbolIndex}: ${rawSymbol.name} starts at Y=${initY.toFixed(1)} (symbolIndex=${symbolIndex}, reelLength=${addingReel.length})`);
 				return createTumbleSymbol({ initY, rawSymbol });
 			});
 
@@ -71,9 +73,11 @@
 	};
 
 	const initTumbleBoardBase = () => {
-		return context.stateGameDerived.boardRaw().map((rawSymbolReel) => {
+		console.log('[TumbleBoard] 🎰 initTumbleBoardBase - Existing symbols on board');
+		return context.stateGameDerived.boardRaw().map((rawSymbolReel, reelIndex) => {
 			const tumbleReelBase = rawSymbolReel.map((rawSymbol, symbolIndex) => {
 				const initY = getSymbolY(symbolIndex - 1);
+				console.log(`[TumbleBoard]   Reel ${reelIndex}, Base symbol ${symbolIndex}: ${rawSymbol.name} at Y=${initY.toFixed(1)}`);
 				return createTumbleSymbol({ initY, rawSymbol });
 			});
 
@@ -82,13 +86,24 @@
 	};
 
 	context.eventEmitter.subscribeOnMount({
-		tumbleBoardShow: () => (show = true),
-		tumbleBoardHide: () => (show = false),
+		tumbleBoardShow: () => {
+			console.log('[TumbleBoard] 👁️ tumbleBoardShow');
+			show = true;
+		},
+		tumbleBoardHide: () => {
+			console.log('[TumbleBoard] 👁️ tumbleBoardHide');
+			show = false;
+		},
 		tumbleBoardInit: ({ addingBoard }) => {
+			console.log('[TumbleBoard] 🚀 tumbleBoardInit - Starting tumble sequence');
+			console.log('[TumbleBoard]   Board dimensions:', context.stateGameDerived.boardLayout().width, 'x', context.stateGameDerived.boardLayout().height);
+			console.log('[TumbleBoard]   SYMBOL_HEIGHT constant:', SYMBOL_HEIGHT);
+			console.log('[TumbleBoard]   Visible Y range: 0 to', context.stateGameDerived.boardLayout().height);
 			context.stateGame.tumbleBoardAdding = initTumbleBoardAdding({ addingBoard });
 			context.stateGame.tumbleBoardBase = initTumbleBoardBase();
 		},
 		tumbleBoardReset: () => {
+			console.log('[TumbleBoard] 🔄 tumbleBoardReset');
 			context.stateGame.tumbleBoardAdding = [];
 			context.stateGame.tumbleBoardBase = [];
 		},
@@ -118,12 +133,15 @@
 			});
 		},
 		tumbleBoardSlideDown: async () => {
+			console.log('[TumbleBoard] ⬇️ tumbleBoardSlideDown - Animating symbols to final positions');
 			const getPromises = () =>
 				_.flatten(
-					context.stateGameDerived.tumbleBoardCombined().map((tumbleReel) => {
+					context.stateGameDerived.tumbleBoardCombined().map((tumbleReel, reelIndex) => {
 						return tumbleReel.map(async (tumbleSymbol, symbolIndex) => {
 							const targetY = getSymbolY(symbolIndex - 1); // Refer to initTumbleBoardBase
-							if (targetY !== tumbleSymbol.symbolY.current) {
+							const startY = tumbleSymbol.symbolY.current;
+							if (targetY !== startY) {
+								console.log(`[TumbleBoard]   Reel ${reelIndex}, Symbol ${symbolIndex}: ${tumbleSymbol.rawSymbol.name} sliding from Y=${startY.toFixed(1)} → Y=${targetY.toFixed(1)} (distance: ${(targetY - startY).toFixed(1)})`);
 								const bounceDuration = 200;
 
 								await tumbleSymbol.symbolY.set(targetY, {
@@ -132,6 +150,7 @@
 								});
 
 								if (symbolIndex > 0 && symbolIndex < tumbleReel.length - 1) {
+									console.log(`[TumbleBoard]   Symbol ${tumbleSymbol.rawSymbol.name} landed at Y=${targetY.toFixed(1)}`);
 									tumbleSymbol.symbolState = 'land';
 									context.stateGameDerived.onSymbolLand({ rawSymbol: tumbleSymbol.rawSymbol });
 									await waitForResolve((resolve) => {
@@ -147,19 +166,20 @@
 				);
 
 			await Promise.all(getPromises());
+			console.log('[TumbleBoard] ✅ tumbleBoardSlideDown complete');
 		},
 	});
 </script>
 
 {#if show}
 	<BoardContext animate={false}>
-		<BoardContainer zIndex={0} masked>
+		<BoardContainer zIndex={0}>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
 
 	<BoardContext animate={true}>
-		<BoardContainer zIndex={10} masked>
+		<BoardContainer zIndex={10}>
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
