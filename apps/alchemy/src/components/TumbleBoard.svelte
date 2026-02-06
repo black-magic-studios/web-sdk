@@ -112,11 +112,26 @@
 			
 			// Small delay to ensure any previous spriteSheet animations are cleared
 			await new Promise(resolve => setTimeout(resolve, 50));
+
+			// Stagger explosions from outermost to innermost.
+			// Sort by Euclidean distance from center (descending) so every
+			// position gets a unique delay — no two cells fire at the same time.
+			const CENTER_REEL = 3;
+			const CENTER_ROW = 3;
+			const CELL_STAGGER_MS = 50;
+			
+			const sorted = [...explodingPositions]
+				.map((pos) => ({
+					...pos,
+					dist: Math.sqrt((pos.reel - CENTER_REEL) ** 2 + (pos.row - CENTER_ROW) ** 2),
+				}))
+				.sort((a, b) => b.dist - a.dist); // outermost first
 			
 			const getPromises = () =>
-				explodingPositions.map(async (position) => {
+				sorted.map(async (position, sortedIndex) => {
+					await new Promise(resolve => setTimeout(resolve, sortedIndex * CELL_STAGGER_MS));
 					const tumbleSymbol = context.stateGame.tumbleBoardBase[position.reel][position.row];
-					console.log('[TumbleBoard] Setting symbol to explosion:', tumbleSymbol.rawSymbol.name, 'at', position);
+					console.log('[TumbleBoard] Setting symbol to explosion:', tumbleSymbol.rawSymbol.name, 'at', position, 'index', sortedIndex);
 					tumbleSymbol.symbolState = 'explosion';
 					await waitForResolve((resolve) => (tumbleSymbol.oncomplete = resolve));
 					console.log('[TumbleBoard] Explosion complete for:', tumbleSymbol.rawSymbol.name);
