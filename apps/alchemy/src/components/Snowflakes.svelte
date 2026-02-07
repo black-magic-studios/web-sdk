@@ -8,19 +8,16 @@
 	const canvas = $derived(context.stateLayoutDerived.canvasSizes());
 
 	// ── Configuration ──────────────────────────────────────
-	const SNOWFLAKE_COUNT = 25;
-	const MIN_RADIUS = 3;
-	const MAX_RADIUS = 7;
-	const MIN_ALPHA = 0.12;
-	const MAX_ALPHA = 0.3;
-	const MIN_SPEED = 0.15; // px per frame (vertical)
-	const MAX_SPEED = 0.45;
-	const HORIZONTAL_DRIFT = 0.3; // max horizontal sine amplitude in px/frame
-	const DRIFT_FREQUENCY_MIN = 0.002; // sine frequency (lower = slower sway)
+	const SNOWFLAKE_COUNT = 50;
+	const MIN_RADIUS = 1;
+	const MAX_RADIUS = 3.5;
+	const MIN_ALPHA = 0.15;
+	const MAX_ALPHA = 0.5;
+	const MIN_SPEED = 0.2;
+	const MAX_SPEED = 0.6;
+	const HORIZONTAL_DRIFT = 0.2;
+	const DRIFT_FREQUENCY_MIN = 0.002;
 	const DRIFT_FREQUENCY_MAX = 0.006;
-	const BRANCH_COUNT = 6; // six-fold symmetry
-	const BRANCH_RATIO = 0.35; // where side branches sprout (0-1 along main arm)
-	const SIDE_ANGLE = Math.PI / 4; // angle of side branches off main arm
 
 	// ── Snowflake state ────────────────────────────────────
 	type Snowflake = {
@@ -28,13 +25,21 @@
 		y: number;
 		radius: number;
 		alpha: number;
+		baseAlpha: number;
 		speed: number;
+		baseSpeed: number;
 		driftAmp: number;
 		driftFreq: number;
 		driftPhase: number;
-		rotation: number;
-		rotationSpeed: number;
-		variant: number; // 0-2 visual variation
+		drift2Amp: number;
+		drift2Freq: number;
+		drift2Phase: number;
+		depth: number;
+		shimmerFreq: number;
+		shimmerPhase: number;
+		scaleX: number; // slight squash/stretch
+		scaleY: number;
+		rotation: number; // orient the squash randomly
 	};
 
 	function rand(min: number, max: number) {
@@ -42,27 +47,101 @@
 	}
 
 	function createSnowflake(canvasW: number, canvasH: number, randomY = true): Snowflake {
+		const depth = Math.random();
+		const radius = MIN_RADIUS + depth * (MAX_RADIUS - MIN_RADIUS);
+		const baseAlpha = MIN_ALPHA + depth * (MAX_ALPHA - MIN_ALPHA);
+		const baseSpeed = MIN_SPEED + depth * (MAX_SPEED - MIN_SPEED);
+
 		return {
 			x: rand(0, canvasW),
 			y: randomY ? rand(0, canvasH) : -rand(5, 30),
-			radius: rand(MIN_RADIUS, MAX_RADIUS),
-			alpha: rand(MIN_ALPHA, MAX_ALPHA),
-			speed: rand(MIN_SPEED, MAX_SPEED),
+			radius,
+			baseAlpha,
+			alpha: baseAlpha,
+			speed: baseSpeed,
+			baseSpeed,
 			driftAmp: rand(HORIZONTAL_DRIFT * 0.3, HORIZONTAL_DRIFT),
 			driftFreq: rand(DRIFT_FREQUENCY_MIN, DRIFT_FREQUENCY_MAX),
 			driftPhase: rand(0, Math.PI * 2),
+			drift2Amp: rand(HORIZONTAL_DRIFT * 0.1, HORIZONTAL_DRIFT * 0.3),
+			drift2Freq: rand(DRIFT_FREQUENCY_MAX, DRIFT_FREQUENCY_MAX * 2),
+			drift2Phase: rand(0, Math.PI * 2),
+			depth,
+			shimmerFreq: rand(0.008, 0.02),
+			shimmerPhase: rand(0, Math.PI * 2),
+			scaleX: rand(0.7, 1.0),
+			scaleY: rand(0.7, 1.0),
 			rotation: rand(0, Math.PI * 2),
-			rotationSpeed: rand(-0.003, 0.003),
-			variant: Math.floor(rand(0, 3)),
 		};
 	}
 
+	// ── Shooting star ─────────────────────────────────────
+	const STAR_MIN_INTERVAL = 480; // ~8s at 60fps
+	const STAR_MAX_INTERVAL = 1200; // ~20s
+	const STAR_SPEED = 4.5; // px per frame
+	const STAR_TAIL_LENGTH = 120; // px – long streak
+	const STAR_LIFE_FRAMES = 100;
+
+	type ShootingStar = {
+		x: number;
+		y: number;
+		vx: number;
+		vy: number;
+		alpha: number;
+		age: number;
+		life: number;
+		angle: number;
+	};
+
+	let shootingStar = $state<ShootingStar | null>(null);
+	let nextStarIn = $state(Math.floor(rand(STAR_MIN_INTERVAL, STAR_MAX_INTERVAL)));
+
+	function spawnShootingStar(w: number, h: number) {
+		// Pick a random side: 0=top-right→bottom-left, 1=top-left→bottom-right,
+		// 2=top→lower-left, 3=top→lower-right
+		const variant = Math.floor(Math.random() * 4);
+		const speed = rand(STAR_SPEED * 0.85, STAR_SPEED * 1.2);
+		let x: number, y: number, angle: number;
+
+		switch (variant) {
+			case 0: // top-right → bottom-left (like reference image)
+				x = rand(w * 0.4, w + 40);
+				y = rand(-20, h * 0.15);
+				angle = rand(Math.PI * 0.55, Math.PI * 0.7); // ~100-126°
+				break;
+			case 1: // top-left → bottom-right
+				x = rand(-40, w * 0.4);
+				y = rand(-20, h * 0.15);
+				angle = rand(Math.PI * 0.3, Math.PI * 0.45); // ~54-81°
+				break;
+			case 2: // right side → lower-left
+				x = rand(w * 0.6, w + 30);
+				y = rand(0, h * 0.3);
+				angle = rand(Math.PI * 0.6, Math.PI * 0.75);
+				break;
+			default: // left side → lower-right
+				x = rand(-30, w * 0.35);
+				y = rand(0, h * 0.3);
+				angle = rand(Math.PI * 0.25, Math.PI * 0.4);
+				break;
+		}
+
+		return {
+			x,
+			y,
+			vx: Math.cos(angle) * speed,
+			vy: Math.sin(angle) * speed,
+			alpha: 0,
+			age: 0,
+			life: STAR_LIFE_FRAMES,
+			angle,
+		};
+	}
 	let snowflakes = $state<Snowflake[]>([]);
 	let frameCount = $state(0);
 	let raf: number;
 
 	onMount(() => {
-		// Seed initial snowflakes scattered across the canvas
 		snowflakes = Array.from({ length: SNOWFLAKE_COUNT }, () =>
 			createSnowflake(canvas.width, canvas.height, true),
 		);
@@ -74,28 +153,67 @@
 
 			for (let i = 0; i < snowflakes.length; i++) {
 				const s = snowflakes[i];
-				// Fall downward
-				s.y += s.speed;
-				// Horizontal sine drift
-				s.x += Math.sin(frameCount * s.driftFreq + s.driftPhase) * s.driftAmp;
-				// Gentle rotation
-				s.rotation += s.rotationSpeed;
 
-				// Wrap: when below canvas, respawn at top
+				// Gentle speed variation
+				s.speed += rand(-0.004, 0.004);
+				s.speed = Math.max(s.baseSpeed * 0.7, Math.min(s.baseSpeed * 1.3, s.speed));
+
+				s.y += s.speed;
+
+				// Dual-sine drift for organic movement
+				s.x += Math.sin(frameCount * s.driftFreq + s.driftPhase) * s.driftAmp
+					  + Math.sin(frameCount * s.drift2Freq + s.drift2Phase) * s.drift2Amp;
+
+				// Subtle alpha shimmer
+				s.alpha = s.baseAlpha + Math.sin(frameCount * s.shimmerFreq + s.shimmerPhase) * 0.04;
+
+				// Wrap vertical
 				if (s.y > h + 10) {
+					const depth = Math.random();
 					s.x = rand(0, w);
 					s.y = -rand(5, 30);
-					s.radius = rand(MIN_RADIUS, MAX_RADIUS);
-					s.alpha = rand(MIN_ALPHA, MAX_ALPHA);
-					s.speed = rand(MIN_SPEED, MAX_SPEED);
+					s.depth = depth;
+					s.radius = MIN_RADIUS + depth * (MAX_RADIUS - MIN_RADIUS);
+					s.baseAlpha = MIN_ALPHA + depth * (MAX_ALPHA - MIN_ALPHA);
+					s.baseSpeed = MIN_SPEED + depth * (MAX_SPEED - MIN_SPEED);
+					s.speed = s.baseSpeed;
 				}
 				// Wrap horizontal
 				if (s.x < -10) s.x = w + 5;
 				if (s.x > w + 10) s.x = -5;
 			}
 
-			// Trigger reactivity
 			snowflakes = snowflakes;
+
+			// ── Shooting star tick ──
+			if (shootingStar) {
+				const ss = shootingStar;
+				ss.age++;
+				ss.x += ss.vx;
+				ss.y += ss.vy;
+				// Fade in quickly, hold, fade out
+				const fadeIn = 8;
+				const fadeOut = ss.life * 0.3;
+				if (ss.age < fadeIn) {
+					ss.alpha = (ss.age / fadeIn) * 0.7;
+				} else if (ss.age > ss.life - fadeOut) {
+					ss.alpha = ((ss.life - ss.age) / fadeOut) * 0.7;
+				} else {
+					ss.alpha = 0.7;
+				}
+				if (ss.age >= ss.life) {
+					shootingStar = null;
+					nextStarIn = Math.floor(rand(STAR_MIN_INTERVAL, STAR_MAX_INTERVAL));
+				} else {
+					shootingStar = { ...ss }; // trigger reactivity
+				}
+			} else {
+				nextStarIn--;
+				if (nextStarIn <= 0) {
+					shootingStar = spawnShootingStar(w, h);
+				}
+			}
+
 			raf = requestAnimationFrame(tick);
 		};
 
@@ -114,50 +232,51 @@
 			y={flake.y}
 			alpha={flake.alpha}
 			rotation={flake.rotation}
+			scale={{ x: flake.scaleX, y: flake.scaleY }}
 			draw={(g) => {
 				const r = flake.radius;
-				const lineW = Math.max(0.6, r * 0.15);
-				const sideLen = r * 0.35;
-
-				g.setStrokeStyle({ width: lineW, color: 0xffffff, cap: 'round' });
-
-				// Draw 6 main arms with side branches
-				for (let b = 0; b < BRANCH_COUNT; b++) {
-					const angle = (b / BRANCH_COUNT) * Math.PI * 2;
-					const cosA = Math.cos(angle);
-					const sinA = Math.sin(angle);
-
-					// Main arm
-					g.moveTo(0, 0);
-					g.lineTo(cosA * r, sinA * r);
-
-					// Side branches (variant controls style)
-					const branchPoints =
-						flake.variant === 0
-							? [BRANCH_RATIO, BRANCH_RATIO * 1.8]
-							: flake.variant === 1
-								? [BRANCH_RATIO * 1.4]
-								: [BRANCH_RATIO, BRANCH_RATIO * 1.4, BRANCH_RATIO * 1.9];
-
-					for (const t of branchPoints) {
-						const bx = cosA * r * t;
-						const by = sinA * r * t;
-						const len = sideLen * (1 - t * 0.3);
-
-						// Two sub-branches at ±45° from main arm
-						for (const sign of [-1, 1]) {
-							const subAngle = angle + SIDE_ANGLE * sign;
-							g.moveTo(bx, by);
-							g.lineTo(bx + Math.cos(subAngle) * len, by + Math.sin(subAngle) * len);
-						}
-					}
-				}
-				g.stroke();
-
-				// Tiny center dot
-				g.circle(0, 0, lineW * 1.2);
+				// Soft circle with a lighter core for a gentle glow look
+				g.circle(0, 0, r);
+				g.fill({ color: 0xffffff });
+				g.circle(0, 0, r * 0.5);
 				g.fill({ color: 0xffffff });
 			}}
 		/>
 	{/each}
+
+	<!-- Shooting star streak -->
+	{#if shootingStar && shootingStar.alpha > 0}
+		<Graphics
+			x={shootingStar.x}
+			y={shootingStar.y}
+			alpha={shootingStar.alpha}
+			rotation={shootingStar.angle}
+			draw={(g) => {
+				// Continuous tapered streak: thin bright line fading into nothing
+				const segs = 20;
+				for (let s = 0; s < segs; s++) {
+					const t0 = s / segs;
+					const t1 = (s + 1) / segs;
+					const x0 = -STAR_TAIL_LENGTH * t0;
+					const x1 = -STAR_TAIL_LENGTH * t1;
+					const w0 = 1.4 * (1 - t0 * 0.85); // taper from 1.4 → thin
+					const w1 = 1.4 * (1 - t1 * 0.85);
+					const a = (1 - t0) * (1 - t0); // quadratic falloff
+
+					g.moveTo(x0, -w0);
+					g.lineTo(x1, -w1);
+					g.lineTo(x1, w1);
+					g.lineTo(x0, w0);
+					g.closePath();
+					g.fill({ color: 0xffffff, alpha: a });
+				}
+
+				// Bright head glow
+				g.circle(0, 0, 2);
+				g.fill({ color: 0xffffff });
+				g.circle(0, 0, 4);
+				g.fill({ color: 0xffffff, alpha: 0.15 });
+			}}
+		/>
+	{/if}
 </Container>
