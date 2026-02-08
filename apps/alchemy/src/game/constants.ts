@@ -351,8 +351,7 @@ const l2Static = { type: 'sprite', assetKey: 'l2.webp', sizeRatios: { width: 1, 
 const l3Static = { type: 'sprite', assetKey: 'l3.webp', sizeRatios: { width: 1, height: 1 } };
 const l4Static = { type: 'sprite', assetKey: 'l4.webp', sizeRatios: { width: 1, height: 1 } };
 
-// S and W use spine for all states since static PNGs don't exist
-const sSizeRatiosStatic = { width: 2.5, height: -(SPECIAL_SYMBOL_SIZE * 2.3) };
+const sStatic = { type: 'sprite', assetKey: 'S', sizeRatios: { width: 1, height: 1 } };
 const wSizeRatiosStatic = { width: 1.5 * 0.9, height: SPECIAL_SYMBOL_SIZE * 1.15 };
 
 const m2Static = {
@@ -370,9 +369,7 @@ const m7Static = { type: 'sprite', assetKey: 'm2_7x.png', sizeRatios: { width: 1
 const m10Static = { type: 'sprite', assetKey: 'm3_10x.png', sizeRatios: { width: 1, height: 1 } };
 
 const wSizeRatios = { width: 1.5 * 0.9, height: SPECIAL_SYMBOL_SIZE * 1.15 };
-// CHANGED: Added negative sign to height to flip scatter symbol vertically
-// Original: const sSizeRatios = { width: 2.5, height: SPECIAL_SYMBOL_SIZE * 2.3 };
-const sSizeRatios = { width: 2.5, height: -(SPECIAL_SYMBOL_SIZE * 2.3) };
+
 
 export const SYMBOL_INFO_MAP = {
 	H1: {
@@ -466,21 +463,11 @@ export const SYMBOL_INFO_MAP = {
 	},
 	S: {
 		explosion,
-		postWinStatic: { type: 'spine', assetKey: 'S', animationName: 'scatter_land', sizeRatios: sSizeRatios },
-		static: { type: 'spine', assetKey: 'S', animationName: 'scatter_land', sizeRatios: sSizeRatios },
-		spin: {
-			type: 'spine',
-			assetKey: 'S',
-			animationName: 'scatter_spin',
-			sizeRatios: sSizeRatios,
-		},
-		win: { type: 'spine', assetKey: 'S', animationName: 'scatter_win', sizeRatios: sSizeRatios },
-		land: {
-			type: 'spine',
-			assetKey: 'S',
-			animationName: 'scatter_land',
-			sizeRatios: sSizeRatios,
-		},
+		postWinStatic: sStatic,
+		static: sStatic,
+		spin: sStatic,
+		win: sStatic,
+		land: sStatic,
 	},
 } as const;
 

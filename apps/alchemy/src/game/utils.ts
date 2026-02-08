@@ -73,8 +73,14 @@ export const getSymbolYDynamic = (symbolIndexOfBoard: number, symbolHeight: numb
 	(symbolIndexOfBoard + 0.5) * symbolHeight + GRID_GAP_Y * symbolIndexOfBoard;
 
 export const getSymbolKey = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
+	// Only use multiplier suffix if the combined key exists in the symbol map.
+	// Regular symbols (H1, L2, etc.) carry a `multiplier` field from the math SDK
+	// to indicate cell multiplier state, but they don't have separate visual variants.
 	if (rawSymbol.multiplier !== undefined) {
-		return `${rawSymbol.name}_${rawSymbol.multiplier}` as keyof typeof SYMBOL_INFO_MAP;
+		const combinedKey = `${rawSymbol.name}_${rawSymbol.multiplier}` as keyof typeof SYMBOL_INFO_MAP;
+		if (combinedKey in SYMBOL_INFO_MAP) {
+			return combinedKey;
+		}
 	}
 	return rawSymbol.name as keyof typeof SYMBOL_INFO_MAP;
 };

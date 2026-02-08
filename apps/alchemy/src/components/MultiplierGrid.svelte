@@ -8,9 +8,10 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { Tween } from 'svelte/motion';
 	import { backOut } from 'svelte/easing';
-	import { BitmapText, Container, Sprite } from 'pixi-svelte';
+	import { BitmapText, Container } from 'pixi-svelte';
 
 	import BoardContainer from './BoardContainer.svelte';
+	import AuroraCellBackground from './AuroraCellBackground.svelte';
 	import { getContext } from '../game/context';
 	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
 
@@ -136,30 +137,7 @@
 		previousGrid = newGrid.map((r) => [...r]);
 	}
 
-	// Aurora-borealis gradient multiplier cells (pre-rendered for performance)
-	// Each tier uses a unique gradient asset for maximum visual quality
-	type MultiplierAssetKey = 
-		| 'multiplierCell2x' | 'multiplierCell4x' | 'multiplierCell8x' 
-		| 'multiplierCell16x' | 'multiplierCell32x' | 'multiplierCell64x'
-		| 'multiplierCell128x' | 'multiplierCell256x' | 'multiplierCell512x' 
-		| 'multiplierCell1024x';
 
-	const MULTIPLIER_ASSETS: Record<number, MultiplierAssetKey> = {
-		2: 'multiplierCell2x',
-		4: 'multiplierCell4x',
-		8: 'multiplierCell8x',
-		16: 'multiplierCell16x',
-		32: 'multiplierCell32x',
-		64: 'multiplierCell64x',
-		128: 'multiplierCell128x',
-		256: 'multiplierCell256x',
-		512: 'multiplierCell512x',
-		1024: 'multiplierCell1024x',
-	};
-
-	function getMultiplierAssetKey(multiplier: number): MultiplierAssetKey {
-		return MULTIPLIER_ASSETS[multiplier] ?? 'multiplierCell2x';
-	}
 
 	context.eventEmitter.subscribeOnMount({
 		multiplierGridUpdate: (emitterEvent) => {
@@ -211,11 +189,10 @@
 							y={getSymbolYDynamic(rowIndex, symbolHeight)}
 							scale={s}
 						>
-							<Sprite
-								key={getMultiplierAssetKey(multiplier)}
-								anchor={0.5}
+							<AuroraCellBackground
 								width={cellWidth}
 								height={cellHeight}
+								multiplier={multiplier}
 							/>
 							<BitmapText
 								x={-symbolWidth * 0.05}

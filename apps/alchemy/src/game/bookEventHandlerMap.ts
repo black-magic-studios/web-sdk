@@ -46,10 +46,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		console.log(`[bookEventHandlerMap] 🎰 REVEAL at ${Date.now()} - new spin starting`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
-		// Clear multiplier grid at start of new spin
-		console.log(`[bookEventHandlerMap] 🧹 Broadcasting multiplierGridClear at ${Date.now()}`);
-		eventEmitter.broadcast({ type: 'multiplierGridClear' });
+		// Clear multiplier grid only in base game — during free spins/super bonus,
+		// multipliers persist across spins and are managed by updateGrid events
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
+		if (!isBonusGame) {
+			console.log(`[bookEventHandlerMap] 🧹 Broadcasting multiplierGridClear at ${Date.now()}`);
+			eventEmitter.broadcast({ type: 'multiplierGridClear' });
+		}
 		if (isBonusGame) {
 			eventEmitter.broadcast({ type: 'stopButtonEnable' });
 			recordBookEvent({ bookEvent });
@@ -271,6 +274,27 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
+	},
+	// aurora
+	auroraReveal: async (bookEvent: BookEventOfType<'auroraReveal'>) => {
+		console.log(`[bookEventHandlerMap] ✨ AURORA_REVEAL at ${Date.now()}`, { positions: bookEvent.positions });
+		// TODO: Show aurora glow effect on the given board positions
+	},
+	auroraMeterUpdate: async (bookEvent: BookEventOfType<'auroraMeterUpdate'>) => {
+		console.log(`[bookEventHandlerMap] 🌊 AURORA_METER_UPDATE at ${Date.now()}`, { cellsCollected: bookEvent.cellsCollected, meterTotal: bookEvent.meterTotal });
+		// TODO: Update aurora wild meter UI
+	},
+	auroraExplode: async (bookEvent: BookEventOfType<'auroraExplode'>) => {
+		console.log(`[bookEventHandlerMap] 💫 AURORA_EXPLODE at ${Date.now()}`, { positions: bookEvent.positions });
+		// TODO: Animate aurora cells being collected into the meter
+	},
+	auroraWildPlace: async (bookEvent: BookEventOfType<'auroraWildPlace'>) => {
+		console.log(`[bookEventHandlerMap] 🃏 AURORA_WILD_PLACE at ${Date.now()}`, { position: bookEvent.position, meterBefore: bookEvent.meterBefore, meterAfter: bookEvent.meterAfter });
+		// Place wild symbol on the board at the given position
+		const { reel, row } = bookEvent.position;
+		const reelSymbol = stateGame.board[reel].reelState.symbols[row];
+		reelSymbol.rawSymbol = { name: 'W' as any, wild: true };
+		reelSymbol.symbolState = 'land';
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {

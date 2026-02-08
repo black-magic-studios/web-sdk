@@ -101,6 +101,34 @@ type BookEventFreeSpinRetrigger = {
 	positions: Position[];
 };
 
+// aurora
+type BookEventAuroraReveal = {
+	index: number;
+	type: 'auroraReveal';
+	positions: Position[];
+};
+
+type BookEventAuroraMeterUpdate = {
+	index: number;
+	type: 'auroraMeterUpdate';
+	cellsCollected: number;
+	meterTotal: number;
+};
+
+type BookEventAuroraExplode = {
+	index: number;
+	type: 'auroraExplode';
+	positions: Position[];
+};
+
+type BookEventAuroraWildPlace = {
+	index: number;
+	type: 'auroraWildPlace';
+	position: Position;
+	meterBefore: number;
+	meterAfter: number;
+};
+
 // customised
 type BookEventCreateBonusSnapshot = {
 	index: number;
@@ -124,6 +152,11 @@ export type BookEvent =
 	// new
 	| BookEventUpdateGrid
 	| BookEventFreeSpinRetrigger
+	// aurora
+	| BookEventAuroraReveal
+	| BookEventAuroraMeterUpdate
+	| BookEventAuroraExplode
+	| BookEventAuroraWildPlace
 	// customised
 	| BookEventCreateBonusSnapshot;
 

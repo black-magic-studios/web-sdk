@@ -99,12 +99,8 @@ export default {
 		},
 	},
 	S: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/symbols2/symbols2.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/symbols2/S.json', import.meta.url).href,
-			scale: 2,
-		},
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png',
 	},
 	explosion: {
 		type: 'spine',

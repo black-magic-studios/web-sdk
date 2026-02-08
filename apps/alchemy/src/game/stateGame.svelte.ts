@@ -163,7 +163,16 @@ const boardRaw = () =>
 const tumbleBoardCombined = () => {
 	const tumbleBoardCombined = stateGame.tumbleBoardBase.map((tumbleReelBase, reelIndex) => {
 		const tumbleReelAdding = stateGame.tumbleBoardAdding[reelIndex] ?? [];
-		return [...tumbleReelAdding, ...tumbleReelBase];
+
+		// Separate padding (first/last) from visible symbols.
+		// Padding must NOT participate in the cascade — it stays at fixed positions.
+		// Without this, the top padding symbol slides into the visible area after explosions,
+		// causing symbol mismatches (e.g. L1 snowflake appearing where H1 polar bear should be).
+		const topPadding = tumbleReelBase[0];
+		const bottomPadding = tumbleReelBase[tumbleReelBase.length - 1];
+		const visibleBase = tumbleReelBase.slice(1, -1);
+
+		return [topPadding, ...tumbleReelAdding, ...visibleBase, bottomPadding];
 	});
 
 	return tumbleBoardCombined;
