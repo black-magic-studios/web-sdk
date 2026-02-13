@@ -68,6 +68,7 @@ export type ReelSymbol = Reel['reelState']['symbols'][number];
 
 export type TumbleSymbol = {
 	symbolY: Tween<number>;
+	symbolScale: number;
 	rawSymbol: RawSymbol;
 	symbolState: SymbolState;
 	oncomplete: () => void;
@@ -101,6 +102,19 @@ export const stateGame = $state({
 		[0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0],
 	] as number[][],
+	// Multiplier animation state — stored globally so it survives MultiplierGrid remounts
+	// (Board hides/shows during tumble, which destroys and recreates MultiplierGrid)
+	multiplierCellScales: new Map() as Map<string, any>,
+	multiplierPreviousGrid: [
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0],
+	] as number[][],
+	multiplierExplodingCells: new Set() as Set<string>,
 	scatterCounter: 0,
 });
 

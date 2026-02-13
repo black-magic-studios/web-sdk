@@ -7,204 +7,181 @@
 		width: number;
 		height: number;
 		multiplier: number;
+		/** Container opacity. Default 0.5 */
+		alpha?: number;
 	};
 
 	const props: Props = $props();
 
 	// ────────────────────────────────────────────────────────
-	// Color tier definitions
+	// Aurora color definitions
 	//
-	// Each tier paints 5–6 irregular blobs at varied positions,
-	// sizes and opacities onto a single canvas. The canvas is
-	// oversized (2× cell) so we can pan across it cheaply for
-	// the drifting animation — no per-frame gradient rebuilds.
+	// Each multiplier gets a unique palette defined as layered
+	// linear-gradient sweeps at different angles. The first
+	// sweep fully fills the canvas (alpha 1.0), subsequent
+	// sweeps blend on top for smooth colour transitions.
+	// This guarantees full cell coverage with no dark gaps.
+	//
+	// The canvas is 2× the cell size so we can pan across it
+	// cheaply for the drifting animation.
 	// ────────────────────────────────────────────────────────
 
-	type BlobDef = {
-		/** Normalised x (0–1 across the canvas) */
-		nx: number;
-		/** Normalised y */
-		ny: number;
-		/** Normalised radius */
-		nr: number;
-		/** CSS color string */
-		color: string;
-		/** Peak opacity at blob center */
+	type SweepDef = {
+		/** Angle in degrees (0 = left→right, 90 = top→bottom) */
+		angle: number;
+		/** Color stops distributed evenly along the gradient line */
+		stops: string[];
+		/** Layer opacity (first sweep should be 1.0 for full coverage) */
 		alpha: number;
 	};
 
 	type AuroraTier = {
-		base: string;
-		blobs: BlobDef[];
+		sweeps: SweepDef[];
 	};
 
 	function getAuroraTier(mult: number): AuroraTier {
-		// Each multiplier gets its own unique aurora spectrum
+		// ── Real aurora color reference ──────────────────────
+		// Green  (oxygen, most common):  #33cc55 → #22aa44 → #44dd66
+		// Red    (oxygen, high alt):     #bb3333 → #cc4444 → #aa2222
+		// Pink   (nitrogen, lower alt):  #cc4488 → #dd5599 → #bb3377
+		// Purple (nitrogen, lower alt):  #7744bb → #6633aa → #8855cc
+		// Blue   (nitrogen, lower edge): #3344aa → #2255bb → #4455cc
+		// Yellow (red + green mix):      #ccbb33 → #bbaa22 → #ddcc44
+		//
+		// Progression: 3 colours at 2x → full 6-colour spectrum at 1024x.
+		// Each sweep is a full-canvas linear gradient at a different angle.
+		// The first sweep (alpha 1.0) guarantees full cell coverage.
+
 		switch (mult) {
 			case 2:
-				// Cool ocean — cyan + steel blue
+				// 3 colours: vivid green + bright teal + emerald
 				return {
-					base: '#020810',
-					blobs: [
-						{ nx: 0.15, ny: 0.15, nr: 0.50, color: '#2288bb', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.30, nr: 0.40, color: '#33ccee', alpha: 0.95 },
-						{ nx: 0.75, ny: 0.55, nr: 0.45, color: '#1155aa', alpha: 0.90 },
-						{ nx: 0.30, ny: 0.70, nr: 0.38, color: '#44aacc', alpha: 0.85 },
-						{ nx: 0.80, ny: 0.80, nr: 0.35, color: '#113388', alpha: 0.80 },
+					sweeps: [
+						{ angle: 130, stops: ['#22cc55', '#33ee77', '#22dd88'], alpha: 1.0 },
+						{ angle: 40,  stops: ['#28ee70', '#44ffaa', '#22dd66'], alpha: 0.65 },
+						{ angle: 0,   stops: ['#33dd80', '#55ffbb', '#2aee77'], alpha: 0.4 },
 					],
 				};
 			case 4:
-				// Teal forest — teal + emerald green
+				// 3 colours: bright green + vivid teal + cyan
 				return {
-					base: '#020a08',
-					blobs: [
-						{ nx: 0.20, ny: 0.12, nr: 0.48, color: '#22bbaa', alpha: 1.0 },
-						{ nx: 0.55, ny: 0.35, nr: 0.42, color: '#33dd88', alpha: 0.95 },
-						{ nx: 0.80, ny: 0.60, nr: 0.40, color: '#119988', alpha: 0.85 },
-						{ nx: 0.15, ny: 0.65, nr: 0.35, color: '#22cc77', alpha: 0.90 },
-						{ nx: 0.70, ny: 0.85, nr: 0.32, color: '#228877', alpha: 0.80 },
+					sweeps: [
+						{ angle: 135, stops: ['#22dd77', '#33bbcc', '#33ee88'], alpha: 1.0 },
+						{ angle: 45,  stops: ['#33ee88', '#44ccdd', '#44ff99'], alpha: 0.65 },
+						{ angle: 85,  stops: ['#28dd80', '#3ac0cc', '#38ee8a'], alpha: 0.4 },
 					],
 				};
 			case 8:
-				// Classic aurora — purple + teal + green
+				// 3 colours: green + vivid blue + bright purple
 				return {
-					base: '#030414',
-					blobs: [
-						{ nx: 0.15, ny: 0.10, nr: 0.48, color: '#7744cc', alpha: 1.0 },
-						{ nx: 0.40, ny: 0.30, nr: 0.38, color: '#22bbaa', alpha: 0.95 },
-						{ nx: 0.65, ny: 0.50, nr: 0.42, color: '#33ee77', alpha: 0.90 },
-						{ nx: 0.25, ny: 0.65, nr: 0.35, color: '#55ccee', alpha: 0.85 },
-						{ nx: 0.80, ny: 0.75, nr: 0.38, color: '#5533bb', alpha: 0.80 },
-						{ nx: 0.50, ny: 0.15, nr: 0.28, color: '#2299aa', alpha: 0.85 },
+					sweeps: [
+						{ angle: 140, stops: ['#33ee88', '#4466dd', '#8844dd'], alpha: 1.0 },
+						{ angle: 40,  stops: ['#44ff99', '#5577ee', '#9955ee'], alpha: 0.6 },
+						{ angle: 90,  stops: ['#38ee8a', '#4a66dd', '#8040dd'], alpha: 0.4 },
 					],
 				};
 			case 16:
-				// Vivid spectrum — green + cyan + violet
+				// 4 colours: green + blue + purple + hot pink
 				return {
-					base: '#030312',
-					blobs: [
-						{ nx: 0.18, ny: 0.12, nr: 0.50, color: '#22ff66', alpha: 1.0 },
-						{ nx: 0.50, ny: 0.35, nr: 0.42, color: '#44eeff', alpha: 0.95 },
-						{ nx: 0.80, ny: 0.55, nr: 0.45, color: '#8844dd', alpha: 0.90 },
-						{ nx: 0.30, ny: 0.60, nr: 0.36, color: '#33ccaa', alpha: 0.90 },
-						{ nx: 0.70, ny: 0.80, nr: 0.38, color: '#6622cc', alpha: 0.85 },
-						{ nx: 0.15, ny: 0.80, nr: 0.30, color: '#22aa55', alpha: 0.80 },
+					sweeps: [
+						{ angle: 130, stops: ['#33ee88', '#4466dd', '#9955ee', '#ee55aa'], alpha: 1.0 },
+						{ angle: 50,  stops: ['#44ff99', '#5577ee', '#aa66ff', '#ff66bb'], alpha: 0.6 },
+						{ angle: 0,   stops: ['#38ee8a', '#4a60dd', '#8850ee', '#e050a0'], alpha: 0.4 },
 					],
 				};
 			case 32:
-				// Electric — bright green + magenta + blue
+				// 4 colours: green + purple + pink + blue (richer)
 				return {
-					base: '#040210',
-					blobs: [
-						{ nx: 0.12, ny: 0.15, nr: 0.48, color: '#44ff44', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.30, nr: 0.40, color: '#dd33aa', alpha: 0.95 },
-						{ nx: 0.78, ny: 0.50, nr: 0.44, color: '#3366ff', alpha: 0.90 },
-						{ nx: 0.25, ny: 0.55, nr: 0.35, color: '#55ee88', alpha: 0.90 },
-						{ nx: 0.65, ny: 0.78, nr: 0.38, color: '#cc44cc', alpha: 0.85 },
-						{ nx: 0.50, ny: 0.10, nr: 0.30, color: '#2255ee', alpha: 0.80 },
+					sweeps: [
+						{ angle: 145, stops: ['#44ff99', '#9955ee', '#ee55aa', '#4466dd'], alpha: 1.0 },
+						{ angle: 35,  stops: ['#33ee88', '#aa66ff', '#ff66bb', '#5577ee'], alpha: 0.6 },
+						{ angle: 85,  stops: ['#3dee8a', '#8850ee', '#e050a0', '#4a60dd'], alpha: 0.4 },
 					],
 				};
 			case 64:
-				// Solar flare — gold + orange + magenta + purple
+				// 5 colours: green + gold + pink + purple + blue
 				return {
-					base: '#0a0308',
-					blobs: [
-						{ nx: 0.15, ny: 0.10, nr: 0.48, color: '#ffaa22', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.28, nr: 0.42, color: '#ff5544', alpha: 0.95 },
-						{ nx: 0.75, ny: 0.50, nr: 0.45, color: '#dd33bb', alpha: 0.90 },
-						{ nx: 0.28, ny: 0.60, nr: 0.36, color: '#ff8833', alpha: 0.90 },
-						{ nx: 0.60, ny: 0.78, nr: 0.40, color: '#9922dd', alpha: 0.85 },
-						{ nx: 0.85, ny: 0.20, nr: 0.30, color: '#ff6644', alpha: 0.80 },
+					sweeps: [
+						{ angle: 125, stops: ['#33ee88', '#ddcc33', '#ee55aa', '#9955ee', '#4466dd'], alpha: 1.0 },
+						{ angle: 50,  stops: ['#44ff99', '#eedd44', '#ff66bb', '#aa66ff', '#5577ee'], alpha: 0.6 },
+						{ angle: 90,  stops: ['#38ee8a', '#d0c030', '#e050a0', '#8850ee', '#4a60dd'], alpha: 0.35 },
 					],
 				};
 			case 128:
-				// Nebula — deep violet + rose + cyan streaks
+				// 5 colours: blue + green + purple + pink + gold (shifted)
 				return {
-					base: '#06020e',
-					blobs: [
-						{ nx: 0.12, ny: 0.12, nr: 0.50, color: '#9933ff', alpha: 1.0 },
-						{ nx: 0.50, ny: 0.28, nr: 0.42, color: '#ff4488', alpha: 0.95 },
-						{ nx: 0.78, ny: 0.50, nr: 0.44, color: '#33ddff', alpha: 0.90 },
-						{ nx: 0.25, ny: 0.58, nr: 0.36, color: '#bb55ee', alpha: 0.90 },
-						{ nx: 0.65, ny: 0.78, nr: 0.38, color: '#ff66aa', alpha: 0.85 },
-						{ nx: 0.40, ny: 0.12, nr: 0.30, color: '#6622ee', alpha: 0.85 },
+					sweeps: [
+						{ angle: 140, stops: ['#4466dd', '#33ee88', '#9955ee', '#ee55aa', '#ddcc33'], alpha: 1.0 },
+						{ angle: 30,  stops: ['#5577ee', '#44ff99', '#aa66ff', '#ff66bb', '#eedd44'], alpha: 0.6 },
+						{ angle: 80,  stops: ['#4a60dd', '#38ee8a', '#8850ee', '#e050a0', '#d0c030'], alpha: 0.35 },
 					],
 				};
 			case 256:
-				// Plasma storm — hot pink + electric blue + white-green
+				// 6 colours: green + gold + red + pink + purple + blue
 				return {
-					base: '#040212',
-					blobs: [
-						{ nx: 0.15, ny: 0.10, nr: 0.50, color: '#ff2299', alpha: 1.0 },
-						{ nx: 0.48, ny: 0.30, nr: 0.44, color: '#2266ff', alpha: 0.95 },
-						{ nx: 0.80, ny: 0.48, nr: 0.42, color: '#88ff88', alpha: 0.90 },
-						{ nx: 0.28, ny: 0.62, nr: 0.38, color: '#ee44cc', alpha: 0.90 },
-						{ nx: 0.68, ny: 0.80, nr: 0.36, color: '#4488ff', alpha: 0.85 },
-						{ nx: 0.50, ny: 0.15, nr: 0.28, color: '#ccffcc', alpha: 0.80 },
-						{ nx: 0.82, ny: 0.18, nr: 0.30, color: '#ff55bb', alpha: 0.85 },
+					sweeps: [
+						{ angle: 135, stops: ['#33ee88', '#ddcc33', '#dd4444', '#ee55aa', '#9955ee', '#4466dd'], alpha: 1.0 },
+						{ angle: 45,  stops: ['#44ff99', '#eedd44', '#ee5555', '#ff66bb', '#aa66ff', '#5577ee'], alpha: 0.55 },
+						{ angle: 90,  stops: ['#38ee8a', '#d0c030', '#d04040', '#e050a0', '#8850ee', '#4a60dd'], alpha: 0.35 },
 					],
 				};
 			case 512:
-				// Cosmic fire — crimson + gold + white core + violet edge
+				// 6 colours: all aurora hues, warm-shifted
 				return {
-					base: '#080204',
-					blobs: [
-						{ nx: 0.15, ny: 0.12, nr: 0.50, color: '#ff3322', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.28, nr: 0.44, color: '#ffcc22', alpha: 0.95 },
-						{ nx: 0.75, ny: 0.50, nr: 0.42, color: '#ff5544', alpha: 0.90 },
-						{ nx: 0.30, ny: 0.55, nr: 0.38, color: '#ffee88', alpha: 0.90 },
-						{ nx: 0.60, ny: 0.78, nr: 0.40, color: '#aa22ee', alpha: 0.85 },
-						{ nx: 0.45, ny: 0.42, nr: 0.24, color: '#ffffff', alpha: 0.75 },
-						{ nx: 0.82, ny: 0.22, nr: 0.30, color: '#ff8844', alpha: 0.85 },
+					sweeps: [
+						{ angle: 130, stops: ['#dd4444', '#eedd44', '#44ff99', '#4466dd', '#9955ee', '#ee55aa'], alpha: 1.0 },
+						{ angle: 40,  stops: ['#ee5555', '#ffee55', '#55ffaa', '#5577ee', '#aa66ff', '#ff66bb'], alpha: 0.55 },
+						{ angle: 85,  stops: ['#d04040', '#d4d030', '#48ff98', '#4a60dd', '#8850ee', '#e050a0'], alpha: 0.35 },
 					],
 				};
 			case 1024:
-				// Supernova — white/cyan core + hot-pink + electric blue + green
+				// Full spectrum at maximum intensity
 				return {
-					base: '#050214',
-					blobs: [
-						{ nx: 0.15, ny: 0.10, nr: 0.50, color: '#aaffff', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.25, nr: 0.40, color: '#ff3399', alpha: 0.95 },
-						{ nx: 0.75, ny: 0.50, nr: 0.45, color: '#3366ff', alpha: 0.90 },
-						{ nx: 0.30, ny: 0.55, nr: 0.38, color: '#33ff88', alpha: 0.95 },
-						{ nx: 0.60, ny: 0.78, nr: 0.42, color: '#cc44ff', alpha: 0.85 },
-						{ nx: 0.45, ny: 0.40, nr: 0.22, color: '#ffffff', alpha: 0.80 },
-						{ nx: 0.80, ny: 0.20, nr: 0.32, color: '#55eeff', alpha: 0.85 },
-						{ nx: 0.15, ny: 0.80, nr: 0.30, color: '#ff55aa', alpha: 0.80 },
+					sweeps: [
+						{ angle: 140, stops: ['#44ff88', '#eedd44', '#ee5555', '#ff66bb', '#aa66ff', '#5588ff'], alpha: 1.0 },
+						{ angle: 35,  stops: ['#55ffaa', '#eedd44', '#dd4444', '#ee55aa', '#9955ee', '#4466dd'], alpha: 0.55 },
+						{ angle: 90,  stops: ['#33ee77', '#ddcc33', '#cc3333', '#dd4499', '#8844dd', '#3355cc'], alpha: 0.35 },
 					],
 				};
-			default: {
-				// Beyond 1024 — use supernova palette as fallback
+			default:
+				// Fallback — full spectrum
 				return {
-					base: '#050214',
-					blobs: [
-						{ nx: 0.15, ny: 0.10, nr: 0.50, color: '#aaffff', alpha: 1.0 },
-						{ nx: 0.45, ny: 0.25, nr: 0.40, color: '#ff3399', alpha: 0.95 },
-						{ nx: 0.75, ny: 0.50, nr: 0.45, color: '#3366ff', alpha: 0.90 },
-						{ nx: 0.30, ny: 0.55, nr: 0.38, color: '#33ff88', alpha: 0.95 },
-						{ nx: 0.60, ny: 0.78, nr: 0.42, color: '#cc44ff', alpha: 0.85 },
-						{ nx: 0.45, ny: 0.40, nr: 0.22, color: '#ffffff', alpha: 0.80 },
-						{ nx: 0.80, ny: 0.20, nr: 0.32, color: '#55eeff', alpha: 0.85 },
-						{ nx: 0.15, ny: 0.80, nr: 0.30, color: '#ff55aa', alpha: 0.80 },
+					sweeps: [
+						{ angle: 140, stops: ['#44ff88', '#eedd44', '#ee5555', '#ff66bb', '#aa66ff', '#5588ff'], alpha: 1.0 },
+						{ angle: 35,  stops: ['#55ffaa', '#eedd44', '#dd4444', '#ee55aa', '#9955ee', '#4466dd'], alpha: 0.55 },
+						{ angle: 90,  stops: ['#33ee77', '#ddcc33', '#cc3333', '#dd4499', '#8844dd', '#3355cc'], alpha: 0.35 },
 					],
 				};
-			}
 		}
 	}
 
 	// ────────────────────────────────────────────────────────
-	// Canvas texture generation (one-shot, cached per multiplier)
+	// Canvas texture generation (one-shot, cached per mult)
 	//
-	// The canvas is 2× the cell size. Blobs are painted with
-	// 'lighter' (additive) compositing on a dark base, which
-	// makes overlapping colors mix into bright neon highlights.
+	// Each sweep is a full-canvas linear gradient at a given
+	// angle, painted with source-over compositing.  The first
+	// sweep (alpha 1.0) fully covers the canvas — no dark
+	// background leak.  Subsequent sweeps blend at lower alpha
+	// for smooth colour transitions.
 	// ────────────────────────────────────────────────────────
 
-	// Texture cache — shared across all instances of the same multiplier
 	const textureCache = new Map<string, PIXI.Texture>();
 
 	function getTierKey(mult: number): string {
 		return `aurora_${mult}`;
+	}
+
+	/** Compute gradient start/end points for a given angle so the gradient spans the full canvas diagonal. */
+	function gradientEndpoints(angle: number, w: number, h: number) {
+		const rad = (angle * Math.PI) / 180;
+		const dx = Math.cos(rad);
+		const dy = Math.sin(rad);
+		const halfW = w / 2;
+		const halfH = h / 2;
+		const proj = Math.abs(dx * halfW) + Math.abs(dy * halfH);
+		const cx = w / 2;
+		const cy = h / 2;
+		return { x0: cx - dx * proj, y0: cy - dy * proj, x1: cx + dx * proj, y1: cy + dy * proj };
 	}
 
 	function buildAuroraTexture(cellW: number, cellH: number, mult: number): PIXI.Texture {
@@ -222,41 +199,25 @@
 		canvas.height = ch;
 		const ctx = canvas.getContext('2d')!;
 
-		// Base fill
-		ctx.fillStyle = tier.base;
-		ctx.fillRect(0, 0, cw, ch);
+		// Paint gradient sweeps — first one is opaque, the rest blend on top
+		for (const sweep of tier.sweeps) {
+			const { x0, y0, x1, y1 } = gradientEndpoints(sweep.angle, cw, ch);
+			const grad = ctx.createLinearGradient(x0, y0, x1, y1);
 
-		// Paint blobs with additive blending for bright neon output
-		ctx.globalCompositeOperation = 'lighter';
+			for (let i = 0; i < sweep.stops.length; i++) {
+				grad.addColorStop(i / (sweep.stops.length - 1), sweep.stops[i]);
+			}
 
-		for (const blob of tier.blobs) {
-			const cx = blob.nx * cw;
-			const cy = blob.ny * ch;
-			const r = blob.nr * Math.max(cw, ch);
-
-			const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-			grad.addColorStop(0, withAlpha(blob.color, blob.alpha));
-			grad.addColorStop(0.35, withAlpha(blob.color, blob.alpha * 0.8));
-			grad.addColorStop(0.65, withAlpha(blob.color, blob.alpha * 0.3));
-			grad.addColorStop(1, withAlpha(blob.color, 0));
-
+			ctx.globalAlpha = sweep.alpha;
 			ctx.fillStyle = grad;
 			ctx.fillRect(0, 0, cw, ch);
 		}
 
-		ctx.globalCompositeOperation = 'source-over';
+		ctx.globalAlpha = 1;
 
 		const texture = PIXI.Texture.from(canvas);
 		textureCache.set(key, texture);
 		return texture;
-	}
-
-	/** Inject alpha into a hex colour string → rgba */
-	function withAlpha(hex: string, a: number): string {
-		const r = parseInt(hex.slice(1, 3), 16);
-		const g = parseInt(hex.slice(3, 5), 16);
-		const b = parseInt(hex.slice(5, 7), 16);
-		return `rgba(${r},${g},${b},${a})`;
 	}
 
 	// ────────────────────────────────────────────────────────
@@ -311,7 +272,7 @@
 	const spriteY = $derived(-props.height / 2 + panY - props.height / 4);
 </script>
 
-<Container>
+<Container alpha={props.alpha ?? 0.5}>
 	<!-- Rounded-rect mask -->
 	<Graphics draw={drawMask} isMask />
 

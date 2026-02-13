@@ -208,47 +208,49 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
 	},
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
-		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start at ${Date.now()}`);
-		console.log(`[bookEventHandlerMap] 📤 Broadcasting boardHide at ${Date.now()}`);
+		const tb0 = performance.now();
+		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start t=0ms | exploding=${bookEvent.explodingSymbols.length} | pendingGrid=${!!stateGame.pendingMultiplierGrid}`);
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
-		console.log(`[bookEventHandlerMap] 💥 Starting explosion at ${Date.now()}`);
-		
-		// Schedule multiplier grid to appear mid-explosion.
-		// Delay ensures cells don't render before their aurora explosion is underway.
-		// MultiplierGrid handles additional per-cell staggering from this point.
-		const GRID_UPDATE_DELAY_MS = 250;
+		console.log(`[bookEventHandlerMap] 🕐 init done t=${(performance.now()-tb0).toFixed(0)}ms — starting vanish`);
+
+		// 1. Vanish symbols + grid explosions play together — the pop IS how symbols disappear
+		const vanishPromise = eventEmitter.broadcastAsync({
+			type: 'tumbleBoardVanish',
+			explodingPositions: bookEvent.explodingSymbols,
+		});
+
+		let gridPromise: Promise<void> = Promise.resolve();
 		if (stateGame.pendingMultiplierGrid) {
 			const gridToApply = stateGame.pendingMultiplierGrid;
 			stateGame.pendingMultiplierGrid = null;
-			setTimeout(() => {
-				console.log(`[bookEventHandlerMap] 📤 Applying pending grid at ${Date.now()}`, gridToApply);
-				eventEmitter.broadcast({ type: 'multiplierGridUpdate', grid: gridToApply });
-			}, GRID_UPDATE_DELAY_MS);
+			console.log(`[bookEventHandlerMap] 💥 Playing multiplier explosions simultaneously t=${(performance.now()-tb0).toFixed(0)}ms`);
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
+			gridPromise = eventEmitter.broadcastAsync({ type: 'multiplierGridExplodeUpdate', grid: gridToApply });
 		}
-		
-		await eventEmitter.broadcastAsync({
-			type: 'tumbleBoardExplode',
-			explodingPositions: bookEvent.explodingSymbols,
-		});
-		console.log(`[bookEventHandlerMap] 💥 Explosion complete at ${Date.now()}`);
+
+		await Promise.all([vanishPromise, gridPromise]);
+		console.log(`[bookEventHandlerMap] ✅ Vanish + explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
+
+		// 2. Remove exploded symbols, slide remaining down
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
-		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown at ${Date.now()}`);
+		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown t=${(performance.now()-tb0).toFixed(0)}ms`);
 		await eventEmitter.broadcastAsync({ type: 'tumbleBoardSlideDown' });
-		console.log(`[bookEventHandlerMap] ⬇️ SlideDown complete at ${Date.now()}`);
+		console.log(`[bookEventHandlerMap] ⬇️ SlideDown complete t=${(performance.now()-tb0).toFixed(0)}ms`);
+
+		// 3. Settle board back to static
 		eventEmitter.broadcast({
 			type: 'boardSettle',
 			board: stateGameDerived
 				.tumbleBoardCombined()
 				.map((tumbleReel) => tumbleReel.map((tumbleSymbol) => tumbleSymbol.rawSymbol)),
 		});
-		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
-		console.log(`[bookEventHandlerMap] 📤 Broadcasting boardShow at ${Date.now()}`);
 		eventEmitter.broadcast({ type: 'boardShow' });
-		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD complete at ${Date.now()}`);
+		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
+
+		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];

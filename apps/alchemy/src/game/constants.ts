@@ -326,9 +326,9 @@ const explosion = {
 	assetKey: 'snowPuff',
 	animationName: 'explosion',
 	sizeRatios: { width: 1.5, height: 1.5 },
-	animationSpeed: 0.5,
-	frameCount: 16,
-	frameHeight: 256,
+	animationSpeed: 1.3333,
+	frameCount: 40,
+	frameHeight: 440,
 };
 
 const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1.0, height: 1.0 } };

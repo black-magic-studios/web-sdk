@@ -18,22 +18,38 @@
 	const scaledY = $derived(
 		(props.tumbleSymbol.symbolY.current / SYMBOL_HEIGHT) * symbolHeight,
 	);
+	// symbolScale is a plain $state number animated via RAF — already reactive
+	const currentScale = $derived(props.tumbleSymbol.symbolScale);
+	// Map internal states to valid SymbolState for rendering
+	const isHidden = $derived(props.tumbleSymbol.symbolState === 'vanished');
 	const symbolInfo = $derived(
-		getSymbolInfo({
-			rawSymbol: props.tumbleSymbol.rawSymbol,
-			state: props.tumbleSymbol.symbolState,
-		}),
+		isHidden
+			? null
+			: getSymbolInfo({
+					rawSymbol: props.tumbleSymbol.rawSymbol,
+					state: props.tumbleSymbol.symbolState,
+				}),
 	);
+
+	// Debug: log scale changes per frame
+	$effect(() => {
+		if (currentScale !== 1) {
+			console.log(`[TumbleSymbol] ${props.tumbleSymbol.rawSymbol.name} reel=${props.reelIndex} scale=${currentScale.toFixed(4)} state=${props.tumbleSymbol.symbolState}`);
+		}
+	});
 </script>
 
-<SymbolWrap
-	x={getSymbolXDynamic(props.reelIndex, symbolWidth)}
-	y={scaledY}
-	animating={symbolInfo.type === 'spine' || symbolInfo.type === 'spriteSheet'}
->
-	<Symbol
-		state={props.tumbleSymbol.symbolState}
-		rawSymbol={props.tumbleSymbol.rawSymbol}
-		oncomplete={props.tumbleSymbol.oncomplete}
-	/>
-</SymbolWrap>
+{#if !isHidden && symbolInfo}
+	<SymbolWrap
+		x={getSymbolXDynamic(props.reelIndex, symbolWidth)}
+		y={scaledY}
+		scale={currentScale}
+		animating={symbolInfo.type === 'spine' || symbolInfo.type === 'spriteSheet' || currentScale !== 1}
+	>
+		<Symbol
+			state={props.tumbleSymbol.symbolState}
+			rawSymbol={props.tumbleSymbol.rawSymbol}
+			oncomplete={props.tumbleSymbol.oncomplete}
+		/>
+	</SymbolWrap>
+{/if}

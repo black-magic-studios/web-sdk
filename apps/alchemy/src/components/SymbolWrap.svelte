@@ -9,6 +9,7 @@
 	type Props = {
 		x: number;
 		y: number;
+		scale?: number;
 		animating: boolean;
 		children: Snippet;
 	};
@@ -34,7 +35,7 @@
 </script>
 
 {#if show && inFrame}
-	<Container x={props.x} y={props.y} zIndex={props.animating ? 1000 : 0}>
+	<Container x={props.x} y={props.y} scale={props.scale ?? 1} zIndex={props.animating ? 1000 : 0}>
 		{@render props.children()}
 	</Container>
 {/if}

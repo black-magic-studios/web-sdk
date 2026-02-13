@@ -10,6 +10,7 @@
 		| { type: 'tumbleBoardInit'; addingBoard: AddingBoard }
 		| { type: 'tumbleBoardReset' }
 		| { type: 'tumbleBoardExplode'; explodingPositions: ExplodingPositions }
+		| { type: 'tumbleBoardVanish'; explodingPositions: ExplodingPositions }
 		| { type: 'tumbleBoardRemoveExploded' }
 		| { type: 'tumbleBoardSlideDown' };
 </script>
@@ -20,17 +21,39 @@
 	import { backOut } from 'svelte/easing';
 
 	import { BoardContext } from 'components-shared';
+	import { Container, SpriteSheet } from 'pixi-svelte';
 	import { waitForResolve } from 'utils-shared/wait';
 
 	import BoardContainer from './BoardContainer.svelte';
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
-	import { getSymbolY } from '../game/utils';
+	import { getSymbolXDynamic, getSymbolY, getSymbolYDynamic } from '../game/utils';
 	import { getContext } from '../game/context';
 	import { SYMBOL_HEIGHT } from '../game/constants';
+
+	// Glow-to-white vanish config
+	const GLOW_ASSET_MAP: Record<string, string> = {
+		H1: 'glowH1', H2: 'glowH2', H3: 'glowH3', H4: 'glowH4',
+		L1: 'glowL1', L2: 'glowL2', L3: 'glowL3', L4: 'glowL4',
+	};
+	const GLOW_FALLBACK_KEY = 'glowGeneric';
+	const POOF_ANIMATION_NAME = 'poof';
+	const POOF_ANIMATION_SPEED = 1.0;
+	const POOF_FRAME_COUNT = 16;
+	const POOF_FRAME_HEIGHT = 320;
+	const POOF_SIZE_RATIO = 1.2;
+	const POOF_DURATION_MS = (POOF_FRAME_COUNT / POOF_ANIMATION_SPEED) * (1000 / 60);
+	const POOF_STAGGER_MS = 30;
 
 	const context = getContext();
 
 	let show = $state(false);
+
+	// Glow animation state: cellKey → asset key
+	let poofingCells = $state<Map<string, string>>(new Map());
+	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
+	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
+	const poofScale = $derived((symbolHeight * POOF_SIZE_RATIO) / POOF_FRAME_HEIGHT);
+	const hasPoofs = $derived(poofingCells.size > 0);
 
 	// Constrained backOut easing - limits overshoot to stay within cell boundary
 	// Standard backOut overshoots by ~10% which can cross into adjacent cells
@@ -49,6 +72,7 @@
 
 		const tumbleSymbol = $state({
 			symbolY,
+			symbolScale: 1,
 			rawSymbol,
 			symbolState: 'static' as const,
 			oncomplete,
@@ -106,6 +130,7 @@
 			console.log('[TumbleBoard] 🔄 tumbleBoardReset');
 			context.stateGame.tumbleBoardAdding = [];
 			context.stateGame.tumbleBoardBase = [];
+			poofingCells = new Map();
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
 			console.log('[TumbleBoard] tumbleBoardExplode called with positions:', explodingPositions);
@@ -140,10 +165,62 @@
 			await Promise.all(getPromises());
 			console.log('[TumbleBoard] All explosions complete');
 		},
+		tumbleBoardVanish: async ({ explodingPositions }) => {
+			console.log(`[TumbleBoard] tumbleBoardVanish START - ${explodingPositions.length} symbols`);
+
+			if (explodingPositions.length === 0) return;
+
+			// Sort outermost first for stagger
+			const CENTER_REEL = 3;
+			const CENTER_ROW = 3;
+			const sorted = [...explodingPositions]
+				.map((pos) => ({
+					...pos,
+					dist: Math.sqrt((pos.reel - CENTER_REEL) ** 2 + (pos.row - CENTER_ROW) ** 2),
+				}))
+				.sort((a, b) => b.dist - a.dist);
+
+			const promises = sorted.map(async (pos, sortedIndex) => {
+				const staggerDelay = sortedIndex * POOF_STAGGER_MS;
+
+				// Stagger start
+				if (sortedIndex > 0) {
+					await new Promise((r) => setTimeout(r, staggerDelay));
+				}
+
+				const tumbleSymbol = context.stateGame.tumbleBoardBase[pos.reel]?.[pos.row];
+				if (!tumbleSymbol) return;
+
+				const symbolName = tumbleSymbol.rawSymbol?.name ?? '??';
+				const key = `${pos.reel},${pos.row}`;
+				const assetKey = GLOW_ASSET_MAP[symbolName] ?? GLOW_FALLBACK_KEY;
+
+				// Start glow overlay — symbol stays visible underneath for holographic look
+				const nextMap = new Map(poofingCells);
+				nextMap.set(key, assetKey);
+				poofingCells = nextMap;
+
+				// Let the glow play over the visible symbol, then hide it partway through
+				await new Promise((r) => setTimeout(r, POOF_DURATION_MS * 0.35));
+				tumbleSymbol.symbolState = 'vanished';
+
+				// Wait for the rest of the glow animation to finish
+				await new Promise((r) => setTimeout(r, POOF_DURATION_MS * 0.65));
+
+				// Cleanup glow sprite
+				const next = new Map(poofingCells);
+				next.delete(key);
+				poofingCells = next;
+			});
+
+			await Promise.all(promises);
+			console.log(`[TumbleBoard] tumbleBoardVanish ALL DONE`);
+		},
 		tumbleBoardRemoveExploded: () => {
 			context.stateGame.tumbleBoardBase.forEach((tumbleReel, reelIndex) => {
 				context.stateGame.tumbleBoardBase[reelIndex] = tumbleReel.filter(
-					(tumbleSymbol) => tumbleSymbol.symbolState !== 'explosion',
+					(tumbleSymbol) => tumbleSymbol.symbolState !== 'explosion'
+					&& tumbleSymbol.symbolState !== 'vanished',
 				);
 			});
 		},
@@ -198,4 +275,29 @@
 			<TumbleBoardBase />
 		</BoardContainer>
 	</BoardContext>
+
+	<!-- Glow overlay in its own high-zIndex layer so it renders ABOVE symbols -->
+	{#if hasPoofs}
+		<BoardContainer zIndex={20}>
+			{#each [...poofingCells] as [cellKey, assetKey] (cellKey)}
+				{@const [reelStr, rowStr] = cellKey.split(',')}
+				{@const reel = parseInt(reelStr)}
+				{@const row = parseInt(rowStr)}
+				<Container
+					x={getSymbolXDynamic(reel, symbolWidth)}
+					y={getSymbolYDynamic(row - 1, symbolHeight)}
+				>
+					<SpriteSheet
+						key={assetKey}
+						animationName={POOF_ANIMATION_NAME}
+						anchor={0.5}
+						scale={poofScale}
+						animationSpeed={POOF_ANIMATION_SPEED}
+						loop={false}
+						play={true}
+					/>
+				</Container>
+			{/each}
+		</BoardContainer>
+	{/if}
 {/if}

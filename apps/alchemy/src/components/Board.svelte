@@ -74,7 +74,7 @@
 		</BoardContainer>
 	</BoardContext>
 {:else}
-	<!-- Keep board space reserved during tumble - MultiplierGrid state persists via context -->
+	<!-- When Board is hidden (during tumble), keep multiplier grid behind symbols -->
 	<BoardContext animate={false}>
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />

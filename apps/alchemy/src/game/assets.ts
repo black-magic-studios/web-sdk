@@ -203,6 +203,14 @@ export default {
 		type: 'font',
 		src: new URL('../../assets/fonts/purpleFont/mm_purple.xml', import.meta.url).href,
 	},
+	multiplierFont: {
+		type: 'font',
+		src: new URL('../../assets/fonts/multiplierFont/multiplier.xml', import.meta.url).href,
+	},
+	multiplierFontHi: {
+		type: 'font',
+		src: new URL('../../assets/fonts/multiplierFont/multiplier_hi.xml', import.meta.url).href,
+	},
 	bigwin: {
 		type: 'spine',
 		src: {
@@ -279,7 +287,47 @@ export default {
 	},
 	snowPuff: {
 		type: 'spriteSheet',
-		src: new URL('../../assets/spines/tumbleWin/aurora_win_spritesheet.json', import.meta.url).href,
+		src: new URL('../../assets/spines/tumbleWin/starexplosion_spritesheet.json', import.meta.url).href,
+	},
+	snowPoof: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/snow_poof_spritesheet.json', import.meta.url).href,
+	},
+	glowH1: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_H1_spritesheet.json', import.meta.url).href,
+	},
+	glowH2: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_H2_spritesheet.json', import.meta.url).href,
+	},
+	glowH3: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_H3_spritesheet.json', import.meta.url).href,
+	},
+	glowH4: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_H4_spritesheet.json', import.meta.url).href,
+	},
+	glowL1: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_L1_spritesheet.json', import.meta.url).href,
+	},
+	glowL2: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_L2_spritesheet.json', import.meta.url).href,
+	},
+	glowL3: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_L3_spritesheet.json', import.meta.url).href,
+	},
+	glowL4: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_L4_spritesheet.json', import.meta.url).href,
+	},
+	glowGeneric: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/spines/tumbleWin/glow_generic_spritesheet.json', import.meta.url).href,
 	},
 	h1WinAnimation: {
 		type: 'spriteSheet',
