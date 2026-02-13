@@ -215,24 +215,18 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		console.log(`[bookEventHandlerMap] 🕐 init done t=${(performance.now()-tb0).toFixed(0)}ms — starting vanish`);
 
-		// 1. Play glow on all winning symbols (visual buildup only, symbols stay visible)
+		// 1. Play glow → vanish + explosion per cell (all staggered inside TumbleBoard)
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardVanish',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
-		console.log(`[bookEventHandlerMap] ✅ Glow complete t=${(performance.now()-tb0).toFixed(0)}ms`);
+		console.log(`[bookEventHandlerMap] ✅ Vanish + explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 
-		// 2. Hide all symbols + start explosions simultaneously
-		eventEmitter.broadcast({ type: 'tumbleBoardVanishAll', explodingPositions: bookEvent.explodingSymbols });
+		// 2. Reveal multiplier grid cells (pop in same stagger order) AFTER all vanish+explosions
 		if (stateGame.pendingMultiplierGrid) {
 			const gridToApply = stateGame.pendingMultiplierGrid;
 			stateGame.pendingMultiplierGrid = null;
-			console.log(`[bookEventHandlerMap] 💥 Playing multiplier explosions t=${(performance.now()-tb0).toFixed(0)}ms`);
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
-			await eventEmitter.broadcastAsync({ type: 'multiplierGridExplode', grid: gridToApply });
-			console.log(`[bookEventHandlerMap] ✅ Explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
-
-			// 3. Reveal multiplier cells (pop-in animation)
 			await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: gridToApply });
 			console.log(`[bookEventHandlerMap] ✅ Cell reveals complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 		}

@@ -43,7 +43,18 @@
 	const POOF_FRAME_HEIGHT = 320;
 	const POOF_SIZE_RATIO = 1.2;
 	const POOF_DURATION_MS = (POOF_FRAME_COUNT / POOF_ANIMATION_SPEED) * (1000 / 60);
-	const POOF_STAGGER_MS = 30;
+	// Delay factor per unit of Euclidean distance from board center.
+	// Using distance (not sorted index) so vanish and explosion align per-cell.
+	const POOF_STAGGER_PER_DIST = 50;
+
+	// Explosion spritesheet config — plays at the moment each cell vanishes
+	const EXPLOSION_ASSET_KEY = 'snowPuff';
+	const EXPLOSION_ANIMATION_NAME = 'explosion';
+	const EXPLOSION_ANIMATION_SPEED = 1.3333;
+	const EXPLOSION_FRAME_COUNT = 40;
+	const EXPLOSION_FRAME_HEIGHT = 440;
+	const EXPLOSION_SIZE_RATIO = 1.5;
+	const EXPLOSION_DURATION_MS = (EXPLOSION_FRAME_COUNT / EXPLOSION_ANIMATION_SPEED) * (1000 / 60);
 
 	const context = getContext();
 
@@ -51,10 +62,14 @@
 
 	// Glow animation state: cellKey → asset key
 	let poofingCells = $state<Map<string, string>>(new Map());
+	// Explosion animation state: cellKey → true
+	let explodingCells = $state<Set<string>>(new Set());
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const poofScale = $derived((symbolHeight * POOF_SIZE_RATIO) / POOF_FRAME_HEIGHT);
+	const explosionScale = $derived((symbolHeight * EXPLOSION_SIZE_RATIO) / EXPLOSION_FRAME_HEIGHT);
 	const hasPoofs = $derived(poofingCells.size > 0);
+	const hasExplosions = $derived(explodingCells.size > 0);
 
 	// Constrained backOut easing - limits overshoot to stay within cell boundary
 	// Standard backOut overshoots by ~10% which can cross into adjacent cells
@@ -132,6 +147,7 @@
 			context.stateGame.tumbleBoardAdding = [];
 			context.stateGame.tumbleBoardBase = [];
 			poofingCells = new Map();
+			explodingCells = new Set();
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
 			console.log('[TumbleBoard] tumbleBoardExplode called with positions:', explodingPositions);
@@ -171,9 +187,12 @@
 
 			if (explodingPositions.length === 0) return;
 
-			// Sort outermost first for stagger
+			// Euclidean distance from board center — creates a consistent
+			// directional wave that always feels intentional.
 			const CENTER_REEL = 3;
 			const CENTER_ROW = 3;
+			const CELL_STAGGER_MS = 150;
+
 			const sorted = [...explodingPositions]
 				.map((pos) => ({
 					...pos,
@@ -182,10 +201,10 @@
 				.sort((a, b) => b.dist - a.dist);
 
 			const promises = sorted.map(async (pos, sortedIndex) => {
-				const staggerDelay = sortedIndex * POOF_STAGGER_MS;
+				const staggerDelay = sortedIndex * CELL_STAGGER_MS;
 
 				// Stagger start
-				if (sortedIndex > 0) {
+				if (staggerDelay > 0) {
 					await new Promise((r) => setTimeout(r, staggerDelay));
 				}
 
@@ -204,10 +223,22 @@
 				// Wait for full glow animation (symbol stays visible)
 				await new Promise((r) => setTimeout(r, POOF_DURATION_MS));
 
+				// Hide symbol + start explosion at the SAME moment
+				tumbleSymbol.symbolState = 'vanished';
+				explodingCells = new Set([...explodingCells, key]);
+
 				// Cleanup glow sprite
 				const next = new Map(poofingCells);
 				next.delete(key);
 				poofingCells = next;
+
+				// Wait for explosion to finish
+				await new Promise((r) => setTimeout(r, EXPLOSION_DURATION_MS));
+
+				// Cleanup explosion sprite
+				const nextExploding = new Set(explodingCells);
+				nextExploding.delete(key);
+				explodingCells = nextExploding;
 			});
 
 			await Promise.all(promises);
@@ -299,6 +330,31 @@
 						anchor={0.5}
 						scale={poofScale}
 						animationSpeed={POOF_ANIMATION_SPEED}
+						loop={false}
+						play={true}
+					/>
+				</Container>
+			{/each}
+		</BoardContainer>
+	{/if}
+
+	<!-- Explosion sprites — fire at the exact moment each cell vanishes -->
+	{#if hasExplosions}
+		<BoardContainer zIndex={15}>
+			{#each [...explodingCells] as cellKey (cellKey)}
+				{@const [reelStr, rowStr] = cellKey.split(',')}
+				{@const reel = parseInt(reelStr)}
+				{@const row = parseInt(rowStr)}
+				<Container
+					x={getSymbolXDynamic(reel, symbolWidth)}
+					y={getSymbolYDynamic(row - 1, symbolHeight)}
+				>
+					<SpriteSheet
+						key={EXPLOSION_ASSET_KEY}
+						animationName={EXPLOSION_ANIMATION_NAME}
+						anchor={0.5}
+						scale={explosionScale}
+						animationSpeed={EXPLOSION_ANIMATION_SPEED}
 						loop={false}
 						play={true}
 					/>

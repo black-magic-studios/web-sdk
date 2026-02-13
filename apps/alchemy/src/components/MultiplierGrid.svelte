@@ -324,7 +324,9 @@
 	const EXPLOSION_FRAME_HEIGHT = 440;
 	const EXPLOSION_SIZE_RATIO = 1.5;
 	const EXPLOSION_DURATION_MS = (EXPLOSION_FRAME_COUNT / EXPLOSION_ANIMATION_SPEED) * (1000 / 60);
-	const EXPLOSION_STAGGER_MS = 150;
+	// Delay factor per unit of Euclidean distance from board center.
+	// Must match POOF_STAGGER_PER_DIST in TumbleBoard so explosion + vanish sync.
+	const EXPLOSION_STAGGER_PER_DIST = 50;
 
 	// Set of cell keys currently playing explosion animation — stored in stateGame
 	const explodingCells = $derived(context.stateGame.multiplierExplodingCells);
@@ -357,11 +359,13 @@
 
 			// Sort outermost first
 			upgradingCells.sort((a, b) => b.dist - a.dist);
+			const maxDist = upgradingCells.length > 0 ? upgradingCells[0].dist : 0;
 
-			// Play staggered explosions
-			const explosionPromises = upgradingCells.map((cell, sortedIndex) => {
+			// Play staggered explosions — delay based on distance so it
+			// matches the vanish stagger in TumbleBoard per-cell.
+			const explosionPromises = upgradingCells.map((cell) => {
 				return new Promise<void>((resolve) => {
-					const delay = sortedIndex * EXPLOSION_STAGGER_MS;
+					const delay = Math.round((maxDist - cell.dist) * EXPLOSION_STAGGER_PER_DIST);
 					setTimeout(() => {
 						const key = getCellKey(cell.reel, cell.row);
 						context.stateGame.multiplierExplodingCells = new Set([...context.stateGame.multiplierExplodingCells, key]);
