@@ -11,6 +11,7 @@
 		| { type: 'tumbleBoardReset' }
 		| { type: 'tumbleBoardExplode'; explodingPositions: ExplodingPositions }
 		| { type: 'tumbleBoardVanish'; explodingPositions: ExplodingPositions }
+		| { type: 'tumbleBoardVanishAll'; explodingPositions: ExplodingPositions }
 		| { type: 'tumbleBoardRemoveExploded' }
 		| { type: 'tumbleBoardSlideDown' };
 </script>
@@ -195,17 +196,13 @@
 				const key = `${pos.reel},${pos.row}`;
 				const assetKey = GLOW_ASSET_MAP[symbolName] ?? GLOW_FALLBACK_KEY;
 
-				// Start glow overlay — symbol stays visible underneath for holographic look
+				// Start glow overlay — symbol stays visible underneath
 				const nextMap = new Map(poofingCells);
 				nextMap.set(key, assetKey);
 				poofingCells = nextMap;
 
-				// Let the glow play over the visible symbol, then hide it partway through
-				await new Promise((r) => setTimeout(r, POOF_DURATION_MS * 0.35));
-				tumbleSymbol.symbolState = 'vanished';
-
-				// Wait for the rest of the glow animation to finish
-				await new Promise((r) => setTimeout(r, POOF_DURATION_MS * 0.65));
+				// Wait for full glow animation (symbol stays visible)
+				await new Promise((r) => setTimeout(r, POOF_DURATION_MS));
 
 				// Cleanup glow sprite
 				const next = new Map(poofingCells);
@@ -215,6 +212,15 @@
 
 			await Promise.all(promises);
 			console.log(`[TumbleBoard] tumbleBoardVanish ALL DONE`);
+		},
+		tumbleBoardVanishAll: ({ explodingPositions }) => {
+			// Instantly hide all winning symbols at once
+			for (const pos of explodingPositions) {
+				const tumbleSymbol = context.stateGame.tumbleBoardBase[pos.reel]?.[pos.row];
+				if (tumbleSymbol) {
+					tumbleSymbol.symbolState = 'vanished';
+				}
+			}
 		},
 		tumbleBoardRemoveExploded: () => {
 			context.stateGame.tumbleBoardBase.forEach((tumbleReel, reelIndex) => {

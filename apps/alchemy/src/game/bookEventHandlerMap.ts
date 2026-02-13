@@ -215,23 +215,27 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		console.log(`[bookEventHandlerMap] 🕐 init done t=${(performance.now()-tb0).toFixed(0)}ms — starting vanish`);
 
-		// 1. Vanish symbols + grid explosions play together — the pop IS how symbols disappear
-		const vanishPromise = eventEmitter.broadcastAsync({
+		// 1. Play glow on all winning symbols (visual buildup only, symbols stay visible)
+		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardVanish',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
+		console.log(`[bookEventHandlerMap] ✅ Glow complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 
-		let gridPromise: Promise<void> = Promise.resolve();
+		// 2. Hide all symbols + start explosions simultaneously
+		eventEmitter.broadcast({ type: 'tumbleBoardVanishAll', explodingPositions: bookEvent.explodingSymbols });
 		if (stateGame.pendingMultiplierGrid) {
 			const gridToApply = stateGame.pendingMultiplierGrid;
 			stateGame.pendingMultiplierGrid = null;
-			console.log(`[bookEventHandlerMap] 💥 Playing multiplier explosions simultaneously t=${(performance.now()-tb0).toFixed(0)}ms`);
+			console.log(`[bookEventHandlerMap] 💥 Playing multiplier explosions t=${(performance.now()-tb0).toFixed(0)}ms`);
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
-			gridPromise = eventEmitter.broadcastAsync({ type: 'multiplierGridExplodeUpdate', grid: gridToApply });
-		}
+			await eventEmitter.broadcastAsync({ type: 'multiplierGridExplode', grid: gridToApply });
+			console.log(`[bookEventHandlerMap] ✅ Explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 
-		await Promise.all([vanishPromise, gridPromise]);
-		console.log(`[bookEventHandlerMap] ✅ Vanish + explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
+			// 3. Reveal multiplier cells (pop-in animation)
+			await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: gridToApply });
+			console.log(`[bookEventHandlerMap] ✅ Cell reveals complete t=${(performance.now()-tb0).toFixed(0)}ms`);
+		}
 
 		// 2. Remove exploded symbols, slide remaining down
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });

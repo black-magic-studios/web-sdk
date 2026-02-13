@@ -1,7 +1,8 @@
 <script lang="ts" module>
 	export type EmitterEventMultiplierGrid =
 		| { type: 'multiplierGridUpdate'; grid: number[][] }
-		| { type: 'multiplierGridExplodeUpdate'; grid: number[][] }
+		| { type: 'multiplierGridExplode'; grid: number[][] }
+		| { type: 'multiplierGridReveal'; grid: number[][] }
 		| { type: 'multiplierGridClear' };
 </script>
 
@@ -165,6 +166,8 @@
 		highlightBoost: Tween<number>;
 		labelScale: Tween<number>;
 		vibrance: Tween<number>;
+		/** Shimmer sweep progress: 0 = off-screen left, 1 = off-screen right */
+		shimmer: Tween<number>;
 	};
 
 	function makeCellAnim(initialScale = 0, initialAlpha = 0, idleShadow = 0.35): CellAnimState {
@@ -176,6 +179,7 @@
 			highlightBoost: new Tween(0),
 			labelScale: new Tween(LABEL_REST_SCALE),
 			vibrance: new Tween(0),
+			shimmer: new Tween(-0.2),
 		};
 	}
 
@@ -203,11 +207,12 @@
 		highlightBoost: number;
 		labelScale: number;
 		vibrance: number;
+		shimmer: number;
 	};
 
 	function getCellAnim(reel: number, row: number): CellAnimSnapshot {
 		const state = cellScales.get(getCellKey(reel, row));
-		if (!state) return { scale: 1, yOffset: 0, alpha: 1, shadowAlpha: 0.35, highlightBoost: 0, labelScale: LABEL_REST_SCALE, vibrance: 0 };
+		if (!state) return { scale: 1, yOffset: 0, alpha: 1, shadowAlpha: 0.35, highlightBoost: 0, labelScale: LABEL_REST_SCALE, vibrance: 0, shimmer: -0.2 };
 		return {
 			scale: state.scale.current,
 			yOffset: state.yOffset.current,
@@ -216,6 +221,7 @@
 			highlightBoost: state.highlightBoost.current,
 			labelScale: state.labelScale.current,
 			vibrance: state.vibrance.current,
+			shimmer: state.shimmer.current,
 		};
 	}
 
@@ -228,6 +234,9 @@
 		anim.highlightBoost.set(0.20, { duration: 100, easing: cubicOut });
 		anim.labelScale.set(1.06, { duration: 100, easing: cubicOut });
 		anim.vibrance.set(1, { duration: 100, easing: cubicOut });
+		// Shimmer sweeps left→right during expand
+		anim.shimmer.set(-0.2, { duration: 0 });
+		anim.shimmer.set(1.2, { duration: 350, easing: cubicOut });
 		await anim.scale.set(1.12, { duration: 100, easing: cubicOut });
 		// Phase B: settle to idle (180ms)
 		anim.shadowAlpha.set(idleShadow, { duration: 180, easing: cubicInOut });
@@ -245,6 +254,9 @@
 		anim.highlightBoost.set(0.25, { duration: 80, easing: cubicOut });
 		anim.labelScale.set(1.10, { duration: 80, easing: cubicOut });
 		anim.vibrance.set(1, { duration: 80, easing: cubicOut });
+		// Shimmer sweeps left→right during upgrade
+		anim.shimmer.set(-0.2, { duration: 0 });
+		anim.shimmer.set(1.2, { duration: 300, easing: cubicOut });
 		await anim.scale.set(1.22, { duration: 80, easing: cubicOut });
 		// Phase B: slight undershoot (80ms)
 		anim.yOffset.set(0, { duration: 160, easing: cubicInOut });
@@ -322,7 +334,53 @@
 	const hasExplosions = $derived(context.stateGame.multiplierExplodingCells.size > 0);
 
 	context.eventEmitter.subscribeOnMount({
-		multiplierGridExplodeUpdate: async (emitterEvent) => {
+		multiplierGridExplode: async (emitterEvent) => {
+			const newGrid = emitterEvent.grid;
+			const previousGrid = context.stateGame.multiplierPreviousGrid;
+
+			// Find cells that are NEW or UPGRADED
+			const upgradingCells: { reel: number; row: number; dist: number; isNew: boolean }[] = [];
+			for (let reel = 0; reel < newGrid.length; reel++) {
+				for (let row = 0; row < newGrid[reel].length; row++) {
+					const newVal = newGrid[reel][row];
+					const prevVal = previousGrid[reel]?.[row] ?? 0;
+					if (newVal > 1 && (prevVal <= 1 || newVal !== prevVal)) {
+						const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
+						upgradingCells.push({ reel, row, dist, isNew: prevVal <= 1 });
+					}
+				}
+			}
+
+			if (upgradingCells.length === 0) return;
+
+			console.log(`[MultiplierGrid:${instanceId}] 💥 EXPLODE: ${upgradingCells.length} cells`);
+
+			// Sort outermost first
+			upgradingCells.sort((a, b) => b.dist - a.dist);
+
+			// Play staggered explosions
+			const explosionPromises = upgradingCells.map((cell, sortedIndex) => {
+				return new Promise<void>((resolve) => {
+					const delay = sortedIndex * EXPLOSION_STAGGER_MS;
+					setTimeout(() => {
+						const key = getCellKey(cell.reel, cell.row);
+						context.stateGame.multiplierExplodingCells = new Set([...context.stateGame.multiplierExplodingCells, key]);
+
+						// Remove this explosion sprite after its animation finishes
+						setTimeout(() => {
+							const nextExploding = new Set(context.stateGame.multiplierExplodingCells);
+							nextExploding.delete(key);
+							context.stateGame.multiplierExplodingCells = nextExploding;
+							resolve();
+						}, EXPLOSION_DURATION_MS);
+					}, delay);
+				});
+			});
+
+			await Promise.all(explosionPromises);
+			console.log(`[MultiplierGrid:${instanceId}] 💥 All explosions complete`);
+		},
+		multiplierGridReveal: async (emitterEvent) => {
 			const newGrid = emitterEvent.grid;
 			const previousGrid = context.stateGame.multiplierPreviousGrid;
 
@@ -346,30 +404,23 @@
 				return;
 			}
 
-			console.log(`[MultiplierGrid:${instanceId}] 💥 EXPLODE_UPDATE: ${upgradingCells.length} cells upgrading`);
+			console.log(`[MultiplierGrid:${instanceId}] ✨ REVEAL: ${upgradingCells.length} cells`);
 
-			// Sort outermost first (consistent with explosion wave)
+			// Sort outermost first
 			upgradingCells.sort((a, b) => b.dist - a.dist);
 
-			// Stagger explosion + grid-pop per cell — both are triggered in the
-			// exact same synchronous block so they cannot desync.
-			const promises = upgradingCells.map((cell, sortedIndex) => {
+			// Stagger cell reveals
+			const revealPromises = upgradingCells.map((cell, sortedIndex) => {
 				return new Promise<void>((resolve) => {
-					const delay = sortedIndex * EXPLOSION_STAGGER_MS;
-					setTimeout(() => {
+					const delay = sortedIndex * DIST_STAGGER_MS;
+					setTimeout(async () => {
 						const key = getCellKey(cell.reel, cell.row);
 
-						// ── All three state updates happen synchronously ──
-
-						// 1. Start explosion sprite at this cell
-						context.stateGame.multiplierExplodingCells = new Set([...context.stateGame.multiplierExplodingCells, key]);
-
-						// 2. Update the grid value for this cell
+						// Update the grid value for this cell
 						context.stateGame.multiplierGrid[cell.reel][cell.row] = newGrid[cell.reel][cell.row];
-						// Trigger Svelte reactivity by reassigning the grid reference
 						context.stateGame.multiplierGrid = context.stateGame.multiplierGrid.map((r: number[]) => [...r]);
 
-						// 3. Create / animate compound cell state directly
+						// Create / animate compound cell state
 						const newMult = newGrid[cell.reel][cell.row];
 						const idle = getIdleShadowAlpha(newMult);
 						if (cell.isNew) {
@@ -377,30 +428,23 @@
 							const next = new Map(context.stateGame.multiplierCellScales);
 							next.set(key, anim);
 							context.stateGame.multiplierCellScales = next;
-							animateCellAppear(anim, idle);
+							await animateCellAppear(anim, idle);
 						} else {
 							const existing = context.stateGame.multiplierCellScales.get(key) as CellAnimState | undefined;
 							if (existing) {
-								animateCellUpgrade(existing, idle);
+								await animateCellUpgrade(existing, idle);
 							}
 						}
 
 						// Update previousGrid for this specific cell
 						context.stateGame.multiplierPreviousGrid[cell.reel][cell.row] = newGrid[cell.reel][cell.row];
-
-						// Remove explosion sprite after animation finishes
-						setTimeout(() => {
-							const next = new Set(context.stateGame.multiplierExplodingCells);
-							next.delete(key);
-							context.stateGame.multiplierExplodingCells = next;
-							resolve();
-						}, EXPLOSION_DURATION_MS);
+						resolve();
 					}, delay);
 				});
 			});
 
-			await Promise.all(promises);
-			console.log(`[MultiplierGrid:${instanceId}] 💥 All explosions complete`);
+			await Promise.all(revealPromises);
+			console.log(`[MultiplierGrid:${instanceId}] ✨ All reveals complete`);
 		},
 		multiplierGridUpdate: (emitterEvent) => {
 			const multiplierCount = emitterEvent.grid.flat().filter(m => m > 1).length;
@@ -451,13 +495,15 @@
 							x={getSymbolXDynamic(reelIndex, symbolWidth)}
 							y={getSymbolYDynamic(rowIndex, symbolHeight) + anim.yOffset}
 							scale={anim.scale}
-							alpha={anim.alpha}
+							alpha={anim.alpha * 0.97}
 						>
-							<AuroraCellBackground
+								<AuroraCellBackground
 								width={cellWidth}
 								height={cellHeight}
 								multiplier={multiplier}
-								alpha={0.40 + anim.vibrance * 0.28}
+								alpha={0.18 + anim.vibrance * 0.22}
+								tierColor={getTierInfo(multiplier).color}
+								shimmer={anim.shimmer}
 							/>
 							<MultiplierLabel
 								{multiplier}
