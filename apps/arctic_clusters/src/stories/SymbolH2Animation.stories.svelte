@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'Alchemy/H2 Mortar Animation',
+		title: 'Arctic Clusters/H2 Mortar Animation',
 		args: {
 			loop: true,
 		},

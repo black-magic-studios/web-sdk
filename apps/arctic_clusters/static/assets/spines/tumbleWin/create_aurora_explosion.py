@@ -221,7 +221,7 @@ def main():
     print(f"\nCreating spritesheet...")
     sheet, rows, cols = create_spritesheet(aurora_frames, output_size, cols)
     
-    output_dir = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/tumbleWin"
+    output_dir = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/tumbleWin"
     
     png_filename = "aurora_explosion_spritesheet.png"
     json_filename = "aurora_explosion_spritesheet.json"

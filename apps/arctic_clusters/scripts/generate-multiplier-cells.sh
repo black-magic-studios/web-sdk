@@ -4,7 +4,7 @@
 # Creates gradient PNG assets for multiplier tiers 2x through 1024x
 # Each tier's gradient starts with the previous tier's end color for continuity
 
-OUTPUT_DIR="/workspaces/web-sdk/apps/alchemy/static/assets/sprites/reelsFrame/cell/multipliers"
+OUTPUT_DIR="/workspaces/web-sdk/apps/arctic_clusters/static/assets/sprites/reelsFrame/cell/multipliers"
 SIZE=1024
 CORNER_RADIUS=80  # Rounded corners for cell shape
 

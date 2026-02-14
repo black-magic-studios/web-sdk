@@ -58,6 +58,25 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			recordBookEvent({ bookEvent });
 		}
 
+		// Extract aurora cell positions from the reveal board BEFORE spin starts.
+		// This lets us light up the cell backgrounds while reels are still dropping.
+		const auroraPositions: Position[] = [];
+		bookEvent.board.forEach((reel, reelIndex) => {
+			// Board has padding symbols at index 0 and last — visible rows are 1..numRows
+			reel.forEach((symbol, symbolIndex) => {
+				if (symbol.aurora) {
+					// Convert padded board index to visible row index (subtract 1 for top padding)
+					auroraPositions.push({ reel: reelIndex, row: symbolIndex - 1 });
+				}
+			});
+		});
+
+		if (auroraPositions.length > 0) {
+			eventEmitter.broadcast({ type: 'auroraCellsReveal', positions: auroraPositions });
+		} else {
+			eventEmitter.broadcast({ type: 'auroraCellsClear' });
+		}
+
 		stateGame.gameType = bookEvent.gameType;
 		await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
@@ -210,6 +229,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
 		const tb0 = performance.now();
 		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start t=0ms | exploding=${bookEvent.explodingSymbols.length} | pendingGrid=${!!stateGame.pendingMultiplierGrid}`);
+		// Clear aurora cell indicators when tumble starts — symbols are being destroyed
+		eventEmitter.broadcast({ type: 'auroraCellsClear' });
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
@@ -278,7 +299,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	// aurora
 	auroraReveal: async (bookEvent: BookEventOfType<'auroraReveal'>) => {
 		console.log(`[bookEventHandlerMap] ✨ AURORA_REVEAL at ${Date.now()}`, { positions: bookEvent.positions });
-		// TODO: Show aurora glow effect on the given board positions
+		// Aurora cells are already indicated before symbol drop (from the reveal handler).
+		// Re-broadcast here in case positions differ from what we extracted from the board.
+		eventEmitter.broadcast({ type: 'auroraCellsReveal', positions: bookEvent.positions });
 	},
 	auroraMeterUpdate: async (bookEvent: BookEventOfType<'auroraMeterUpdate'>) => {
 		console.log(`[bookEventHandlerMap] 🌊 AURORA_METER_UPDATE at ${Date.now()}`, { cellsCollected: bookEvent.cellsCollected, meterTotal: bookEvent.meterTotal });

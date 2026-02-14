@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'Alchemy/Win Frame (Sprite)',
+		title: 'Arctic Clusters/Win Frame (Sprite)',
 	});
 </script>
 

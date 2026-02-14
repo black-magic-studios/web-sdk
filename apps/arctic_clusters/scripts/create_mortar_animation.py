@@ -13,8 +13,8 @@ import json
 import shutil
 
 # Paths
-SPINES_DIR = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/symbols"
-STATIC_SPRITES_DIR = "/workspaces/web-sdk/apps/alchemy/static/assets/sprites/symbolsStatic"
+SPINES_DIR = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/symbols"
+STATIC_SPRITES_DIR = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/sprites/symbolsStatic"
 
 def backup_files():
     """Backup original files"""

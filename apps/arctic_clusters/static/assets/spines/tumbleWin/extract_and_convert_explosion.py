@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Extract explosion sprites from cluster's symbols3 atlas and convert them to white.
-Creates a new spritesheet compatible with alchemy's spritesheet format.
+Creates a new spritesheet compatible with arctic_clusters's spritesheet format.
 """
 
 from PIL import Image
@@ -168,7 +168,7 @@ def main():
     print(f"Spritesheet size: {sheet.size} ({cols} cols x {rows} rows)")
     
     # Save outputs
-    output_dir = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/tumbleWin"
+    output_dir = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/tumbleWin"
     
     png_filename = "white_explosion_spritesheet.png"
     json_filename = "white_explosion_spritesheet.json"
@@ -193,7 +193,7 @@ def main():
     print(f"Saved individual frames to: {frames_dir}/")
     
     print("\n=== Done! ===")
-    print(f"Now update alchemy's assets.ts to use '{json_filename}' instead of snow_puff")
+    print(f"Now update arctic_clusters's assets.ts to use '{json_filename}' instead of snow_puff")
 
 if __name__ == "__main__":
     main()

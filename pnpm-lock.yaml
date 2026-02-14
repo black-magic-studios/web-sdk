@@ -24,7 +24,7 @@ importers:
         specifier: 2.4.4
         version: 2.4.4
 
-  apps/alchemy:
+  apps/arctic_clusters:
     dependencies:
       '@lingui/core':
         specifier: 5.2.0

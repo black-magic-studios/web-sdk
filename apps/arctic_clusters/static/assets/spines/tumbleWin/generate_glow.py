@@ -23,8 +23,8 @@ import json
 import os
 
 # ── paths ──
-SYMBOLS_DIR = "/workspaces/web-sdk/apps/alchemy/static/assets/sprites/symbolsStatic"
-OUTPUT_DIR  = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/tumbleWin"
+SYMBOLS_DIR = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/sprites/symbolsStatic"
+OUTPUT_DIR  = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/tumbleWin"
 
 CELL = 320
 NUM_FRAMES = 16

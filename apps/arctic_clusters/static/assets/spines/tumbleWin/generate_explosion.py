@@ -20,7 +20,7 @@ from scipy.ndimage import map_coordinates
 import json
 import os
 
-OUTPUT_DIR = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/tumbleWin"
+OUTPUT_DIR = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/tumbleWin"
 CELL = 440
 NUM_FRAMES = 40
 COLS = 8

@@ -11,6 +11,7 @@ import type { EmitterEventWin } from '../components/Win.svelte';
 import type { EmitterEventSound } from '../components/Sound.svelte';
 import type { EmitterEventMultiplierGrid } from '../components/MultiplierGrid.svelte';
 import type { EmitterEventTransition } from '../components/Transition.svelte';
+import type { EmitterEventAuroraCellIndicator } from '../components/AuroraCellIndicator.svelte';
 
 export type EmitterEventGame =
 	| EmitterEventBoard
@@ -25,4 +26,5 @@ export type EmitterEventGame =
 	| EmitterEventFreeSpinOutro
 	| EmitterEventSound
 	| EmitterEventMultiplierGrid
-	| EmitterEventTransition;
+	| EmitterEventTransition
+	| EmitterEventAuroraCellIndicator;

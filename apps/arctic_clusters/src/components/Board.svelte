@@ -21,6 +21,7 @@
 	import ReelMaskSprite from './ReelMaskSprite.svelte';
 	import CellGrid from './CellGrid.svelte';
 	import MultiplierGrid from './MultiplierGrid.svelte';
+	import AuroraCellIndicator from './AuroraCellIndicator.svelte';
 
 	const context = getContext();
 
@@ -63,6 +64,7 @@
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
+			<AuroraCellIndicator inBoardSpace />
 			<MultiplierGrid inBoardSpace />
 			<BoardBase />
 		</BoardContainer>
@@ -79,6 +81,7 @@
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
+			<AuroraCellIndicator inBoardSpace />
 			<MultiplierGrid inBoardSpace />
 		</BoardContainer>
 	</BoardContext>

@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'Alchemy/H1 Polar Bear Animation',
+		title: 'Arctic Clusters/H1 Polar Bear Animation',
 		args: {
 			loop: true,
 		},

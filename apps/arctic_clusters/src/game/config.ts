@@ -1,7 +1,7 @@
 export default {
 	providerName: 'Black_Magic_Studios',
-	gameName: 'alchemy',
-	gameID: '0_0_alchemy',
+	gameName: 'arctic_clusters',
+	gameID: '0_0_arctic_clusters',
 	rtp: 0.97,
 	numReels: 7,
 	numRows: [7, 7, 7, 7, 7, 7, 7],

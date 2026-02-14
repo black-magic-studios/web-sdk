@@ -21,7 +21,7 @@ import os
 import random
 import math
 
-OUTPUT_DIR = "/workspaces/web-sdk/apps/alchemy/static/assets/spines/tumbleWin"
+OUTPUT_DIR = "/workspaces/web-sdk/apps/arctic_clusters/static/assets/spines/tumbleWin"
 CELL = 320
 NUM_FRAMES = 16
 COLS = 8
