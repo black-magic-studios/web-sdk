@@ -5,7 +5,7 @@ import { stateBet } from 'state-shared';
 import { createEnhanceBoard, createReelForCascading } from 'utils-slots';
 import { createGetWinLevelDataByWinLevelAlias } from 'utils-shared/winLevel';
 
-import type { GameType, RawSymbol, SymbolState } from './types';
+import type { GameType, Position, RawSymbol, SymbolState } from './types';
 import { stateLayoutDerived } from './stateLayout';
 import { winLevelMap } from './winLevelMap';
 import { eventEmitter } from './eventEmitter';
@@ -116,6 +116,9 @@ export const stateGame = $state({
 	] as number[][],
 	multiplierExplodingCells: new Set() as Set<string>,
 	scatterCounter: 0,
+	// Aurora state
+	auroraPositions: [] as Position[],
+	auroraMeterTotal: 0,
 });
 
 // ============================================================

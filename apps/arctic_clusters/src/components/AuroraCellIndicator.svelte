@@ -3,13 +3,14 @@
 
 	export type EmitterEventAuroraCellIndicator =
 		| { type: 'auroraCellsReveal'; positions: Position[] }
+		| { type: 'auroraCellsExplode'; positions: Position[] }
 		| { type: 'auroraCellsClear' };
 </script>
 
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { Tween } from 'svelte/motion';
-	import { cubicOut, cubicInOut } from 'svelte/easing';
+	import { cubicOut, cubicInOut, cubicIn } from 'svelte/easing';
 	import { Container, Graphics } from 'pixi-svelte';
 
 	import { getContext } from '../game/context';
@@ -29,13 +30,13 @@
 	const CELL_GAP_RATIO = 0.96;
 	const cellWidth = $derived(symbolWidth * CELL_GAP_RATIO);
 	const cellHeight = $derived(symbolHeight * CELL_GAP_RATIO);
-	const CR_RATIO = 0.10;
+	const CR_RATIO = 0.1;
 	const cr = $derived(Math.round(cellWidth * CR_RATIO));
 
 	// ── Aurora colours ──
-	const AURORA_COLORS = [0x22cc55, 0x33bbcc, 0x4466dd, 0x9955ee];
 	const GLOW_COLOR = 0x33eeaa;
 	const BORDER_COLOR_AURORA = 0x44ffbb;
+	const EXPLODE_COLOR = 0xffffff;
 
 	// ── State ──
 	type CellIndicator = {
@@ -45,6 +46,7 @@
 		scale: Tween<number>;
 		glowAlpha: Tween<number>;
 		borderAlpha: Tween<number>;
+		exploding: boolean;
 	};
 
 	let cells: CellIndicator[] = $state([]);
@@ -69,6 +71,8 @@
 	// Secondary slower pulse for border
 	const borderPulse = $derived(0.4 + 0.6 * Math.sin(pulsePhase * 1.2 + 0.5));
 
+	const posKey = (reel: number, row: number) => `${reel}_${row}`;
+
 	// ── Event handlers ──
 	context.eventEmitter.subscribeOnMount({
 		auroraCellsReveal: async ({ positions }) => {
@@ -89,6 +93,7 @@
 				scale: new Tween(0.5, { duration: 500, easing: cubicOut, delay: i * 60 }),
 				glowAlpha: new Tween(0, { duration: 600, easing: cubicOut, delay: i * 60 + 100 }),
 				borderAlpha: new Tween(0, { duration: 500, easing: cubicOut, delay: i * 60 + 50 }),
+				exploding: false,
 			}));
 
 			cells = newCells;
@@ -101,8 +106,43 @@
 				cell.borderAlpha.set(0.9);
 			}
 		},
+
+		auroraCellsExplode: async ({ positions }) => {
+			const explodeKeys = new Set(positions.map((p) => posKey(p.reel, p.row)));
+
+			// Flash bright then expand + fade out the exploding cells
+			const explodingCells = cells.filter((c) => explodeKeys.has(posKey(c.reel, c.row)));
+
+			for (const cell of explodingCells) {
+				cell.exploding = true;
+				// Flash bright white
+				cell.alpha.set(1.0, { duration: 80, easing: cubicOut });
+				cell.glowAlpha.set(1.0, { duration: 80, easing: cubicOut });
+				cell.borderAlpha.set(1.0, { duration: 80, easing: cubicOut });
+				cell.scale.set(1.15, { duration: 80, easing: cubicOut });
+			}
+
+			// Wait for flash
+			await new Promise((r) => setTimeout(r, 100));
+
+			// Expand and fade
+			for (const cell of explodingCells) {
+				cell.alpha.set(0, { duration: 350, easing: cubicIn });
+				cell.glowAlpha.set(0, { duration: 300, easing: cubicIn });
+				cell.borderAlpha.set(0, { duration: 300, easing: cubicIn });
+				cell.scale.set(1.5, { duration: 400, easing: cubicOut });
+			}
+
+			// Wait for animation to finish
+			await new Promise((r) => setTimeout(r, 420));
+
+			// Remove exploded cells from the array
+			cells = cells.filter((c) => !explodeKeys.has(posKey(c.reel, c.row)));
+		},
+
 		auroraCellsClear: () => {
-			// Fade out all cells
+			if (cells.length === 0) return;
+			// Fade out all remaining cells
 			for (const cell of cells) {
 				cell.alpha.set(0, { duration: 300, easing: cubicInOut });
 				cell.scale.set(0.85, { duration: 300, easing: cubicInOut });
@@ -117,52 +157,74 @@
 	});
 
 	// ── Draw functions ──
-	const drawGlow = (g: PIXI.Graphics, w: number, h: number, cornerRadius: number) => {
-		// Outer glow — larger rounded rect behind the cell
+	const drawGlow = (
+		g: PIXI.Graphics,
+		w: number,
+		h: number,
+		cornerRadius: number,
+		exploding: boolean,
+	) => {
 		const glowPad = w * 0.12;
-		g.roundRect(-(w + glowPad * 2) / 2, -(h + glowPad * 2) / 2, w + glowPad * 2, h + glowPad * 2, cornerRadius + 4);
-		g.fill({ color: GLOW_COLOR });
+		g.roundRect(
+			-(w + glowPad * 2) / 2,
+			-(h + glowPad * 2) / 2,
+			w + glowPad * 2,
+			h + glowPad * 2,
+			cornerRadius + 4,
+		);
+		g.fill({ color: exploding ? EXPLODE_COLOR : GLOW_COLOR });
 	};
 
-	const drawBorder = (g: PIXI.Graphics, w: number, h: number, cornerRadius: number) => {
+	const drawBorder = (
+		g: PIXI.Graphics,
+		w: number,
+		h: number,
+		cornerRadius: number,
+		exploding: boolean,
+	) => {
 		g.roundRect(-w / 2, -h / 2, w, h, cornerRadius);
-		g.stroke({ color: BORDER_COLOR_AURORA, width: 2.5, alignment: 0.5 });
+		g.stroke({ color: exploding ? EXPLODE_COLOR : BORDER_COLOR_AURORA, width: 2.5, alignment: 0.5 });
 	};
 
-	const drawInnerGlow = (g: PIXI.Graphics, w: number, h: number, cornerRadius: number) => {
-		// Subtle inner fill
+	const drawInnerGlow = (
+		g: PIXI.Graphics,
+		w: number,
+		h: number,
+		cornerRadius: number,
+		exploding: boolean,
+	) => {
 		g.roundRect(-w / 2, -h / 2, w, h, cornerRadius);
-		g.fill({ color: 0x22dd88 });
+		g.fill({ color: exploding ? EXPLODE_COLOR : 0x22dd88 });
 	};
 </script>
 
 {#snippet content()}
-	{#each cells as cell (cell.reel + '_' + cell.row)}
+	{#each cells as cell (posKey(cell.reel, cell.row))}
 		{@const baseAlpha = cell.alpha.current}
 		{@const s = cell.scale.current}
 		{#if baseAlpha > 0.01}
 			<Container
 				x={getSymbolXDynamic(cell.reel, symbolWidth)}
-				y={getSymbolYDynamic(cell.row, symbolHeight)}
+				y={getSymbolYDynamic(cell.row - 1, symbolHeight)}
 				scale={s}
 				alpha={baseAlpha}
 			>
 				<!-- Outer glow pulse -->
 				<Graphics
-					draw={(g) => drawGlow(g, cellWidth, cellHeight, cr)}
-					alpha={cell.glowAlpha.current * pulseValue * 0.25}
+					draw={(g) => drawGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
+					alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.25)}
 				/>
 
 				<!-- Inner fill -->
 				<Graphics
-					draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr)}
-					alpha={cell.glowAlpha.current * 0.08}
+					draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
+					alpha={cell.glowAlpha.current * (cell.exploding ? 0.3 : 0.08)}
 				/>
 
 				<!-- Pulsing aurora border -->
 				<Graphics
-					draw={(g) => drawBorder(g, cellWidth, cellHeight, cr)}
-					alpha={cell.borderAlpha.current * borderPulse}
+					draw={(g) => drawBorder(g, cellWidth, cellHeight, cr, cell.exploding)}
+					alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse)}
 				/>
 			</Container>
 		{/if}
@@ -172,6 +234,5 @@
 {#if props.inBoardSpace}
 	{@render content()}
 {:else}
-	<!-- If standalone, it would need its own BoardContainer — but in practice this is always inBoardSpace -->
 	{@render content()}
 {/if}

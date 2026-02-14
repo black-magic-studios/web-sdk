@@ -46,6 +46,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		console.log(`[bookEventHandlerMap] 🎰 REVEAL at ${Date.now()} - new spin starting`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
+		// Reset aurora state for new spin
+		stateGame.auroraPositions = [];
 		// Clear multiplier grid only in base game — during free spins/super bonus,
 		// multipliers persist across spins and are managed by updateGrid events
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
@@ -62,11 +64,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// This lets us light up the cell backgrounds while reels are still dropping.
 		const auroraPositions: Position[] = [];
 		bookEvent.board.forEach((reel, reelIndex) => {
-			// Board has padding symbols at index 0 and last — visible rows are 1..numRows
 			reel.forEach((symbol, symbolIndex) => {
 				if (symbol.aurora) {
-					// Convert padded board index to visible row index (subtract 1 for top padding)
-					auroraPositions.push({ reel: reelIndex, row: symbolIndex - 1 });
+					// Use symbolIndex directly — positions use padded board indexing
+					// (row 0 = top padding, rows 1-7 = active, row 8 = bottom padding)
+					auroraPositions.push({ reel: reelIndex, row: symbolIndex });
 				}
 			});
 		});
@@ -229,8 +231,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
 		const tb0 = performance.now();
 		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start t=0ms | exploding=${bookEvent.explodingSymbols.length} | pendingGrid=${!!stateGame.pendingMultiplierGrid}`);
-		// Clear aurora cell indicators when tumble starts — symbols are being destroyed
-		eventEmitter.broadcast({ type: 'auroraCellsClear' });
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
@@ -295,29 +295,45 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
+		// Clear any remaining aurora overlays at end of cascade
+		eventEmitter.broadcast({ type: 'auroraCellsClear' });
+		stateGame.auroraPositions = [];
 	},
 	// aurora
 	auroraReveal: async (bookEvent: BookEventOfType<'auroraReveal'>) => {
 		console.log(`[bookEventHandlerMap] ✨ AURORA_REVEAL at ${Date.now()}`, { positions: bookEvent.positions });
-		// Aurora cells are already indicated before symbol drop (from the reveal handler).
-		// Re-broadcast here in case positions differ from what we extracted from the board.
+		// Store aurora positions in state for reference by later auroraExplode events
+		stateGame.auroraPositions = bookEvent.positions;
+		// Show aurora overlays — these are the canonical positions from the math engine
 		eventEmitter.broadcast({ type: 'auroraCellsReveal', positions: bookEvent.positions });
 	},
 	auroraMeterUpdate: async (bookEvent: BookEventOfType<'auroraMeterUpdate'>) => {
 		console.log(`[bookEventHandlerMap] 🌊 AURORA_METER_UPDATE at ${Date.now()}`, { cellsCollected: bookEvent.cellsCollected, meterTotal: bookEvent.meterTotal });
-		// TODO: Update aurora wild meter UI
+		// Update meter state — UI component can derive from this
+		stateGame.auroraMeterTotal = bookEvent.meterTotal;
 	},
 	auroraExplode: async (bookEvent: BookEventOfType<'auroraExplode'>) => {
 		console.log(`[bookEventHandlerMap] 💫 AURORA_EXPLODE at ${Date.now()}`, { positions: bookEvent.positions });
-		// TODO: Animate aurora cells being collected into the meter
+		// Play explosion animation on the consumed aurora cells (async — waits for animation)
+		await eventEmitter.broadcastAsync({ type: 'auroraCellsExplode', positions: bookEvent.positions });
+		// Remove exploded positions from state
+		const explodeKeys = new Set(bookEvent.positions.map((p) => `${p.reel}_${p.row}`));
+		stateGame.auroraPositions = stateGame.auroraPositions.filter(
+			(p) => !explodeKeys.has(`${p.reel}_${p.row}`),
+		);
 	},
 	auroraWildPlace: async (bookEvent: BookEventOfType<'auroraWildPlace'>) => {
 		console.log(`[bookEventHandlerMap] 🃏 AURORA_WILD_PLACE at ${Date.now()}`, { position: bookEvent.position, meterBefore: bookEvent.meterBefore, meterAfter: bookEvent.meterAfter });
-		// Place wild symbol on the board at the given position
+		// Place wild symbol on the board at the given position with a brief animation
 		const { reel, row } = bookEvent.position;
 		const reelSymbol = stateGame.board[reel].reelState.symbols[row];
+
+		// Swap to wild and trigger land animation
 		reelSymbol.rawSymbol = { name: 'W' as any, wild: true };
 		reelSymbol.symbolState = 'land';
+
+		// Brief delay between wild placements so they don't all appear at once
+		await new Promise((r) => setTimeout(r, 120));
 	},
 	// customised
 	createBonusSnapshot: async (bookEvent: BookEventOfType<'createBonusSnapshot'>) => {
