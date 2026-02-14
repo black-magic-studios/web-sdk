@@ -17,6 +17,7 @@
 	import Sound from './Sound.svelte';
 	import Background from './Background.svelte';
 	import Snowflakes from './Snowflakes.svelte';
+	import Constellations from './Constellations.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardFrame from './BoardFrame.svelte';
 	import Board from './Board.svelte';
@@ -31,7 +32,7 @@
 	import FreeSpinCounter from './FreeSpinCounter.svelte';
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
-	import I18nTest from './I18nTest.svelte';
+	// import I18nTest from './I18nTest.svelte';
 	import PlayBar from './PlayBar.svelte';
 
 	const context = getContext();
@@ -65,6 +66,7 @@
 		<Sound />
 
 		<Snowflakes />
+		<Constellations />
 		<BoardFrame />
 		<Board />
 		<Anticipations />
@@ -99,7 +101,7 @@
 		<FreeSpinOutro />
 		<Transition />
 
-		<I18nTest />
+		<!-- <I18nTest /> -->
 	{/if}
 </App>
 

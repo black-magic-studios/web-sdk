@@ -191,7 +191,7 @@
 			// directional wave that always feels intentional.
 			const CENTER_REEL = 3;
 			const CENTER_ROW = 3;
-			const CELL_STAGGER_MS = 150;
+			const CELL_STAGGER_MS = 100;
 
 			const sorted = [...explodingPositions]
 				.map((pos) => ({
@@ -324,6 +324,7 @@
 					x={getSymbolXDynamic(reel, symbolWidth)}
 					y={getSymbolYDynamic(row - 1, symbolHeight)}
 				>
+					<!-- Main glow -->
 					<SpriteSheet
 						key={assetKey}
 						animationName={POOF_ANIMATION_NAME}
