@@ -352,7 +352,7 @@ const l3Static = { type: 'sprite', assetKey: 'l3.webp', sizeRatios: { width: 1, 
 const l4Static = { type: 'sprite', assetKey: 'l4.webp', sizeRatios: { width: 1, height: 1 } };
 
 const sStatic = { type: 'sprite', assetKey: 'S', sizeRatios: { width: 1, height: 1 } };
-const wSizeRatiosStatic = { width: 1.5 * 0.9, height: SPECIAL_SYMBOL_SIZE * 1.15 };
+const wSizeRatiosStatic = { width: 1.0, height: 1.0 };
 
 const m2Static = {
 	type: 'sprite',
@@ -368,7 +368,7 @@ const m5Static = { type: 'sprite', assetKey: 'm2_5x.png', sizeRatios: { width: 1
 const m7Static = { type: 'sprite', assetKey: 'm2_7x.png', sizeRatios: { width: 1, height: 1 } };
 const m10Static = { type: 'sprite', assetKey: 'm3_10x.png', sizeRatios: { width: 1, height: 1 } };
 
-const wSizeRatios = { width: 1.5 * 0.9, height: SPECIAL_SYMBOL_SIZE * 1.15 };
+const wSizeRatios = { width: 1.0, height: 1.0 };
 
 
 export const SYMBOL_INFO_MAP = {
@@ -446,20 +446,11 @@ export const SYMBOL_INFO_MAP = {
 	},
 	W: {
 		explosion,
-		postWinStatic: {
-			type: 'sprite',
-			assetKey: 'explodedW.png',
-			sizeRatios: { width: 0.85, height: 0.85 },
-		},
-		static: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite_land', sizeRatios: wSizeRatios },
-		spin: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite_land', sizeRatios: wSizeRatios },
-		win: { type: 'spine', assetKey: 'W', animationName: 'wild_dynamite', sizeRatios: wSizeRatios },
-		land: {
-			type: 'spine',
-			assetKey: 'W',
-			animationName: 'wild_dynamite_land',
-			sizeRatios: wSizeRatios,
-		},
+		postWinStatic: { type: 'sprite', assetKey: 'W', sizeRatios: wSizeRatios },
+		static: { type: 'sprite', assetKey: 'W', sizeRatios: wSizeRatios },
+		spin: { type: 'sprite', assetKey: 'W', sizeRatios: wSizeRatios },
+		win: { type: 'sprite', assetKey: 'W', sizeRatios: wSizeRatios },
+		land: { type: 'sprite', assetKey: 'W', sizeRatios: wSizeRatios },
 	},
 	S: {
 		explosion,

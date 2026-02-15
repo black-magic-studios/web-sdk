@@ -10,10 +10,9 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { Tween } from 'svelte/motion';
 	import { backOut, cubicOut, cubicInOut } from 'svelte/easing';
-	import { Container, SpriteSheet } from 'pixi-svelte';
+	import { Container, SpriteSheet, Sprite } from 'pixi-svelte';
 
 	import BoardContainer from './BoardContainer.svelte';
-	import AuroraCellBackground from './AuroraCellBackground.svelte';
 	import MultiplierLabel from './MultiplierLabel.svelte';
 	import { getContext } from '../game/context';
 	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
@@ -66,6 +65,16 @@
 		return 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
 	}
 
+	/** Linearly interpolate between two hex colours. t=0→a, t=1→b. */
+	function lerpColor(a: number, b: number, t: number): number {
+		const ar = (a >> 16) & 0xff, ag = (a >> 8) & 0xff, ab = a & 0xff;
+		const br = (b >> 16) & 0xff, bg = (b >> 8) & 0xff, bb = b & 0xff;
+		const r = Math.round(ar + (br - ar) * t);
+		const g = Math.round(ag + (bg - ag) * t);
+		const bv = Math.round(ab + (bb - ab) * t);
+		return (r << 16) | (g << 8) | bv;
+	}
+
 	/** Brighten a hex colour toward white until its luminance ≥ target. */
 	function brightenTint(hex: number, targetLuma: number): number {
 		let [r, g, b] = hexToRgb(hex);
@@ -115,6 +124,23 @@
 		return brightenTint(tierColor, targetLuma);
 	}
 
+	// ── Least-dominant label colour per tier ─────────────────
+	// The multiplier text uses the accent colour that is least
+	// prominent in the pre-rendered cell background PNG so it
+	// stands out against the dominant hues.
+	function getLabelColor(mult: number): number {
+		switch (mult) {
+			case 2:    return 0xff88bb; // pink — contrasts green BG
+			case 4:    return 0xff99aa; // warm pink — contrasts teal BG
+			case 8:    return 0xffcc66; // gold — contrasts blue BG
+			case 16:   return 0x55ddbb; // teal — contrasts purple BG
+			case 32:   return 0xffcc55; // gold — contrasts purple BG
+			case 64:   return 0x88aaff; // cool blue — contrasts gold BG
+			case 128:  return 0xff8877; // coral — contrasts blue BG
+			default:   return 0x66ddee; // cyan — contrasts red/warm BG (256+)
+		}
+	}
+
 	/** Highlight layer opacity by tier — higher tiers get glossier.
 	 *  Low tiers are subtler (0.55), high tiers more reflective (0.90). */
 	function getHighlightAlpha(mult: number): number {
@@ -136,6 +162,27 @@
 	const CELL_GAP_RATIO = 0.96;
 	const cellWidth = $derived(symbolWidth * CELL_GAP_RATIO);
 	const cellHeight = $derived(symbolHeight * CELL_GAP_RATIO);
+
+	// ── Cell background vibrancy tints ──────────────────────
+	// At rest the cell BG is muted / desaturated to avoid being
+	// too bright.  During pop animations vibrance ramps to 1,
+	// revealing the full original PNG colour before settling back.
+	const REST_TINT = 0x8899bb; // cool desaturated (~53-60-73 % per channel)
+	const POP_TINT  = 0xffffff; // full original PNG colour
+
+	// ── Multiplier grid sprite asset keys ────────────────
+	function getMultiGridAssetKey(mult: number): string {
+		switch (mult) {
+			case 2:    return 'multiGrid2x';
+			case 4:    return 'multiGrid4x';
+			case 8:    return 'multiGrid8x';
+			case 16:   return 'multiGrid16x';
+			case 32:   return 'multiGrid32x';
+			case 64:   return 'multiGrid64x';
+			case 128:  return 'multiGrid128x';
+			default:   return 'multiGrid256x'; // 256, 512, 1024+
+		}
+	}
 
 	// Check if grid has any multipliers > 1
 	const hasMultipliers = $derived(grid.some((reel) => reel.some((m) => m > 1)));
@@ -168,6 +215,8 @@
 		vibrance: Tween<number>;
 		/** Shimmer sweep progress: 0 = off-screen left, 1 = off-screen right */
 		shimmer: Tween<number>;
+		/** Hue-travel sweep progress: 0 = off, 0→1 = cyan→green→violet sweep */
+		hueSweep: Tween<number>;
 	};
 
 	function makeCellAnim(initialScale = 0, initialAlpha = 0, idleShadow = 0.35): CellAnimState {
@@ -180,6 +229,7 @@
 			labelScale: new Tween(LABEL_REST_SCALE),
 			vibrance: new Tween(0),
 			shimmer: new Tween(-0.2),
+			hueSweep: new Tween(0),
 		};
 	}
 
@@ -208,11 +258,12 @@
 		labelScale: number;
 		vibrance: number;
 		shimmer: number;
+		hueSweep: number;
 	};
 
 	function getCellAnim(reel: number, row: number): CellAnimSnapshot {
 		const state = cellScales.get(getCellKey(reel, row));
-		if (!state) return { scale: 1, yOffset: 0, alpha: 1, shadowAlpha: 0.35, highlightBoost: 0, labelScale: LABEL_REST_SCALE, vibrance: 0, shimmer: -0.2 };
+		if (!state) return { scale: 1, yOffset: 0, alpha: 1, shadowAlpha: 0.35, highlightBoost: 0, labelScale: LABEL_REST_SCALE, vibrance: 0, shimmer: -0.2, hueSweep: 0 };
 		return {
 			scale: state.scale.current,
 			yOffset: state.yOffset.current,
@@ -222,10 +273,11 @@
 			labelScale: state.labelScale.current,
 			vibrance: state.vibrance.current,
 			shimmer: state.shimmer.current,
+			hueSweep: state.hueSweep.current,
 		};
 	}
 
-	/** Animate a cell appearing with depth cues + label scale pop + vibrance. */
+	/** Animate a cell appearing with depth cues + label scale pop + vibrance + hue sweep. */
 	async function animateCellAppear(anim: CellAnimState, idleShadow: number) {
 		// Phase A: expand + fade in + label grows + vibrance spikes (100ms)
 		anim.alpha.set(1, { duration: 100, easing: cubicOut });
@@ -237,16 +289,20 @@
 		// Shimmer sweeps left→right during expand
 		anim.shimmer.set(-0.2, { duration: 0 });
 		anim.shimmer.set(1.2, { duration: 350, easing: cubicOut });
+		// Hue-travel sweep: cyan→green→violet across fill (150ms)
+		anim.hueSweep.set(0, { duration: 0 });
+		anim.hueSweep.set(1, { duration: 150, easing: cubicOut });
 		await anim.scale.set(1.12, { duration: 100, easing: cubicOut });
 		// Phase B: settle to idle (180ms)
 		anim.shadowAlpha.set(idleShadow, { duration: 180, easing: cubicInOut });
 		anim.highlightBoost.set(0, { duration: 180, easing: cubicInOut });
 		anim.labelScale.set(LABEL_REST_SCALE, { duration: 200, easing: cubicInOut });
 		anim.vibrance.set(0, { duration: 200, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 80 });
 		await anim.scale.set(1, { duration: 150, easing: cubicInOut });
 	}
 
-	/** Animate a cell upgrading with punch + label pop + vibrance. */
+	/** Animate a cell upgrading with punch + label pop + vibrance + hue sweep. */
 	async function animateCellUpgrade(anim: CellAnimState, idleShadow: number) {
 		// Phase A: expand + kick up + label grows + vibrance spikes (80ms)
 		anim.yOffset.set(-5, { duration: 80, easing: cubicOut });
@@ -257,6 +313,9 @@
 		// Shimmer sweeps left→right during upgrade
 		anim.shimmer.set(-0.2, { duration: 0 });
 		anim.shimmer.set(1.2, { duration: 300, easing: cubicOut });
+		// Hue-travel sweep: cyan→green→violet across fill (180ms)
+		anim.hueSweep.set(0, { duration: 0 });
+		anim.hueSweep.set(1, { duration: 180, easing: cubicOut });
 		await anim.scale.set(1.22, { duration: 80, easing: cubicOut });
 		// Phase B: slight undershoot (80ms)
 		anim.yOffset.set(0, { duration: 160, easing: cubicInOut });
@@ -266,6 +325,7 @@
 		anim.highlightBoost.set(0, { duration: 120, easing: cubicInOut });
 		anim.labelScale.set(LABEL_REST_SCALE, { duration: 150, easing: cubicInOut });
 		anim.vibrance.set(0, { duration: 150, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 80 });
 		await anim.scale.set(1, { duration: 100, easing: cubicInOut });
 	}
 
@@ -495,26 +555,26 @@
 				{#if multiplier > 1}
 					{@const anim = getCellAnim(reelIndex, rowIndex)}
 					{#if anim.scale > 0}
+						{@const spriteTint = lerpColor(REST_TINT, POP_TINT, anim.vibrance)}
 						<Container
 							x={getSymbolXDynamic(reelIndex, symbolWidth)}
 							y={getSymbolYDynamic(rowIndex, symbolHeight) + anim.yOffset}
 							scale={anim.scale}
 							alpha={anim.alpha * 0.97}
 						>
-								<AuroraCellBackground
+							<Sprite
+								key={getMultiGridAssetKey(multiplier)}
+								anchor={0.5}
 								width={cellWidth}
 								height={cellHeight}
-								multiplier={multiplier}
-								alpha={0.18 + anim.vibrance * 0.22}
-								tierColor={getTierInfo(multiplier).color}
-								shimmer={anim.shimmer}
+								tint={spriteTint}
 							/>
 							<MultiplierLabel
 								{multiplier}
 								{symbolSize}
 								{cellWidth}
 								{cellHeight}
-								tint={getMultiplierTint(multiplier)}
+								gradientColors={[getLabelColor(multiplier)]}
 								highlightAlpha={getHighlightAlpha(multiplier)}
 								shadowAlpha={anim.shadowAlpha}
 								highlightBoost={anim.highlightBoost}

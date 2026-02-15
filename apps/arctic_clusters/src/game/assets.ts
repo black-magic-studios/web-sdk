@@ -111,12 +111,8 @@ export default {
 		},
 	},
 	W: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/symbols3/symbols3.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/symbols3/W.json', import.meta.url).href,
-			scale: 2,
-		},
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/arctic_clusters_wild.png',
 	},
 	reelFrameEdge: {
 		type: 'sprite',
@@ -174,6 +170,39 @@ export default {
 	multiplierCell1024x: {
 		type: 'sprite',
 		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_1024x.png',
+	},
+	// Multiplier grid symbol sprites (new design)
+	multiGrid2x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
+	},
+	multiGrid4x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
+	},
+	multiGrid8x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
+	},
+	multiGrid16x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
+	},
+	multiGrid32x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
+	},
+	multiGrid64x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
+	},
+	multiGrid128x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
+	},
+	multiGrid256x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256+.png',
 	},
 	payFrame: {
 		type: 'sprite',
