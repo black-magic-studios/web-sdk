@@ -277,56 +277,58 @@
 		};
 	}
 
-	/** Animate a cell appearing with depth cues + label scale pop + vibrance + hue sweep. */
+	/** Animate a cell appearing with depth cues + label scale pop + vibrance + hue sweep.
+	 *  Starts muted (rest tint) → ramps to full brightness at peak → settles back to muted. */
 	async function animateCellAppear(anim: CellAnimState, idleShadow: number) {
-		// Phase A: expand + fade in + label grows + vibrance spikes (100ms)
-		anim.alpha.set(1, { duration: 100, easing: cubicOut });
-		anim.yOffset.set(0, { duration: 200, easing: cubicOut });
-		anim.shadowAlpha.set(0.55, { duration: 100, easing: cubicOut });
-		anim.highlightBoost.set(0.20, { duration: 100, easing: cubicOut });
-		anim.labelScale.set(1.06, { duration: 100, easing: cubicOut });
-		anim.vibrance.set(1, { duration: 100, easing: cubicOut });
+		// Phase A: fade in at rest brightness, scale up to peak (250ms)
+		anim.vibrance.set(0, { duration: 0 }); // start muted
+		anim.alpha.set(1, { duration: 180, easing: cubicOut });
+		anim.yOffset.set(0, { duration: 350, easing: cubicOut });
+		anim.shadowAlpha.set(0.55, { duration: 200, easing: cubicOut });
+		anim.highlightBoost.set(0.20, { duration: 250, easing: cubicOut });
+		anim.labelScale.set(1.06, { duration: 250, easing: cubicOut });
+		anim.vibrance.set(1, { duration: 250, easing: cubicOut }); // ramp muted → bright
 		// Shimmer sweeps left→right during expand
 		anim.shimmer.set(-0.2, { duration: 0 });
-		anim.shimmer.set(1.2, { duration: 350, easing: cubicOut });
-		// Hue-travel sweep: cyan→green→violet across fill (150ms)
+		anim.shimmer.set(1.2, { duration: 500, easing: cubicOut });
+		// Hue-travel sweep: cyan→green→violet across fill
 		anim.hueSweep.set(0, { duration: 0 });
-		anim.hueSweep.set(1, { duration: 150, easing: cubicOut });
-		await anim.scale.set(1.12, { duration: 100, easing: cubicOut });
-		// Phase B: settle to idle (180ms)
-		anim.shadowAlpha.set(idleShadow, { duration: 180, easing: cubicInOut });
-		anim.highlightBoost.set(0, { duration: 180, easing: cubicInOut });
-		anim.labelScale.set(LABEL_REST_SCALE, { duration: 200, easing: cubicInOut });
-		anim.vibrance.set(0, { duration: 200, easing: cubicInOut });
-		anim.hueSweep.set(0, { duration: 80 });
-		await anim.scale.set(1, { duration: 150, easing: cubicInOut });
+		anim.hueSweep.set(1, { duration: 300, easing: cubicOut });
+		await anim.scale.set(1.12, { duration: 250, easing: cubicOut });
+		// Phase B: hold at peak briefly then settle to idle (400ms)
+		anim.shadowAlpha.set(idleShadow, { duration: 350, easing: cubicInOut });
+		anim.highlightBoost.set(0, { duration: 350, easing: cubicInOut });
+		anim.labelScale.set(LABEL_REST_SCALE, { duration: 400, easing: cubicInOut });
+		anim.vibrance.set(0, { duration: 400, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 150 });
+		await anim.scale.set(1, { duration: 300, easing: cubicInOut });
 	}
 
 	/** Animate a cell upgrading with punch + label pop + vibrance + hue sweep. */
 	async function animateCellUpgrade(anim: CellAnimState, idleShadow: number) {
-		// Phase A: expand + kick up + label grows + vibrance spikes (80ms)
-		anim.yOffset.set(-5, { duration: 80, easing: cubicOut });
-		anim.shadowAlpha.set(0.60, { duration: 80, easing: cubicOut });
-		anim.highlightBoost.set(0.25, { duration: 80, easing: cubicOut });
-		anim.labelScale.set(1.10, { duration: 80, easing: cubicOut });
-		anim.vibrance.set(1, { duration: 80, easing: cubicOut });
+		// Phase A: expand + kick up + label grows + vibrance ramps up (200ms)
+		anim.yOffset.set(-5, { duration: 180, easing: cubicOut });
+		anim.shadowAlpha.set(0.60, { duration: 180, easing: cubicOut });
+		anim.highlightBoost.set(0.25, { duration: 200, easing: cubicOut });
+		anim.labelScale.set(1.10, { duration: 200, easing: cubicOut });
+		anim.vibrance.set(1, { duration: 200, easing: cubicOut });
 		// Shimmer sweeps left→right during upgrade
 		anim.shimmer.set(-0.2, { duration: 0 });
-		anim.shimmer.set(1.2, { duration: 300, easing: cubicOut });
-		// Hue-travel sweep: cyan→green→violet across fill (180ms)
+		anim.shimmer.set(1.2, { duration: 450, easing: cubicOut });
+		// Hue-travel sweep: cyan→green→violet across fill
 		anim.hueSweep.set(0, { duration: 0 });
-		anim.hueSweep.set(1, { duration: 180, easing: cubicOut });
-		await anim.scale.set(1.22, { duration: 80, easing: cubicOut });
-		// Phase B: slight undershoot (80ms)
-		anim.yOffset.set(0, { duration: 160, easing: cubicInOut });
-		await anim.scale.set(0.97, { duration: 80 });
-		// Phase C: settle (120ms)
-		anim.shadowAlpha.set(idleShadow, { duration: 120, easing: cubicInOut });
-		anim.highlightBoost.set(0, { duration: 120, easing: cubicInOut });
-		anim.labelScale.set(LABEL_REST_SCALE, { duration: 150, easing: cubicInOut });
-		anim.vibrance.set(0, { duration: 150, easing: cubicInOut });
-		anim.hueSweep.set(0, { duration: 80 });
-		await anim.scale.set(1, { duration: 100, easing: cubicInOut });
+		anim.hueSweep.set(1, { duration: 300, easing: cubicOut });
+		await anim.scale.set(1.22, { duration: 200, easing: cubicOut });
+		// Phase B: slight undershoot (150ms)
+		anim.yOffset.set(0, { duration: 280, easing: cubicInOut });
+		await anim.scale.set(0.97, { duration: 150 });
+		// Phase C: settle back to muted (300ms)
+		anim.shadowAlpha.set(idleShadow, { duration: 280, easing: cubicInOut });
+		anim.highlightBoost.set(0, { duration: 280, easing: cubicInOut });
+		anim.labelScale.set(LABEL_REST_SCALE, { duration: 300, easing: cubicInOut });
+		anim.vibrance.set(0, { duration: 300, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 150 });
+		await anim.scale.set(1, { duration: 220, easing: cubicInOut });
 	}
 
 	/** Animate newly-appearing cells with staggered multi-prop entrance.
