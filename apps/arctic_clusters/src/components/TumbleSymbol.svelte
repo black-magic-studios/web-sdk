@@ -30,13 +30,6 @@
 					state: props.tumbleSymbol.symbolState,
 				}),
 	);
-
-	// Debug: log scale changes per frame
-	$effect(() => {
-		if (currentScale !== 1) {
-			console.log(`[TumbleSymbol] ${props.tumbleSymbol.rawSymbol.name} reel=${props.reelIndex} scale=${currentScale.toFixed(4)} state=${props.tumbleSymbol.symbolState}`);
-		}
-	});
 </script>
 
 {#if !isHidden && symbolInfo}

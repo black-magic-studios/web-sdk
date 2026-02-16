@@ -137,7 +137,10 @@
 			case 32:   return 0xffcc55; // gold — contrasts purple BG
 			case 64:   return 0x88aaff; // cool blue — contrasts gold BG
 			case 128:  return 0xff8877; // coral — contrasts blue BG
-			default:   return 0x66ddee; // cyan — contrasts red/warm BG (256+)
+			case 256:  return 0x66ddee; // cyan — contrasts red/warm BG
+			case 512:  return 0xffaa66; // amber — contrasts cool BG
+			case 1024: return 0xff88cc; // pink — contrasts multi-color BG
+			default:   return 0x66ddee; // cyan fallback
 		}
 	}
 
@@ -180,7 +183,9 @@
 			case 32:   return 'multiGrid32x';
 			case 64:   return 'multiGrid64x';
 			case 128:  return 'multiGrid128x';
-			default:   return 'multiGrid256x'; // 256, 512, 1024+
+			case 256:  return 'multiGrid256x';
+			case 512:  return 'multiGrid512x';
+			default:   return 'multiGrid1024x'; // 1024+
 		}
 	}
 

@@ -202,7 +202,15 @@ export default {
 	},
 	multiGrid256x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256+.png',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
+	},
+	multiGrid512x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
+	},
+	multiGrid1024x: {
+		type: 'sprite',
+		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
 	},
 	payFrame: {
 		type: 'sprite',
