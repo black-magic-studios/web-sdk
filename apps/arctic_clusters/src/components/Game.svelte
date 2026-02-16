@@ -5,11 +5,11 @@
 	import { EnableHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
 	import { App, Text, REM, Container } from 'pixi-svelte';
-	import { stateModal } from 'state-shared';
-
 	import { UiGameName } from 'components-ui-pixi';
 	import { GameVersion, Modals } from 'components-ui-html';
+	import ModalBuyBonus from './ModalBuyBonus.svelte';
 
+	import { stateMeta } from 'state-shared';
 	import { getContext } from '../game/context';
 	import EnableSound from './EnableSound.svelte';
 	import EnableGameActor from './EnableGameActor.svelte';
@@ -37,11 +37,47 @@
 
 	const context = getContext();
 
+	// ── Register arctic_clusters multiplier bet modes ──
+	const MULTIPLIER_MODES = [
+		{ key: 'M2X', label: '2x', cost: 2.9 },
+		{ key: 'M4X', label: '4x', cost: 5.8 },
+		{ key: 'M8X', label: '8x', cost: 11.2 },
+		{ key: 'M16X', label: '16x', cost: 23.0 },
+		{ key: 'M32X', label: '32x', cost: 46.2 },
+		{ key: 'M64X', label: '64x', cost: 90.6 },
+		{ key: 'M128X', label: '128x', cost: 181.8 },
+		{ key: 'M256X', label: '256x', cost: 354.5 },
+		{ key: 'M512X', label: '512x', cost: 665.1 },
+		{ key: 'M1024X', label: '1024x', cost: 1110.8 },
+	] as const;
+
+	for (const m of MULTIPLIER_MODES) {
+		stateMeta.betModeMeta[m.key] = {
+			mode: m.key,
+			costMultiplier: m.cost,
+			type: 'activate',
+			parent: '',
+			children: '',
+			assets: { icon: '', dialogImage: '', dialogVolatility: '', volatility: '', button: '' },
+			text: {
+				title: `${m.label.toUpperCase()} MULTIPLIER`,
+				dialog: `Every cell starts with a ${m.label} multiplier for ${m.cost}x the player bet amount.`,
+				description: `Every cell starts with a ${m.label} multiplier.`,
+				button: 'ACTIVATE',
+				betAmountLabel: `${m.label.toUpperCase()} MULTIPLIER`,
+				tickerIdle: `${m.label.toUpperCase()} MULTIPLIER ACTIVE`,
+				tickerSpin: 'GOOD LUCK',
+			},
+		};
+	}
+
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
+
+	let showBuyBonus = $state(false);
 
 	context.eventEmitter.subscribeOnMount({
 		buyBonusConfirm: () => {
-			stateModal.modal = { name: 'buyBonusConfirm' };
+			showBuyBonus = true;
 		},
 	});
 </script>
@@ -110,3 +146,5 @@
 		<GameVersion version="0.0.0" />
 	{/snippet}
 </Modals>
+
+<ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
