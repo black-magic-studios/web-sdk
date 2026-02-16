@@ -69,8 +69,8 @@
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
-			<AuroraCellIndicator inBoardSpace />
 			<MultiplierGrid inBoardSpace />
+			<AuroraCellIndicator inBoardSpace />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
@@ -86,8 +86,8 @@
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
-			<AuroraCellIndicator inBoardSpace />
 			<MultiplierGrid inBoardSpace />
+			<AuroraCellIndicator inBoardSpace />
 		</BoardContainer>
 	</BoardContext>
 {/if}

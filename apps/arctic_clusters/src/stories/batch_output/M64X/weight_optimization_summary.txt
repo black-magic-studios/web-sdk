@@ -1,0 +1,23 @@
+MULT-BASE 64x WEIGHT OPTIMIZATION SUMMARY
+==========================================
+
+Starting Multiplier: 64x
+Spin Price: 90.6x base bet
+Total Spins: 100000
+Total Outcomes: 100000
+Books Generated: 100000
+Max Raw Win: 25000.0x
+Max Effective Win: 275.9x
+
+Final Effective RTP Breakdown:
+  Total:  92.5000%
+  Base:   45.0000%
+  Free:   35.0000%
+  Super:  12.5000%
+
+Total Weight: 1125899906783172
+
+Trigger Rates:
+  Free Spins: 532 (0.5%, 1 in 188.0)
+  Super Bonus: 176 (0.2%, 1 in 568.2)
+  Hit Rate: 26.31%

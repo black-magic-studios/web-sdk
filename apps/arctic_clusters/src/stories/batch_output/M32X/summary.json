@@ -1,0 +1,21 @@
+{
+  "avg_effective_win_when_win": 3.604527048828854,
+  "base_rtp": 0.44999999999820245,
+  "books_generated": 100000,
+  "free_rtp": 0.3500000000043499,
+  "fs_trigger_rate": 0.00516,
+  "fs_triggers": 516,
+  "hit_rate": 0.25719,
+  "max_effective_win": 223.65367965367966,
+  "max_raw_win": 10332.800000000001,
+  "mult_level": 32,
+  "rtp": 0.925000000003297,
+  "spin_price": 46.2,
+  "super_rtp": 0.12500000000074465,
+  "super_trigger_rate": 0.00196,
+  "super_triggers": 196,
+  "total_spins": 100000,
+  "total_wagered": 100000.0,
+  "total_won_effective": 92704.83116882929,
+  "zero_wins": 74281
+}

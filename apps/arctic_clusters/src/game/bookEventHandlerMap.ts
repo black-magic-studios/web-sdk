@@ -2,13 +2,14 @@ import _ from 'lodash';
 
 import { recordBookEvent, checkIsMultipleRevealEvents, type BookEventHandlerMap } from 'utils-book';
 import { stateBet } from 'state-shared';
+import { waitForResolve } from 'utils-shared/wait';
 
 import { eventEmitter } from './eventEmitter';
 import { playBookEvent } from './utils';
 import { winLevelMap, type WinLevel, type WinLevelData } from './winLevelMap';
 import { stateGame, stateGameDerived } from './stateGame.svelte';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
-import type { Position } from './types';
+import type { RawSymbol, Position } from './types';
 
 const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) => {
 	if (winLevelData?.alias === 'max') eventEmitter.broadcastAsync({ type: 'uiHide' });
@@ -42,16 +43,95 @@ const animateSymbols = async ({ positions }: { positions: Position[] }) => {
 	});
 };
 
+/**
+ * Extract the initial multiplier grid from a reveal event's board data.
+ * Outer ring cells (row 0, row 6, col 0, col 6) have no multiplier.
+ * Returns a 7×7 grid of multiplier values (0 = no multiplier).
+ */
+const extractInitialGrid = (board: RawSymbol[][]): number[][] => {
+	const grid: number[][] = [];
+	for (let reel = 0; reel < board.length; reel++) {
+		const col: number[] = [];
+		// Skip padding rows at index 0 and last index (board is 7×9, grid needs 7×7)
+		for (let row = 1; row < board[reel].length - 1; row++) {
+			col.push(board[reel][row].multiplier ?? 0);
+		}
+		grid.push(col);
+	}
+	return grid;
+};
+
+/** Check if two 7×7 grids are identical. */
+const gridsMatch = (a: number[][], b: number[][]): boolean => {
+	for (let reel = 0; reel < a.length; reel++) {
+		for (let row = 0; row < a[reel].length; row++) {
+			if (a[reel][row] !== b[reel][row]) return false;
+		}
+	}
+	return true;
+};
+
+/** Check if a grid has any multipliers > 1. */
+const gridHasMultipliers = (grid: number[][]): boolean => {
+	return grid.some((col) => col.some((m) => m > 1));
+};
+
+/**
+ * Spin with multiplier grid reveal.
+ * 1. preSpin() — old symbols fall out
+ * 2. Wait for board to be empty (all reels hanging)
+ * 3. Reveal multiplier grid (with pop animation for changed cells)
+ * 4. spin() — new symbols drop in
+ */
+const spinWithMultipliers = async ({
+	revealEvent,
+	initialGrid,
+}: {
+	revealEvent: BookEventOfType<'reveal'>;
+	initialGrid: number[][];
+}) => {
+	console.log(`[spinWithMultipliers] 🎰 Starting multiplier spin at ${Date.now()}`);
+
+	// 1. Start clearing old symbols
+	await stateGameDerived.enhancedBoard.preSpin({});
+
+	// 2. Wait for all reels to finish falling out (hanging state)
+	await Promise.all(
+		stateGame.board.map(async (reel) => {
+			await waitForResolve((resolve) => (reel.reelState.readyToSpin = resolve));
+		}),
+	);
+	console.log(`[spinWithMultipliers] ✅ Board empty at ${Date.now()}`);
+
+	// 3. Reveal multiplier grid (only changed cells will pop)
+	eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
+	await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: initialGrid });
+	console.log(`[spinWithMultipliers] ✅ Grid reveal complete at ${Date.now()}`);
+
+	// 4. Drop new symbols (spin() will re-check readyToSpin but the $effect
+	//    fires immediately since reels are still in 'hanging' state)
+	await stateGameDerived.enhancedBoard.spin({ revealEvent });
+	console.log(`[spinWithMultipliers] ✅ Symbols landed at ${Date.now()}`);
+};
+
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		console.log(`[bookEventHandlerMap] 🎰 REVEAL at ${Date.now()} - new spin starting`);
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 		// Reset aurora state for new spin
 		stateGame.auroraPositions = [];
-		// Clear multiplier grid only in base game — during free spins/super bonus,
-		// multipliers persist across spins and are managed by updateGrid events
+
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
-		if (!isBonusGame) {
+
+		// Check if this is a multiplier mode (board cells have multiplier data)
+		const initialGrid = extractInitialGrid(bookEvent.board);
+		const isMultMode = gridHasMultipliers(initialGrid);
+
+		// Clear multiplier grid only for normal base game spins.
+		// - Multiplier modes: keep grid so spinWithMultipliers can diff against it
+		//   (only pop cells that actually changed).
+		// - Bonus games: multipliers persist across spins and are managed by updateGrid events.
+		if (!isBonusGame && !isMultMode) {
 			console.log(`[bookEventHandlerMap] 🧹 Broadcasting multiplierGridClear at ${Date.now()}`);
 			eventEmitter.broadcast({ type: 'multiplierGridClear' });
 		}
@@ -80,7 +160,14 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		stateGame.gameType = bookEvent.gameType;
-		await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
+
+		if (isMultMode && !isBonusGame) {
+			// Multiplier mode: clear board → show grid (diff) → drop symbols
+			await spinWithMultipliers({ revealEvent: bookEvent, initialGrid });
+		} else {
+			// Normal spin (base game or bonus game)
+			await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
+		}
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
@@ -285,9 +372,18 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'winHide' });
 	},
 	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
-		// Store pending grid - will be applied after explosion animation in tumbleBoard
 		const multiplierCount = bookEvent.gridMultipliers.flat().filter(m => m > 1).length;
 		console.log(`[bookEventHandlerMap] 📊 UPDATE_GRID at ${Date.now()}`, { multiplierCount, grid: bookEvent.gridMultipliers });
+
+		// If the incoming grid matches what's already displayed (e.g. the initial
+		// grid that was revealed during spinWithMultipliers), skip it — no need
+		// to re-animate cells that are already at the correct multiplier.
+		if (gridsMatch(stateGame.multiplierGrid, bookEvent.gridMultipliers)) {
+			console.log(`[bookEventHandlerMap] 📊 UPDATE_GRID skipped — grid unchanged`);
+			return;
+		}
+
+		// Store pending grid - will be applied after explosion animation in tumbleBoard
 		stateGame.pendingMultiplierGrid = bookEvent.gridMultipliers;
 	},
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {

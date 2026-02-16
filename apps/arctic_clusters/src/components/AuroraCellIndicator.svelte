@@ -156,22 +156,41 @@
 		},
 	});
 
+	// ── 8-pointed star path helper ──
+	function drawStarPath(g: PIXI.Graphics, w: number, h: number, outerFrac: number, innerFrac: number) {
+		const outerRx = (w / 2) * outerFrac;
+		const outerRy = (h / 2) * outerFrac;
+		const innerRx = (w / 2) * innerFrac;
+		const innerRy = (h / 2) * innerFrac;
+		const points = 8;
+		const step = Math.PI / points; // 22.5 degrees per half-step
+
+		for (let i = 0; i < points * 2; i++) {
+			const angle = i * step - Math.PI / 2;
+			const isOuter = i % 2 === 0;
+			const rx = isOuter ? outerRx : innerRx;
+			const ry = isOuter ? outerRy : innerRy;
+			const x = Math.cos(angle) * rx;
+			const y = Math.sin(angle) * ry;
+			if (i === 0) {
+				g.moveTo(x, y);
+			} else {
+				g.lineTo(x, y);
+			}
+		}
+		g.closePath();
+	}
+
 	// ── Draw functions ──
 	const drawGlow = (
 		g: PIXI.Graphics,
 		w: number,
 		h: number,
-		cornerRadius: number,
+		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		const glowPad = w * 0.12;
-		g.roundRect(
-			-(w + glowPad * 2) / 2,
-			-(h + glowPad * 2) / 2,
-			w + glowPad * 2,
-			h + glowPad * 2,
-			cornerRadius + 4,
-		);
+		// Outer glow: slightly larger star
+		drawStarPath(g, w * 1.25, h * 1.25, 0.95, 0.42);
 		g.fill({ color: exploding ? EXPLODE_COLOR : GLOW_COLOR });
 	};
 
@@ -179,10 +198,10 @@
 		g: PIXI.Graphics,
 		w: number,
 		h: number,
-		cornerRadius: number,
+		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		g.roundRect(-w / 2, -h / 2, w, h, cornerRadius);
+		drawStarPath(g, w, h, 0.92, 0.40);
 		g.stroke({ color: exploding ? EXPLODE_COLOR : BORDER_COLOR_AURORA, width: 2.5, alignment: 0.5 });
 	};
 
@@ -190,45 +209,47 @@
 		g: PIXI.Graphics,
 		w: number,
 		h: number,
-		cornerRadius: number,
+		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		g.roundRect(-w / 2, -h / 2, w, h, cornerRadius);
+		drawStarPath(g, w, h, 0.92, 0.40);
 		g.fill({ color: exploding ? EXPLODE_COLOR : 0x22dd88 });
 	};
 </script>
 
 {#snippet content()}
-	{#each cells as cell (posKey(cell.reel, cell.row))}
-		{@const baseAlpha = cell.alpha.current}
-		{@const s = cell.scale.current}
-		{#if baseAlpha > 0.01}
-			<Container
-				x={getSymbolXDynamic(cell.reel, symbolWidth)}
-				y={getSymbolYDynamic(cell.row - 1, symbolHeight)}
-				scale={s}
-				alpha={baseAlpha}
-			>
-				<!-- Outer glow pulse -->
-				<Graphics
-					draw={(g) => drawGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-					alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.25)}
-				/>
+	<Container zIndex={10}>
+		{#each cells as cell (posKey(cell.reel, cell.row))}
+			{@const baseAlpha = cell.alpha.current}
+			{@const s = cell.scale.current}
+			{#if baseAlpha > 0.01}
+				<Container
+					x={getSymbolXDynamic(cell.reel, symbolWidth)}
+					y={getSymbolYDynamic(cell.row - 1, symbolHeight)}
+					scale={s}
+					alpha={baseAlpha}
+				>
+					<!-- Outer glow pulse -->
+					<Graphics
+						draw={(g) => drawGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
+						alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.25)}
+					/>
 
-				<!-- Inner fill -->
-				<Graphics
-					draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-					alpha={cell.glowAlpha.current * (cell.exploding ? 0.3 : 0.08)}
-				/>
+					<!-- Inner fill -->
+					<Graphics
+						draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
+						alpha={cell.glowAlpha.current * (cell.exploding ? 0.3 : 0.08)}
+					/>
 
-				<!-- Pulsing aurora border -->
-				<Graphics
-					draw={(g) => drawBorder(g, cellWidth, cellHeight, cr, cell.exploding)}
-					alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse)}
-				/>
-			</Container>
-		{/if}
-	{/each}
+					<!-- Pulsing aurora border -->
+					<Graphics
+						draw={(g) => drawBorder(g, cellWidth, cellHeight, cr, cell.exploding)}
+						alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse)}
+					/>
+				</Container>
+			{/if}
+		{/each}
+	</Container>
 {/snippet}
 
 {#if props.inBoardSpace}
