@@ -13,16 +13,15 @@
 		(contextApp.stateApp.loadedAssets?.background || PIXI.Texture.EMPTY) as PIXI.Texture,
 	);
 
-	// Calculate cover scale (like CSS object-fit: cover)
-	// This ensures the image fills the screen without warping
-	const coverScale = $derived(() => {
+	// Cover scaling — always fills screen, no black bars.
+	// Anchor y=0.35 preserves the sky when cropping on narrow viewports.
+	const backgroundScale = $derived(() => {
 		const texWidth = backgroundTexture.width || 1;
 		const texHeight = backgroundTexture.height || 1;
 		
 		const scaleX = canvas.width / texWidth;
 		const scaleY = canvas.height / texHeight;
 		
-		// Use MAX to ensure full coverage (no black bars)
 		return Math.max(scaleX, scaleY);
 	});
 </script>
@@ -33,11 +32,12 @@
 <!-- Background image with cover scaling -->
 {#if backgroundTexture !== PIXI.Texture.EMPTY}
 	<Sprite
+		texture={backgroundTexture}
 		key="background"
 		x={canvas.width / 2}
 		y={canvas.height / 2}
 		anchor={0.5}
-		scale={coverScale()}
+		scale={backgroundScale()}
 		zIndex={-2}
 	/>
 {/if}

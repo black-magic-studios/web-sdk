@@ -256,7 +256,7 @@ export const BOARD_SIZES = {
 	height: MASK_HEIGHT,
 };
 
-export const BACKGROUND_RATIO = 2039 / 1000;
+export const BACKGROUND_RATIO = 2784 / 1536;
 export const PORTRAIT_BACKGROUND_RATIO = 1242 / 2208;
 const PORTRAIT_RATIO = 800 / 1422;
 const LANDSCAPE_RATIO = 1600 / 900;
@@ -275,7 +275,7 @@ export const PORTRAIT_MAIN_SIZES = {
 	height: PORTRAIT_HEIGHT,
 };
 
-export const HIGH_SYMBOLS = ['H1', 'H2', 'H3', 'H4', 'H5'];
+export const HIGH_SYMBOLS = ['H1', 'H2', 'H3', 'H4'];
 
 export const INITIAL_SYMBOL_STATE: SymbolState = 'static';
 
@@ -344,7 +344,6 @@ const h1Win = {
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
 const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
-const h5Static = { type: 'sprite', assetKey: 'h5.webp', sizeRatios: { width: 1, height: 1 } };
 
 const l1Static = { type: 'sprite', assetKey: 'l1.webp', sizeRatios: { width: 1, height: 1 } };
 const l2Static = { type: 'sprite', assetKey: 'l2.webp', sizeRatios: { width: 1, height: 1 } };
@@ -403,14 +402,6 @@ export const SYMBOL_INFO_MAP = {
 		static: h4Static,
 		spin: h4Static,
 		land: h4Static,
-	},
-	H5: {
-		explosion,
-		win: h5Static,
-		postWinStatic: h5Static,
-		static: h5Static,
-		spin: h5Static,
-		land: h5Static,
 	},
 	L1: {
 		explosion,

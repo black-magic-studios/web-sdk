@@ -103,9 +103,9 @@
 		if (props.reelSymbol.symbolState === 'land') props.reelSymbol.symbolState = 'static';
 	}
 
-	// ── Win glow draw ──
-	const WIN_GLOW_COLOR = 0xffdd44;
-	const WIN_GLOW_OUTER_COLOR = 0xffaa00;
+	// ── Win glow draw — thin glowing border ──
+	const WIN_BORDER_COLOR = 0xcc88ff;
+	const WIN_BORDER_OUTER_COLOR = 0x9944ff;
 	const GAP_RATIO = 0.92;
 
 	const drawWinGlow = (g: PIXI.Graphics) => {
@@ -113,14 +113,13 @@
 		const h = symbolHeight * GAP_RATIO;
 		const cr = Math.round(w * 0.10);
 
-		// Outer halo
-		const pad = w * 0.10;
-		g.roundRect(-(w + pad * 2) / 2, -(h + pad * 2) / 2, w + pad * 2, h + pad * 2, cr + 4);
-		g.fill({ color: WIN_GLOW_OUTER_COLOR });
-
-		// Inner fill
+		// Outer soft glow ring (wider, lower opacity — handled by parent alpha)
 		g.roundRect(-w / 2, -h / 2, w, h, cr);
-		g.fill({ color: WIN_GLOW_COLOR });
+		g.stroke({ color: WIN_BORDER_OUTER_COLOR, width: 5 });
+
+		// Inner bright border
+		g.roundRect(-w / 2, -h / 2, w, h, cr);
+		g.stroke({ color: WIN_BORDER_COLOR, width: 2 });
 	};
 </script>
 

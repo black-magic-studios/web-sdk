@@ -1,7 +1,7 @@
 export default {
 	background: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/cool_clusters/cool_clusters_background.png',
+		src: '/assets/sprites/background/arctic_clusters_background.png',
 		preload: true,
 	},
 	loader: {
@@ -47,14 +47,6 @@ export default {
 		src: {
 			atlas: new URL('../../assets/spines/symbols/symbols.atlas', import.meta.url).href,
 			skeleton: new URL('../../assets/spines/symbols/h4.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	H5: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/symbols/symbols.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/symbols/h5.json', import.meta.url).href,
 			scale: 2,
 		},
 	},
@@ -117,7 +109,7 @@ export default {
 	reelFrameEdge: {
 		type: 'sprite',
 		// Served from SvelteKit static/ in dev & production.
-		src: '/assets/sprites/reelsFrame/arctic_clusters_square_reel_frame_2048.png',
+		src: '/assets/sprites/reelsFrame/arctic_clusters_frame.png',
 	},
 	reelMask: {
 		type: 'sprite',

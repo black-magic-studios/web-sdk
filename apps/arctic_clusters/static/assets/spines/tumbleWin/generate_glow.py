@@ -341,7 +341,7 @@ def save_spritesheet(frames, symbol_name):
     for i, f in enumerate(frames):
         sheet.paste(f, ((i % COLS) * CELL, (i // COLS) * CELL))
 
-    base = f"wind_{symbol_name}_spritesheet"
+    base = f"glow_{symbol_name}_spritesheet"
     png_path = os.path.join(OUTPUT_DIR, f"{base}.png")
     json_path = os.path.join(OUTPUT_DIR, f"{base}.json")
 

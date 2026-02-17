@@ -11,17 +11,52 @@
 	const context = getContext();
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
 
-	// Texture state
+	// Texture state — default / hover / pressed for each button
 	let barTexture = $state<Texture>(Texture.EMPTY);
+
 	let playTexture = $state<Texture>(Texture.EMPTY);
+	let playHoverTexture = $state<Texture>(Texture.EMPTY);
+	let playPressedTexture = $state<Texture>(Texture.EMPTY);
+
 	let autoTexture = $state<Texture>(Texture.EMPTY);
+	let autoHoverTexture = $state<Texture>(Texture.EMPTY);
+	let autoPressedTexture = $state<Texture>(Texture.EMPTY);
+
 	let fastPlayTexture = $state<Texture>(Texture.EMPTY);
-	let evenFasterTexture = $state<Texture>(Texture.EMPTY);
+	let fastPlayHoverTexture = $state<Texture>(Texture.EMPTY);
+	let fastPlayPressedTexture = $state<Texture>(Texture.EMPTY);
+
 	let buyTexture = $state<Texture>(Texture.EMPTY);
+	let buyHoverTexture = $state<Texture>(Texture.EMPTY);
+	let buyPressedTexture = $state<Texture>(Texture.EMPTY);
+
 	let assetsLoaded = $state(false);
 
+	// Hover/pressed state tracking
+	let spinHovered = $state(false);
+	let spinPressed = $state(false);
+	let autoHovered = $state(false);
+	let autoPressed = $state(false);
+	let fastHovered = $state(false);
+	let fastPressed = $state(false);
+	let buyHovered = $state(false);
+	let buyPressed = $state(false);
+
+	// Derived active textures based on hover/pressed state
+	const activePlayTexture = $derived(
+		spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
+	);
+	const activeAutoTexture = $derived(
+		autoPressed ? autoPressedTexture : autoHovered ? autoHoverTexture : autoTexture
+	);
+	const activeFastTexture = $derived(
+		fastPressed ? fastPlayPressedTexture : fastHovered ? fastPlayHoverTexture : fastPlayTexture
+	);
+	const activeBuyTexture = $derived(
+		buyPressed ? buyPressedTexture : buyHovered ? buyHoverTexture : buyTexture
+	);
+
 	// Original bar texture dimensions (for scale calculation)
-	// Use reasonable defaults based on expected asset size to prevent initial bad positioning
 	const DEFAULT_BAR_WIDTH = 1200;
 	const DEFAULT_BAR_HEIGHT = 120;
 	let barNativeWidth = $state(DEFAULT_BAR_WIDTH);
@@ -62,14 +97,12 @@
 	// Dynamic button X positions (relative to bar center at x=0)
 	const smallButtonGap = $derived(scaledBarWidth * SMALL_BUTTON_GAP_RATIO);
 	
-	// Spin button: positioned toward the right side, leaving room for small buttons on the right
-	const spinButtonX = $derived(0);
+	// Spin button: positioned toward the right side of the bar
+	const spinButtonX = $derived((scaledBarWidth * 0.5) - (scaledBarWidth * SPIN_BUTTON_MARGIN_RATIO) - (spinButtonSize * 0.5));
 	
-	// Small buttons in a row to the RIGHT of spin button: autoplay, fast play, even faster play
-	// They go left to right after the spin button (can overlap bar edge)
-	const autoplayX = $derived(spinButtonX + (spinButtonSize * 0.5) + smallButtonGap + (smallButtonSize * 0.5));
-	const fastPlayX = $derived(autoplayX + smallButtonSize + smallButtonGap);
-	const evenFasterX = $derived(fastPlayX + smallButtonSize + smallButtonGap);
+	// Small buttons to the LEFT of spin button: fast play (closest), then autoplay
+	const fastPlayX = $derived(spinButtonX - (spinButtonSize * 0.5) - smallButtonGap - (smallButtonSize * 0.5));
+	const autoplayX = $derived(fastPlayX - smallButtonSize - smallButtonGap);
 	
 	// Buy button: positioned to the LEFT of the bar (outside the bar area)
 	const buyButtonX = $derived(-(scaledBarWidth * 0.5) - (scaledBarWidth * BUY_MARGIN_RATIO) - (buyButtonSize * 0.5));
@@ -101,13 +134,25 @@
 	
 	onMount(async () => {
 		try {
-			const [bar, play, auto, fastPlay, evenFaster, buy] = await Promise.all([
+			const [
+				bar, play, playHover, playPressed,
+				auto, autoHover, autoPressed,
+				fastPlay, fastPlayHover, fastPlayPressed,
+				buy, buyHover, buyPressed,
+			] = await Promise.all([
 				Assets.load('/assets/sprites/buttons/play_bar_new.png'),
 				Assets.load('/assets/sprites/buttons/play_button.png'),
+				Assets.load('/assets/sprites/buttons/play_button_hover.png'),
+				Assets.load('/assets/sprites/buttons/play_button_pressed.png'),
 				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay_hover.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay_pressed.png'),
 				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_even_faster_play.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play_hover.png'),
+				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play_pressed.png'),
 				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button.png'),
+				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button_hover.png'),
+				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button_pressed.png'),
 			]);
 			
 			barTexture = bar;
@@ -115,25 +160,24 @@
 			barNativeHeight = bar.height;
 			
 			playTexture = play;
+			playHoverTexture = playHover;
+			playPressedTexture = playPressed;
+
 			autoTexture = auto;
+			autoHoverTexture = autoHover;
+			autoPressedTexture = autoPressed;
+
 			fastPlayTexture = fastPlay;
-			evenFasterTexture = evenFaster;
+			fastPlayHoverTexture = fastPlayHover;
+			fastPlayPressedTexture = fastPlayPressed;
+
 			buyTexture = buy;
+			buyHoverTexture = buyHover;
+			buyPressedTexture = buyPressed;
 			
 			assetsLoaded = true;
-			console.log('PlayBar: Assets loaded, native bar size:', bar.width, 'x', bar.height);
-			console.log('PlayBar: Board dimensions:', boardLayout.width, 'x', boardLayout.height);
-			console.log('PlayBar: Container position will be x:', containerX, 'y:', containerY);
 		} catch (error) {
 			console.error('Failed to load PlayBar assets:', error);
-		}
-	});
-	
-	// Debug: Log position changes
-	$effect(() => {
-		if (assetsLoaded) {
-			console.log('PlayBar position updated - x:', containerX, 'y:', containerY, 
-				'boardHeight:', boardLayout.height, 'scaledBarHeight:', scaledBarHeight);
 		}
 	});
 	
@@ -150,11 +194,6 @@
 	};
 	
 	const handleFastPlay = () => {
-		context.eventEmitter.broadcast({ type: 'turboToggle' });
-	};
-	
-	const handleEvenFasterPlay = () => {
-		// TODO: Implement even faster play mode
 		context.eventEmitter.broadcast({ type: 'turboToggle' });
 	};
 	
@@ -206,11 +245,14 @@
 					backgroundColor={0xffffff}
 					eventMode="static"
 					cursor={disabled ? 'not-allowed' : 'pointer'}
-					onpointerup={disabled ? undefined : handleSpin}
+					onpointerover={() => { spinHovered = true; }}
+					onpointerout={() => { spinHovered = false; spinPressed = false; }}
+					onpointerdown={() => { spinPressed = true; }}
+					onpointerup={() => { spinPressed = false; if (!disabled) handleSpin(); }}
 				/>
 				<!-- Visual (centered with anchor 0.5) -->
 				<BaseSprite
-					texture={playTexture}
+					texture={activePlayTexture}
 					width={spinButtonSize}
 					height={spinButtonSize}
 					anchor={0.5}
@@ -228,11 +270,14 @@
 					backgroundColor={0xffffff}
 					eventMode="static"
 					cursor="pointer"
-					onpointerup={handleAutoPlay}
+					onpointerover={() => { autoHovered = true; }}
+					onpointerout={() => { autoHovered = false; autoPressed = false; }}
+					onpointerdown={() => { autoPressed = true; }}
+					onpointerup={() => { autoPressed = false; handleAutoPlay(); }}
 				/>
 				<!-- Visual (centered with anchor 0.5) -->
 				<BaseSprite
-					texture={autoTexture}
+					texture={activeAutoTexture}
 					width={smallButtonSize}
 					height={smallButtonSize}
 					anchor={0.5}
@@ -249,32 +294,14 @@
 					backgroundColor={0xffffff}
 					eventMode="static"
 					cursor="pointer"
-					onpointerup={handleFastPlay}
+					onpointerover={() => { fastHovered = true; }}
+					onpointerout={() => { fastHovered = false; fastPressed = false; }}
+					onpointerdown={() => { fastPressed = true; }}
+					onpointerup={() => { fastPressed = false; handleFastPlay(); }}
 				/>
 				<!-- Visual (centered with anchor 0.5) -->
 				<BaseSprite
-					texture={fastPlayTexture}
-					width={smallButtonSize}
-					height={smallButtonSize}
-					anchor={0.5}
-				/>
-			</Container>
-			
-			<!-- EVEN FASTER PLAY BUTTON (right of fast play) -->
-			<Container x={evenFasterX} y={0}>
-				<!-- Hit area (invisible) -->
-				<Circle
-					diameter={smallButtonSize}
-					anchor={0.5}
-					alpha={0}
-					backgroundColor={0xffffff}
-					eventMode="static"
-					cursor="pointer"
-					onpointerup={handleEvenFasterPlay}
-				/>
-				<!-- Visual (centered with anchor 0.5) -->
-				<BaseSprite
-					texture={evenFasterTexture}
+					texture={activeFastTexture}
 					width={smallButtonSize}
 					height={smallButtonSize}
 					anchor={0.5}
@@ -291,11 +318,14 @@
 					backgroundColor={0xffffff}
 					eventMode="static"
 					cursor="pointer"
-					onpointerup={handleBuyBonus}
+					onpointerover={() => { buyHovered = true; }}
+					onpointerout={() => { buyHovered = false; buyPressed = false; }}
+					onpointerdown={() => { buyPressed = true; }}
+					onpointerup={() => { buyPressed = false; handleBuyBonus(); }}
 				/>
 				<!-- Visual (centered with anchor 0.5) -->
 				<BaseSprite
-					texture={buyTexture}
+					texture={activeBuyTexture}
 					width={buyButtonSize}
 					height={buyButtonSize}
 					anchor={0.5}
