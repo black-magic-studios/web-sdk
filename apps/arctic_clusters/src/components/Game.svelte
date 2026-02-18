@@ -106,7 +106,6 @@
 		<BoardFrame />
 		<Board />
 		<Anticipations />
-		<TumbleWinAmount />
 		<GlobalMultiplier />
 		<TumbleBoard />
 		<MultiplierFlyOut />

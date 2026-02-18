@@ -2,6 +2,7 @@
 	import { BitmapText, Container, Graphics } from 'pixi-svelte';
 	import type { Sizes } from 'pixi-svelte';
 	import type * as PIXI from 'pixi.js';
+	import { FONT_FAMILY, FONT_FAMILY_HI } from '../game/constants';
 
 	type Props = {
 		multiplier: number;
@@ -109,7 +110,7 @@
 		y={numberY + SHADOW_OFFSET_Y}
 		text={`${props.multiplier}`}
 		style={{
-			fontFamily: 'multiplier',
+			fontFamily: FONT_FAMILY,
 			fontSize: numberFontSize,
 			letterSpacing: 0,
 		}}
@@ -123,7 +124,7 @@
 		y={xY + SHADOW_OFFSET_Y}
 		text="x"
 		style={{
-			fontFamily: 'multiplier',
+			fontFamily: FONT_FAMILY,
 			fontSize: xFontSize,
 			letterSpacing: 0,
 		}}
@@ -142,7 +143,7 @@
 				y={numberY}
 				text={`${props.multiplier}`}
 				style={{
-					fontFamily: 'multiplier',
+					fontFamily: FONT_FAMILY,
 					fontSize: numberFontSize,
 					letterSpacing: 0,
 				}}
@@ -155,7 +156,7 @@
 				y={xY}
 				text="x"
 				style={{
-					fontFamily: 'multiplier',
+					fontFamily: FONT_FAMILY,
 					fontSize: xFontSize,
 					letterSpacing: 0,
 				}}
@@ -171,7 +172,7 @@
 		y={numberY}
 		text={`${props.multiplier}`}
 		style={{
-			fontFamily: 'multiplier_hi',
+			fontFamily: FONT_FAMILY_HI,
 			fontSize: numberFontSize,
 			letterSpacing: 0,
 		}}
@@ -184,7 +185,7 @@
 		y={xY}
 		text="x"
 		style={{
-			fontFamily: 'multiplier_hi',
+			fontFamily: FONT_FAMILY_HI,
 			fontSize: xFontSize,
 			letterSpacing: 0,
 		}}

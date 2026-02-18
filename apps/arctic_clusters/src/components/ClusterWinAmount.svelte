@@ -22,6 +22,7 @@
 
 	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
 	import { getContext } from '../game/context';
+	import { FONT_FAMILY } from '../game/constants';
 
 	type Props = { win: Win };
 
@@ -74,8 +75,9 @@
 			: bookEventAmountToCurrencyString(props.win.result)}
 		anchor={0.5}
 		style={{
-			fontFamily: 'gold',
+			fontFamily: FONT_FAMILY,
 			fontSize: symbolSize * 0.5,
 		}}
+		tint={0x33ee88}
 	/>
 </FadeContainer>

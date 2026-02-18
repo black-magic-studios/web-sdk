@@ -277,6 +277,11 @@ export const PORTRAIT_MAIN_SIZES = {
 
 export const HIGH_SYMBOLS = ['H1', 'H2', 'H3', 'H4'];
 
+// ── Shared font families ─────────────────────────────
+// Change these to update every text element that uses them.
+export const FONT_FAMILY = 'multiplier';
+export const FONT_FAMILY_HI = 'multiplier_hi';
+
 export const INITIAL_SYMBOL_STATE: SymbolState = 'static';
 
 const M_SIZE = 0.3;
