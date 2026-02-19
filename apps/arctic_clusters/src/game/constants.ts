@@ -353,7 +353,7 @@ const h2Win = {
 	sizeRatios: { width: 1.0, height: 1.0 },
 	frameHeight: 256,
 	frameCount: 32,
-	animationSpeed: 0.35,
+	animationSpeed: 0.28,
 };
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };

@@ -13,6 +13,7 @@
 
 	const props: Props = $props();
 	const context = getContext();
+	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 
 	// Animation settings - use symbolInfo values or defaults
@@ -20,7 +21,10 @@
 	const animationSpeed = $derived(props.symbolInfo.animationSpeed ?? DEFAULT_ANIMATION_SPEED);
 	const DEFAULT_ANIMATION_SIZE = 512;
 	const animationSize = $derived(props.symbolInfo.frameHeight ?? DEFAULT_ANIMATION_SIZE);
-	const scale = $derived((symbolHeight * props.symbolInfo.sizeRatios.height) / animationSize);
+	// Use explicit width/height (like SymbolSprite) instead of uniform scale
+	// so the spritesheet matches the static sprite positioning exactly
+	const width = $derived((symbolWidth * props.symbolInfo.sizeRatios.width));
+	const height = $derived((symbolHeight * props.symbolInfo.sizeRatios.height));
 
 	// Calculate duration for oncomplete callback based on frame count and animation speed
 	// At 60fps, each frame takes (1/60) seconds. With animationSpeed, it's (1/60)/speed per frame
@@ -49,7 +53,8 @@
 			animationSpeed,
 			animationDurationMs,
 			play,
-			scale,
+			width,
+			height,
 			x: props.x,
 			y: props.y,
 		});
@@ -74,7 +79,8 @@
 	x={props.x}
 	y={props.y}
 	anchor={0.5}
-	{scale}
+	{width}
+	{height}
 	{animationSpeed}
 	loop={false}
 	{play}

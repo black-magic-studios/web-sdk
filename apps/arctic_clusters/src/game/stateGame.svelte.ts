@@ -119,6 +119,18 @@ export const stateGame = $state({
 	// Aurora state
 	auroraPositions: [] as Position[],
 	auroraMeterTotal: 0,
+	// Aurora wild tracking: positions of all wilds placed via aurora this spin
+	auroraWildPositions: [] as Position[],
+	// Count of aurora wilds that connected (were part of winning clusters) — per spin
+	auroraWildsConnected: 0,
+	// Session-wide total of aurora wilds that were part of winning clusters (accumulates across free spins)
+	auroraWildsSessionTotal: 0,
+	// Whether we are in wild release phase
+	isWildRelease: false,
+	// Number of wilds still to place during wild release (counts down)
+	wildReleaseRemaining: 0,
+	// Whether a spin is currently active (show wild counter)
+	spinActive: false,
 });
 
 // ============================================================
@@ -133,12 +145,20 @@ const boardLayout = () => {
 
 	// Use only a portion of the canvas so we leave room for the reel frame + UI
 	// while keeping the board centered and responsive.
-	// On portrait/mobile, use more width but reserve bottom space for HTML controls
-	const BOARD_CANVAS_RATIO = isPortrait ? 0.88 : 0.7;
-	const MOBILE_BOTTOM_RESERVE = isPortrait ? 130 : 0; // px reserved for HTML controls
+	//
+	// Design targets (portrait):
+	//   Board  ≈ 65–70% of vertical playable area (width-constrained for 7×7 square grid)
+	//   Width  ≈ full screen minus minimal side padding
+	//   Spin   ≈ 15–18% of board width
+	//   Side   ≈ 40–50% of spin diameter
+	const BOARD_CANVAS_RATIO = isPortrait ? 0.94 : 0.7;
+	// Reserve bottom space for HTML overlay controls (smaller reserve ⇒ bigger board)
+	const MOBILE_BOTTOM_RESERVE = isPortrait ? canvas.height * 0.05 : 0;
 
 	const availableWidth = canvas.width * BOARD_CANVAS_RATIO;
-	const availableHeight = (canvas.height - MOBILE_BOTTOM_RESERVE) * (isPortrait ? 0.82 : BOARD_CANVAS_RATIO);
+	const availableHeight = isPortrait
+		? (canvas.height - MOBILE_BOTTOM_RESERVE) * 0.95
+		: canvas.height * BOARD_CANVAS_RATIO;
 
 	// Fit board maintaining aspect ratio
 	let width: number;
@@ -155,7 +175,7 @@ const boardLayout = () => {
 	}
 
 	// Center position (relative to full canvas)
-	// On portrait, shift board up to make room for controls
+	// On portrait, center within the area above the controls
 	const centerX = canvas.width / 2;
 	const centerY = isPortrait
 		? (canvas.height - MOBILE_BOTTOM_RESERVE) / 2

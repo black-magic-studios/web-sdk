@@ -5,7 +5,7 @@
 	import { Assets, Texture } from 'pixi.js';
 	import type * as PIXI from 'pixi.js';
 	import { OnHotkey } from 'components-shared';
-	import { stateBet, stateBetDerived, stateModal, stateConfig } from 'state-shared';
+	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -26,6 +26,10 @@
 	const balanceText = $derived(numberToCurrencyString(balanceTween.current));
 	const winText = $derived(bookEventAmountToCurrencyString(winTween.current));
 	const spinText = $derived(numberToCurrencyString(stateBetDerived.betCost()));
+
+	// Social mode text overrides
+	const isSocial = $derived(stateUrlDerived.social());
+	const betLabel = $derived(isSocial ? 'SPIN' : 'BET');
 
 	// WIN section only visible when there's an actual win (hides when win resets to 0 at spin start)
 	const showWin = $derived(stateBet.winBookEventAmount > 0);
@@ -367,7 +371,7 @@
 				anchor={{ x: 0.5, y: 1 }}
 				y={labelY}
 				resolution={TEXT_RESOLUTION}
-				text="SPIN"
+				text={betLabel}
 				style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
 			/>
 			<Text

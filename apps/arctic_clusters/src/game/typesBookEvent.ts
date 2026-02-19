@@ -65,6 +65,7 @@ type BookEventFreeSpinEnd = {
 	type: 'freeSpinEnd';
 	amount: number;
 	winLevel: number;
+	totalWilds: number;
 };
 
 type BookEventTumbleBoard = {
@@ -136,6 +137,12 @@ type BookEventAuroraWildPlace = {
 	meterAfter: number;
 };
 
+type BookEventWildRelease = {
+	index: number;
+	type: 'wildRelease';
+	wildsToPlace: number;
+};
+
 // customised
 type BookEventCreateBonusSnapshot = {
 	index: number;
@@ -164,6 +171,7 @@ export type BookEvent =
 	| BookEventAuroraMeterUpdate
 	| BookEventAuroraExplode
 	| BookEventAuroraWildPlace
+	| BookEventWildRelease
 	// super bonus
 	| BookEventSuperBonusTrigger
 	// customised

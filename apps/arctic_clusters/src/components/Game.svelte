@@ -28,7 +28,7 @@
 	import TumbleWinAmount from './TumbleWinAmount.svelte';
 	import GlobalMultiplier from './GlobalMultiplier.svelte';
 	import MultiplierFlyOut from './MultiplierFlyOut.svelte';
-	import Win from './Win.svelte';
+	import WinOverlay from './WinOverlay.svelte';
 	import FreeSpinIntro from './FreeSpinIntro.svelte';
 	import FreeSpinCounter from './FreeSpinCounter.svelte';
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
@@ -37,6 +37,7 @@
 	import PlayBar from './PlayBar.svelte';
 	import MobileControls from './MobileControls.svelte';
 	import GameInfoModal from './GameInfoModal.svelte';
+	import WildCounter from './WildCounter.svelte';
 
 	const context = getContext();
 
@@ -139,7 +140,7 @@
 			height={REM * 2.5}
 			width={REM * 2.5}
 		/>
-		<!-- <Win /> -->
+		<WinOverlay />
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
 			<FreeSpinCounter />
@@ -159,7 +160,14 @@
 
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
+<WildCounter />
 
 {#if useMobileControls}
-	<MobileControls />
+	<MobileControls hidden={showGameInfo || showBuyBonus} />
 {/if}
+
+<svelte:head>
+	<style>
+		html, body { overflow: hidden !important; height: 100%; width: 100%; margin: 0; padding: 0; }
+	</style>
+</svelte:head>

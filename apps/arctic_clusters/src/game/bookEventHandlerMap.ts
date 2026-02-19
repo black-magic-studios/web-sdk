@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { recordBookEvent, checkIsMultipleRevealEvents, type BookEventHandlerMap } from 'utils-book';
 import { stateBet } from 'state-shared';
 import { waitForResolve } from 'utils-shared/wait';
+import { BOOK_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
 
 import { eventEmitter } from './eventEmitter';
 import { playBookEvent } from './utils';
@@ -10,6 +11,31 @@ import { winLevelMap, type WinLevel, type WinLevelData } from './winLevelMap';
 import { stateGame, stateGameDerived } from './stateGame.svelte';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
 import type { RawSymbol, Position } from './types';
+
+/**
+ * Compute win level from the win amount (in book event units).
+ * Thresholds are win-to-bet multiplier cutoffs:
+ *   ≥250× → max, ≥100× → epic, ≥50× → mega, ≥25× → superwin, ≥10× → big
+ * Falls back to the winLevelMap key for smaller wins.
+ */
+const WIN_LEVEL_THRESHOLDS: { multiplier: number; level: WinLevel }[] = [
+	{ multiplier: 250, level: 10 },  // MAX WIN
+	{ multiplier: 100, level: 9 },   // EPIC WIN!
+	{ multiplier: 50, level: 8 },    // MEGA WIN
+	{ multiplier: 25, level: 7 },    // SUPER WIN
+	{ multiplier: 10, level: 6 },    // BIG WIN
+];
+
+const getWinLevelFromAmount = (bookEventAmount: number): WinLevelData => {
+	const winMultiplier = bookEventAmount / BOOK_AMOUNT_MULTIPLIER;
+	for (const { multiplier, level } of WIN_LEVEL_THRESHOLDS) {
+		if (winMultiplier >= multiplier) {
+			return winLevelMap[level];
+		}
+	}
+	// Below 10× — no big win presentation
+	return winLevelMap[1];
+};
 
 const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) => {
 	if (winLevelData?.alias === 'max') eventEmitter.broadcastAsync({ type: 'uiHide' });
@@ -127,6 +153,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 		// Reset aurora state for new spin
 		stateGame.auroraPositions = [];
+		// Reset per-spin wild tracking (session total is NOT reset here — it accumulates across spins)
+		stateGame.auroraWildPositions = [];
+		stateGame.auroraWildsConnected = 0;
+		stateGame.spinActive = true;
 
 		const isBonusGame = checkIsMultipleRevealEvents({ bookEvents });
 
@@ -209,6 +239,25 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
 		console.log(`[bookEventHandlerMap] 🏆 WIN_INFO at ${Date.now()}`, { totalWin: bookEvent.totalWin });
+
+		// Count aurora wilds that are part of winning clusters
+		if (stateGame.auroraWildPositions.length > 0) {
+			const allWinPositions = _.flatten(bookEvent.wins.map((win) => win.positions));
+			const winPosKeys = new Set(allWinPositions.map((p) => `${p.reel}_${p.row}`));
+			let newConnected = 0;
+			for (const wp of stateGame.auroraWildPositions) {
+				if (winPosKeys.has(`${wp.reel}_${wp.row}`)) {
+					newConnected++;
+				}
+			}
+			// Accumulate: add newly connected wilds to the per-spin count AND session total
+			const added = newConnected - stateGame.auroraWildsConnected;
+			if (added > 0) {
+				stateGame.auroraWildsConnected = newConnected;
+				stateGame.auroraWildsSessionTotal += added;
+			}
+		}
+
 		const promise1 = async () => {
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_small' });
 			// Deduplicate positions — multiple wins can share symbols, and processing
@@ -256,6 +305,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateBet.winBookEventAmount = bookEvent.amount;
 	},
 	freeSpinTrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
+		// Reset session-wide wild tracking for new bonus
+		stateGame.auroraWildsSessionTotal = 0;
+		stateGame.isWildRelease = false;
+		stateGame.wildReleaseRemaining = 0;
 		// animate scatters
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
@@ -289,6 +342,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerFold' });
 	},
 	freeSpinRetrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
+		// Do NOT reset session total on retrigger — wilds continue accumulating
 		// animate scatters
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
@@ -339,6 +393,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	freeSpinEnd: async (bookEvent: BookEventOfType<'freeSpinEnd'>) => {
 		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
+
+		// Reset wild release state
+		stateGame.isWildRelease = false;
+		stateGame.wildReleaseRemaining = 0;
+		stateGame.auroraWildsSessionTotal = 0;
 
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		stateGame.gameType = 'basegame';
@@ -406,7 +465,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
-		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
+		// Compute win level client-side from win/bet ratio (ignore RGS winLevel)
+		const winLevelData = getWinLevelFromAmount(bookEvent.amount);
 
 		eventEmitter.broadcast({ type: 'winShow' });
 		winLevelSoundsPlay({ winLevelData });
@@ -441,6 +501,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Clear any remaining aurora overlays at end of cascade
 		eventEmitter.broadcast({ type: 'auroraCellsClear' });
 		stateGame.auroraPositions = [];
+		// Mark spin as ended (wild counter will fade out)
+		stateGame.spinActive = false;
 	},
 	// aurora
 	auroraReveal: async (bookEvent: BookEventOfType<'auroraReveal'>) => {
@@ -486,18 +548,42 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 		const reelSymbol = stateGame.board[reel].reelState.symbols[row];
 
-		// Swap to wild and trigger land animation
+		// Track aurora wild position for connected-wild counting
+		stateGame.auroraWildPositions = [...stateGame.auroraWildPositions, { reel, row }];
+
+		// During wild release, decrement the remaining counter
+		if (stateGame.isWildRelease && stateGame.wildReleaseRemaining > 0) {
+			stateGame.wildReleaseRemaining--;
+		}
+
+		// 1. Play border-trace + flash animation on the target cell (async — waits for full anim)
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_landing' });
+		await eventEmitter.broadcastAsync({ type: 'wildPlacementAnimate', position: { reel, row } });
+
+		// 2. Swap to wild symbol (the flash has already happened, so the swap feels like a reveal)
 		reelSymbol.rawSymbol = { name: 'W' as any, wild: true };
 		reelSymbol.symbolState = 'land';
 
-		// Brief delay between wild placements so they don't all appear at once
-		await new Promise((r) => setTimeout(r, 120));
+		// 3. Brief pause to let player see the wild in place
+		await new Promise((r) => setTimeout(r, 350));
 
-		// Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
+		// 4. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';
 		console.log(`[auroraWildPlace] ✅ wild placed at [${reel}][${row}], state now: ${reelSymbol.symbolState}`);
 	},
+	wildRelease: async (bookEvent: BookEventOfType<'wildRelease'>) => {
+		console.log(`[bookEventHandlerMap] 🌟 WILD_RELEASE at ${Date.now()}`, { wildsToPlace: bookEvent.wildsToPlace });
+		// Enter wild release phase — the session total becomes the starting count
+		// and counts down as each wild is placed
+		stateGame.isWildRelease = true;
+		stateGame.wildReleaseRemaining = bookEvent.wildsToPlace;
+		stateGame.spinActive = true;
+	},
 	superBonusTrigger: async (bookEvent: BookEventOfType<'superBonusTrigger'>) => {
+		// Reset session-wide wild tracking for new bonus
+		stateGame.auroraWildsSessionTotal = 0;
+		stateGame.isWildRelease = false;
+		stateGame.wildReleaseRemaining = 0;
 		// Super bonus trigger — same flow as freeSpinTrigger (SS scatter instead of S)
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });

@@ -22,6 +22,7 @@
 	import CellGrid from './CellGrid.svelte';
 	import MultiplierGrid from './MultiplierGrid.svelte';
 	import AuroraCellIndicator from './AuroraCellIndicator.svelte';
+	import WildPlacementEffect from './WildPlacementEffect.svelte';
 
 	const context = getContext();
 
@@ -80,6 +81,7 @@
 			<CellGrid inBoardSpace />
 			<MultiplierGrid inBoardSpace />
 			<AuroraCellIndicator inBoardSpace />
+			<WildPlacementEffect />
 			<BoardBase />
 		</BoardContainer>
 	</BoardContext>
@@ -97,6 +99,7 @@
 			<CellGrid inBoardSpace />
 			<MultiplierGrid inBoardSpace />
 			<AuroraCellIndicator inBoardSpace />
+			<WildPlacementEffect />
 		</BoardContainer>
 	</BoardContext>
 {/if}

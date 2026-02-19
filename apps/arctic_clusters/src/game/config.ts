@@ -838,5 +838,6 @@ export default {
 	paddingReels: {
 		basegame: '',
 		freegame: '',
+		freegame_wild_release: '',
 	},
 };

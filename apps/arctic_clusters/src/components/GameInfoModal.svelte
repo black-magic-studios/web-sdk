@@ -1,6 +1,9 @@
 <script lang="ts">
 	import PopupLight from './PopupLight.svelte';
 	import { zIndex } from 'constants-shared/zIndex';
+	import { getContext } from '../game/context';
+
+	const context = getContext();
 
 	type Props = {
 		show: boolean;
@@ -48,27 +51,35 @@
 	// Full cluster sizes: 5 through 20+
 	const allClusterSizes = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
-	// Navigation tabs
+	// Navigation tabs (used on desktop)
 	type Tab = 'paytable' | 'features' | 'rules' | 'modes';
 	let activeTab = $state<Tab>('paytable');
+
+	// Detect mobile layout
+	const isMobile = $derived(
+		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
+	);
 </script>
 
 {#if props.show}
 	<PopupLight zIndex={zIndex.modal} onclose={props.onclose}>
+		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 		<div class="info-modal" onclick={(e) => e.stopPropagation()}>
-			<!-- Tab navigation -->
+			<!-- Tab navigation (desktop only) -->
+			{#if !isMobile}
 			<nav class="tabs">
 				<button class:active={activeTab === 'paytable'} onclick={() => (activeTab = 'paytable')}>Paytable</button>
 				<button class:active={activeTab === 'features'} onclick={() => (activeTab = 'features')}>Features</button>
 				<button class:active={activeTab === 'rules'} onclick={() => (activeTab = 'rules')}>Rules</button>
 				<button class:active={activeTab === 'modes'} onclick={() => (activeTab = 'modes')}>Bet Modes</button>
 			</nav>
+			{/if}
 
-			<div class="content">
+			<div class="content" class:mobile-content={isMobile}>
 				<!-- ═══════════════════════════════════════════ -->
-				<!-- PAYTABLE TAB                               -->
+				<!-- PAYTABLE                                   -->
 				<!-- ═══════════════════════════════════════════ -->
-				{#if activeTab === 'paytable'}
+				{#if isMobile || activeTab === 'paytable'}
 					<div class="section">
 						<h2>Paytable</h2>
 						<p class="subtitle">All pays are multiplied by total bet. Minimum cluster size: 5 symbols.</p>
@@ -161,10 +172,12 @@
 						</div>
 					</div>
 
+				{/if}
+
 				<!-- ═══════════════════════════════════════════ -->
-				<!-- FEATURES TAB                               -->
+				<!-- FEATURES                                   -->
 				<!-- ═══════════════════════════════════════════ -->
-				{:else if activeTab === 'features'}
+				{#if isMobile || activeTab === 'features'}
 					<div class="section">
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
@@ -257,10 +270,12 @@
 						</div>
 					</div>
 
+				{/if}
+
 				<!-- ═══════════════════════════════════════════ -->
-				<!-- RULES TAB                                  -->
+				<!-- RULES                                     -->
 				<!-- ═══════════════════════════════════════════ -->
-				{:else if activeTab === 'rules'}
+				{#if isMobile || activeTab === 'rules'}
 					<div class="section">
 						<h2>Game Overview</h2>
 						<div class="stats-grid">
@@ -288,10 +303,12 @@
 						</div>
 					</div>
 
+				{/if}
+
 				<!-- ═══════════════════════════════════════════ -->
-				<!-- BET MODES TAB                              -->
+				<!-- BET MODES                                  -->
 				<!-- ═══════════════════════════════════════════ -->
-				{:else if activeTab === 'modes'}
+				{#if isMobile || activeTab === 'modes'}
 					<div class="section">
 						<h2>Bet Modes</h2>
 
@@ -351,6 +368,11 @@
 		border-radius: 16px;
 		overflow: hidden;
 		box-shadow: 0 0 40px rgba(50, 120, 200, 0.15), 0 0 80px rgba(50, 120, 200, 0.05);
+	}
+
+	/* Mobile: full-screen scrollable */
+	.mobile-content {
+		max-height: none;
 	}
 
 	/* ── Tab navigation ── */

@@ -1,11 +1,18 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateModal, stateConfig } from 'state-shared';
+	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 
+	type Props = { hidden?: boolean };
+	const props: Props = $props();
+
 	const context = getContext();
+	const isSocial = $derived(stateUrlDerived.social());
+
+	// Labels adapt for social mode
+	const betLabel = $derived(isSocial ? 'SPIN' : 'BET');
 
 	// ── Balance / Win / Spin text (with tween) ──
 	const balanceTween = new Tween(stateBet.balanceAmount);
@@ -74,7 +81,7 @@
 	};
 </script>
 
-<div class="mobile-controls">
+<div class="mobile-controls" class:hidden={props.hidden}>
 	<!-- ── Button row ── -->
 	<div class="button-row">
 		<button class="ctrl-btn info-btn" onclick={handleInfo}>
@@ -104,10 +111,10 @@
 
 	<!-- ── Info bar ── -->
 	<div class="info-bar">
-		<div class="info-section balance-section" onclick={handleBetMenu}>
+		<button class="info-section balance-section" onclick={handleBetMenu}>
 			<span class="label">BALANCE</span>
 			<span class="value">{balanceText}</span>
-		</div>
+		</button>
 
 		{#if showWin}
 			<div class="info-section win-section">
@@ -117,14 +124,14 @@
 		{/if}
 
 		<div class="info-section spin-section">
-			<span class="label">SPIN</span>
+			<span class="label">{betLabel}</span>
 			<div class="bet-control">
 				<button
 					class="arrow-btn"
 					class:arrow-disabled={decreaseDisabled}
 					onclick={handleBetDecrease}
 				>▼</button>
-				<span class="value" onclick={handleBetMenu}>{spinText}</span>
+				<button class="value bet-menu-btn" onclick={handleBetMenu}>{spinText}</button>
 				<button
 					class="arrow-btn"
 					class:arrow-disabled={increaseDisabled}
@@ -147,6 +154,14 @@
 		align-items: center;
 		pointer-events: none;
 		padding-bottom: env(safe-area-inset-bottom, 0px);
+		transition: opacity 0.2s ease, transform 0.2s ease;
+		overflow: hidden;
+
+		&.hidden {
+			opacity: 0;
+			pointer-events: none;
+			transform: translateY(20px);
+		}
 	}
 
 	/* ── Button row ── */
@@ -154,9 +169,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: clamp(8px, 3vw, 16px);
+		gap: clamp(4px, 2vw, 10px);
 		pointer-events: auto;
-		padding: 6px 0;
+		padding: 2px 0;
 	}
 
 	.ctrl-btn {
@@ -181,18 +196,22 @@
 		}
 	}
 
-	/* Sizing: small buttons < spin button */
+	/*
+	 * Board-relative sizing (portrait board ≈ 94vw):
+	 *   Spin button  ≈ 16.5% of board width  → 15.5vw
+	 *   Side buttons  ≈ 45% of spin diameter  → 7vw
+	 */
 	.info-btn,
 	.auto-btn,
 	.fast-btn,
 	.buy-btn {
-		width: clamp(36px, 10vw, 56px);
-		height: clamp(36px, 10vw, 56px);
+		width: clamp(26px, 7vw, 36px);
+		height: clamp(26px, 7vw, 36px);
 	}
 
 	.spin-btn {
-		width: clamp(56px, 16vw, 84px);
-		height: clamp(56px, 16vw, 84px);
+		width: clamp(52px, 15.5vw, 76px);
+		height: clamp(52px, 15.5vw, 76px);
 
 		&.disabled {
 			opacity: 0.5;
@@ -209,7 +228,7 @@
 
 	.info-icon {
 		font-family: Georgia, serif;
-		font-size: clamp(18px, 5vw, 28px);
+		font-size: clamp(13px, 4vw, 20px);
 		font-weight: bold;
 		font-style: italic;
 		color: #88ccff;
@@ -223,11 +242,10 @@
 		justify-content: center;
 		gap: 0;
 		width: 100%;
-		max-width: 420px;
 		background: rgba(16, 22, 36, 0.94);
 		border-top: 1px solid rgba(100, 180, 255, 0.15);
 		pointer-events: auto;
-		padding: 4px 0;
+		padding: 2px 0;
 	}
 
 	.info-section {
@@ -293,9 +311,23 @@
 
 	.balance-section {
 		cursor: pointer;
+		/* Reset button styles when using <button> */
+		border: none;
+		background: transparent;
+		font: inherit;
 	}
 
-	.spin-section .value {
+	.bet-menu-btn {
 		cursor: pointer;
+		border: none;
+		background: transparent;
+		font: inherit;
+		font-family: 'proxima-nova', Arial, sans-serif;
+		font-size: clamp(11px, 3vw, 15px);
+		font-weight: 700;
+		color: #ffffff;
+		line-height: 1.3;
+		white-space: nowrap;
+		padding: 0;
 	}
 </style>
