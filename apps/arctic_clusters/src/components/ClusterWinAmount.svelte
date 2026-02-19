@@ -66,18 +66,35 @@
 		if (!show) props.win.oncomplete();
 	}}
 >
+	{@const textContent = showMultiplier
+		? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
+		: bookEventAmountToCurrencyString(props.win.result)}
+	{@const textX = getSymbolXDynamic(props.win.reel, symbolWidth)}
+	{@const textY = getSymbolYDynamic(props.win.row - 1, symbolHeight) + y.current}
+	{@const fs = symbolSize * 0.5}
+	{@const textStyle = { fontFamily: FONT_FAMILY, fontSize: fs }}
+	{@const sc = scale.current}
+	{@const ex = Math.max(1, Math.round(fs * 0.03))}
+
+	<!-- Shadow/outline layer -->
 	<BitmapText
-		x={getSymbolXDynamic(props.win.reel, symbolWidth)}
-		y={getSymbolYDynamic(props.win.row - 1, symbolHeight) + y.current}
-		scale={scale.current}
-		text={showMultiplier
-			? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
-			: bookEventAmountToCurrencyString(props.win.result)}
+		x={textX + ex * 1.5}
+		y={textY + ex * 2}
+		scale={sc}
+		text={textContent}
 		anchor={0.5}
-		style={{
-			fontFamily: FONT_FAMILY,
-			fontSize: symbolSize * 0.5,
-		}}
+		style={textStyle}
+		tint={0xbbaa55}
+	/>
+
+	<!-- Main text (bright green) -->
+	<BitmapText
+		x={textX}
+		y={textY}
+		scale={sc}
+		text={textContent}
+		anchor={0.5}
+		style={textStyle}
 		tint={0x33ee88}
 	/>
 </FadeContainer>

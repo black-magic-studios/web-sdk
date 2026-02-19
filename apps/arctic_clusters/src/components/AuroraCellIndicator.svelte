@@ -34,8 +34,11 @@
 	const cr = $derived(Math.round(cellWidth * CR_RATIO));
 
 	// ── Aurora colours ──
-	const GLOW_COLOR = 0x33eeaa;
-	const BORDER_COLOR_AURORA = 0x44ffbb;
+	const GLOW_COLOR = 0x55ffcc;
+	const GLOW_COLOR_OUTER = 0x22cc88;
+	const BORDER_COLOR_AURORA = 0x66ffdd;
+	const INNER_FILL_COLOR = 0x33eebb;
+	const CENTER_DOT_COLOR = 0xaaffee;
 	const EXPLODE_COLOR = 0xffffff;
 
 	// ── State ──
@@ -62,14 +65,30 @@
 			raf = requestAnimationFrame(tick);
 		}
 		raf = requestAnimationFrame(tick);
+
+		// Restore aurora cells from global state on remount (survives show/hide toggles)
+		const existing = context.stateGame.auroraPositions;
+		if (existing.length > 0 && cells.length === 0) {
+			cells = existing.map((pos) => ({
+				reel: pos.reel,
+				row: pos.row,
+				alpha: new Tween(0.85),
+				scale: new Tween(1.0),
+				glowAlpha: new Tween(0),
+				borderAlpha: new Tween(0.9),
+				exploding: false,
+			}));
+		}
 	});
 
 	onDestroy(() => cancelAnimationFrame(raf));
 
-	// Sine pulse for breathing effect (0.6 – 1.0 range)
-	const pulseValue = $derived(0.6 + 0.4 * Math.sin(pulsePhase * 1.8));
+	// Sine pulse for breathing effect (0.65 – 1.0 range)
+	const pulseValue = $derived(0.65 + 0.35 * Math.sin(pulsePhase * 1.8));
 	// Secondary slower pulse for border
-	const borderPulse = $derived(0.4 + 0.6 * Math.sin(pulsePhase * 1.2 + 0.5));
+	const borderPulse = $derived(0.5 + 0.5 * Math.sin(pulsePhase * 1.2 + 0.5));
+	// Fast sparkle pulse for center accent
+	const sparklePulse = $derived(0.4 + 0.6 * Math.sin(pulsePhase * 3.0 + 1.0));
 
 	const posKey = (reel: number, row: number) => `${reel}_${row}`;
 
@@ -98,13 +117,22 @@
 
 			cells = newCells;
 
-			// Animate in
+			// Animate in — flash glow on reveal
 			for (const cell of newCells) {
 				cell.alpha.set(0.85);
 				cell.scale.set(1.0);
 				cell.glowAlpha.set(0.7);
 				cell.borderAlpha.set(0.9);
 			}
+
+			// After reveal flash, fade glow out — keep only border + center accent
+			setTimeout(() => {
+				for (const cell of newCells) {
+					if (!cell.exploding) {
+						cell.glowAlpha.set(0, { duration: 600, easing: cubicOut });
+					}
+				}
+			}, 500);
 		},
 
 		auroraCellsExplode: async ({ positions }) => {
@@ -189,8 +217,8 @@
 		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		// Outer glow: slightly larger star
-		drawStarPath(g, w * 1.25, h * 1.25, 0.95, 0.42);
+		// Glow stays within cell bounds
+		drawStarPath(g, w, h, 0.95, 0.42);
 		g.fill({ color: exploding ? EXPLODE_COLOR : GLOW_COLOR });
 	};
 
@@ -201,8 +229,9 @@
 		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		drawStarPath(g, w, h, 0.92, 0.40);
-		g.stroke({ color: exploding ? EXPLODE_COLOR : BORDER_COLOR_AURORA, width: 2.5, alignment: 0.5 });
+		// Border within cell bounds, inward-aligned stroke
+		drawStarPath(g, w * 0.95, h * 0.95, 0.92, 0.40);
+		g.stroke({ color: exploding ? EXPLODE_COLOR : BORDER_COLOR_AURORA, width: 2.5, alignment: 1 });
 	};
 
 	const drawInnerGlow = (
@@ -212,33 +241,50 @@
 		_cornerRadius: number,
 		exploding: boolean,
 	) => {
-		drawStarPath(g, w, h, 0.92, 0.40);
-		g.fill({ color: exploding ? EXPLODE_COLOR : 0x22dd88 });
+		drawStarPath(g, w * 0.85, h * 0.85, 0.92, 0.40);
+		g.fill({ color: exploding ? EXPLODE_COLOR : INNER_FILL_COLOR });
+	};
+
+	/** Small center diamond accent */
+	const drawCenterAccent = (
+		g: PIXI.Graphics,
+		w: number,
+		h: number,
+		exploding: boolean,
+	) => {
+		const dx = w * 0.08;
+		const dy = h * 0.08;
+		g.moveTo(0, -dy);
+		g.lineTo(dx, 0);
+		g.lineTo(0, dy);
+		g.lineTo(-dx, 0);
+		g.closePath();
+		g.fill({ color: exploding ? EXPLODE_COLOR : CENTER_DOT_COLOR });
 	};
 </script>
 
 {#snippet content()}
-	<Container zIndex={10}>
-		{#each cells as cell (posKey(cell.reel, cell.row))}
-			{@const baseAlpha = cell.alpha.current}
-			{@const s = cell.scale.current}
-			{#if baseAlpha > 0.01}
-				<Container
-					x={getSymbolXDynamic(cell.reel, symbolWidth)}
-					y={getSymbolYDynamic(cell.row - 1, symbolHeight)}
-					scale={s}
-					alpha={baseAlpha}
-				>
+	{#each cells as cell (posKey(cell.reel, cell.row))}
+		{@const baseAlpha = cell.alpha.current}
+		{@const s = cell.scale.current}
+		{#if baseAlpha > 0.01}
+			<Container
+				x={getSymbolXDynamic(cell.reel, symbolWidth)}
+				y={getSymbolYDynamic(cell.row - 1, symbolHeight)}
+				scale={s}
+				alpha={baseAlpha}
+				zIndex={-1}
+			>
 					<!-- Outer glow pulse -->
 					<Graphics
 						draw={(g) => drawGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-						alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.25)}
+						alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.3)}
 					/>
 
 					<!-- Inner fill -->
 					<Graphics
 						draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-						alpha={cell.glowAlpha.current * (cell.exploding ? 0.3 : 0.08)}
+						alpha={cell.glowAlpha.current * (cell.exploding ? 0.4 : 0.1)}
 					/>
 
 					<!-- Pulsing aurora border -->
@@ -246,10 +292,15 @@
 						draw={(g) => drawBorder(g, cellWidth, cellHeight, cr, cell.exploding)}
 						alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse)}
 					/>
-				</Container>
-			{/if}
-		{/each}
-	</Container>
+
+					<!-- Center diamond sparkle -->
+					<Graphics
+						draw={(g) => drawCenterAccent(g, cellWidth, cellHeight, cell.exploding)}
+						alpha={cell.borderAlpha.current * (cell.exploding ? 0.9 : sparklePulse * 0.5)}
+					/>
+			</Container>
+		{/if}
+	{/each}
 {/snippet}
 
 {#if props.inBoardSpace}

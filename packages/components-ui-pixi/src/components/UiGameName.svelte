@@ -41,4 +41,5 @@
 </script>
 
 <Text text={clock} onresize={(value) => (clockSizes = value)} {...textProps} />
-<Text text={props.name} x={clockSizes.width + 5} {...textProps} />
+<Text text="|" x={clockSizes.width + 8} {...textProps} />
+<Text text={props.name} x={clockSizes.width + 22} {...textProps} />

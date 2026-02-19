@@ -25,7 +25,7 @@ import {
 } from './constants';
 
 const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
-	if (rawSymbol.name === 'S') {
+	if (rawSymbol.name === 'S' || rawSymbol.name === 'SS') {
 		eventEmitter.broadcast({ type: 'soundScatterCounterIncrease' });
 		eventEmitter.broadcast({
 			type: 'soundOnce',
@@ -128,12 +128,17 @@ export const stateGame = $state({
 
 const boardLayout = () => {
 	const canvas = stateLayoutDerived.canvasSizes();
+	const layout = stateLayoutDerived.layoutType();
+	const isPortrait = layout === 'portrait' || layout === 'tablet';
 
 	// Use only a portion of the canvas so we leave room for the reel frame + UI
 	// while keeping the board centered and responsive.
-	const BOARD_CANVAS_RATIO = 0.7;
+	// On portrait/mobile, use more width but reserve bottom space for HTML controls
+	const BOARD_CANVAS_RATIO = isPortrait ? 0.88 : 0.7;
+	const MOBILE_BOTTOM_RESERVE = isPortrait ? 130 : 0; // px reserved for HTML controls
+
 	const availableWidth = canvas.width * BOARD_CANVAS_RATIO;
-	const availableHeight = canvas.height * BOARD_CANVAS_RATIO;
+	const availableHeight = (canvas.height - MOBILE_BOTTOM_RESERVE) * (isPortrait ? 0.82 : BOARD_CANVAS_RATIO);
 
 	// Fit board maintaining aspect ratio
 	let width: number;
@@ -150,8 +155,11 @@ const boardLayout = () => {
 	}
 
 	// Center position (relative to full canvas)
+	// On portrait, shift board up to make room for controls
 	const centerX = canvas.width / 2;
-	const centerY = canvas.height / 2;
+	const centerY = isPortrait
+		? (canvas.height - MOBILE_BOTTOM_RESERVE) / 2
+		: canvas.height / 2;
 
 	return {
 		x: centerX,

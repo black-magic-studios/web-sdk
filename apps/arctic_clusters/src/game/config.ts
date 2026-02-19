@@ -330,6 +330,10 @@ export default {
 			paytable: null,
 			special_properties: ['scatter'],
 		},
+		SS: {
+			paytable: null,
+			special_properties: ['scatter'],
+		},
 		H4: {
 			paytable: [
 				{

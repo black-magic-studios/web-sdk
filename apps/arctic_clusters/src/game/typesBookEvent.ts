@@ -101,6 +101,13 @@ type BookEventFreeSpinRetrigger = {
 	positions: Position[];
 };
 
+type BookEventSuperBonusTrigger = {
+	index: number;
+	type: 'superBonusTrigger';
+	totalFs: number;
+	positions: Position[];
+};
+
 // aurora
 type BookEventAuroraReveal = {
 	index: number;
@@ -157,6 +164,8 @@ export type BookEvent =
 	| BookEventAuroraMeterUpdate
 	| BookEventAuroraExplode
 	| BookEventAuroraWildPlace
+	// super bonus
+	| BookEventSuperBonusTrigger
 	// customised
 	| BookEventCreateBonusSnapshot;
 

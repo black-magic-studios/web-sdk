@@ -4,7 +4,7 @@
 	import { EnablePixiExtension } from 'components-pixi';
 	import { EnableHotkey } from 'components-shared';
 	import { MainContainer } from 'components-layout';
-	import { App, Text, REM, Container } from 'pixi-svelte';
+	import { App, Text, REM, Container, Sprite } from 'pixi-svelte';
 	import { UiGameName } from 'components-ui-pixi';
 	import { GameVersion, Modals } from 'components-ui-html';
 	import ModalBuyBonus from './ModalBuyBonus.svelte';
@@ -17,6 +17,7 @@
 	import Sound from './Sound.svelte';
 	import Background from './Background.svelte';
 	import Snowflakes from './Snowflakes.svelte';
+	import AuroraParticles from './AuroraParticles.svelte';
 	import Constellations from './Constellations.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardFrame from './BoardFrame.svelte';
@@ -34,6 +35,8 @@
 	import Transition from './Transition.svelte';
 	// import I18nTest from './I18nTest.svelte';
 	import PlayBar from './PlayBar.svelte';
+	import MobileControls from './MobileControls.svelte';
+	import GameInfoModal from './GameInfoModal.svelte';
 
 	const context = getContext();
 
@@ -74,10 +77,19 @@
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
 
 	let showBuyBonus = $state(false);
+	let showGameInfo = $state(false);
+
+	// Portrait/mobile detection — use HTML controls instead of PIXI PlayBar
+	const useMobileControls = $derived(
+		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
+	);
 
 	context.eventEmitter.subscribeOnMount({
 		buyBonusConfirm: () => {
 			showBuyBonus = true;
+		},
+		gameInfoOpen: () => {
+			showGameInfo = true;
 		},
 	});
 </script>
@@ -102,6 +114,7 @@
 		<Sound />
 
 		<Snowflakes />
+		<AuroraParticles layer="background" />
 		<Constellations />
 		<BoardFrame />
 		<Board />
@@ -110,24 +123,22 @@
 		<TumbleBoard />
 		<MultiplierFlyOut />
 		<ClusterWinAmounts />
-		<PlayBar />
+		<AuroraParticles layer="foreground" />
+		{#if !useMobileControls}
+			<PlayBar />
+		{/if}
 
 		<Container x={20}>
-			<UiGameName name="MULTIDROP" />
+			<UiGameName name="ARCTIC CLUSTERS" />
 		</Container>
-		<Container x={context.stateLayoutDerived.canvasSizes().width - 20}>
-			<Text
-				anchor={{ x: 1, y: 0 }}
-				text="ADD YOUR LOGO"
-				style={{
-					fontFamily: 'proxima-nova',
-					fontSize: REM * 1.5,
-					fontWeight: '600',
-					lineHeight: REM * 2,
-					fill: 0xffffff,
-				}}
-			/>
-		</Container>
+		<Sprite
+			key="studioLogo"
+			anchor={{ x: 1, y: 0 }}
+			x={context.stateLayoutDerived.canvasSizes().width - 20}
+			y={6}
+			height={REM * 2.5}
+			width={REM * 2.5}
+		/>
 		<!-- <Win /> -->
 		<FreeSpinIntro />
 		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
@@ -147,3 +158,8 @@
 </Modals>
 
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
+<GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
+
+{#if useMobileControls}
+	<MobileControls />
+{/if}

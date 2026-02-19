@@ -31,11 +31,21 @@
 
 	$effect(() => {
 		const state = props.reelSymbol.symbolState;
+		const info = symbolInfo;
 		const anim = { rafId: 0, cancelled: false };
 
 		untrack(() => {
 			if (state === 'win') {
 				runWinAnim(anim);
+				// For static sprites (type='sprite'), the underlying Symbol component
+				// won't fire oncomplete because symbolInfo doesn't change between
+				// 'static' and 'win' states. Schedule handleComplete after the win
+				// animation finishes so the event chain doesn't deadlock.
+				if (info.type === 'sprite') {
+					setTimeout(() => {
+						if (!anim.cancelled) handleComplete();
+					}, 650);
+				}
 			} else {
 				winScale = 1;
 				winGlowAlpha = 0;

@@ -45,12 +45,21 @@
 		},
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
 			const WIN_SCALE_DURATION_MS = 600;
+			const SAFETY_TIMEOUT_MS = 3000;
 			const getPromises = () =>
 				symbolPositions.map(async (position) => {
 					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];
+					const prevState = reelSymbol.symbolState;
 					reelSymbol.symbolState = 'win';
 					const t0 = performance.now();
-					await waitForResolve((resolve) => (reelSymbol.oncomplete = resolve));
+					// Wait for oncomplete with safety timeout to prevent freeze on static sprites
+					await Promise.race([
+						waitForResolve((resolve) => (reelSymbol.oncomplete = resolve)),
+						new Promise<void>((resolve) => setTimeout(() => {
+							console.warn(`[boardWithAnimateSymbols] ⚠️ oncomplete timeout for [${position.reel}][${position.row}] symbol=${reelSymbol.rawSymbol.name} prevState=${prevState}`);
+							resolve();
+						}, SAFETY_TIMEOUT_MS)),
+					]);
 					// Ensure minimum win duration so the scale animation can play
 					const remaining = WIN_SCALE_DURATION_MS - (performance.now() - t0);
 					if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));

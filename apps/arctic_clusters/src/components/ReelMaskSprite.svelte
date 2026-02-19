@@ -43,4 +43,5 @@
 	y={props.inBoardSpace ? boardSpaceY : containerSpaceY}
 	width={scaledWidth}
 	height={scaledHeight}
+	zIndex={-4}
 />

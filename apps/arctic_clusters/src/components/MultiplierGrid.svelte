@@ -455,18 +455,27 @@
 			const newGrid = emitterEvent.grid;
 			const previousGrid = context.stateGame.multiplierPreviousGrid;
 
-			// Find cells that are NEW or UPGRADED
+			// Find cells that are NEW, UPGRADED, or DOWNGRADED
 			const upgradingCells: { reel: number; row: number; dist: number; isNew: boolean }[] = [];
+			const downgradedCells: { reel: number; row: number; prevVal: number; newVal: number }[] = [];
 			for (let reel = 0; reel < newGrid.length; reel++) {
 				for (let row = 0; row < newGrid[reel].length; row++) {
 					const newVal = newGrid[reel][row];
 					const prevVal = previousGrid[reel]?.[row] ?? 0;
+					if (newVal > 1 && newVal < prevVal) {
+						downgradedCells.push({ reel, row, prevVal, newVal });
+					}
 					if (newVal > 1 && (prevVal <= 1 || newVal !== prevVal)) {
 						const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
 						upgradingCells.push({ reel, row, dist, isNew: prevVal <= 1 });
 					}
 				}
 			}
+
+			if (downgradedCells.length > 0) {
+				console.warn(`[MultiplierGrid:${instanceId}] ⚠️ DOWNGRADED cells detected!`, downgradedCells.map(c => `[${c.reel},${c.row}]: ${c.prevVal}→${c.newVal}`).join(', '));
+			}
+			console.log(`[MultiplierGrid:${instanceId}] 🔍 REVEAL: upgrading=${upgradingCells.length}, downgraded=${downgradedCells.length}, previousGrid=${JSON.stringify(previousGrid)}, newGrid=${JSON.stringify(newGrid)}`);
 
 			if (upgradingCells.length === 0) {
 				// No upgrades — just apply grid directly
@@ -553,6 +562,65 @@
 			prevHasMultipliers = hasMultipliers;
 		}
 	});
+
+	// ── Idle shimmer for high-tier multiplier cells (>32x) ──────
+	// Periodically pulses vibrance so these cells glow brighter,
+	// giving them a magical "breathing" effect between tumbles.
+	const SHIMMER_THRESHOLD = 32;
+	const SHIMMER_CYCLE_MS = 2200;   // full breathe cycle
+	const SHIMMER_PEAK = 0.55;       // how bright the vibrance peaks (0–1)
+	const SHIMMER_STAGGER_MS = 120;  // offset between cells so they don't all pulse together
+
+	let shimmerInterval: ReturnType<typeof setInterval> | null = null;
+
+	/** Run one shimmer breathe across all high-tier cells. */
+	async function shimmerBreatheCycle() {
+		const currentGrid = context.stateGame.multiplierGrid;
+		const scales = context.stateGame.multiplierCellScales as Map<string, CellAnimState>;
+		if (!scales || scales.size === 0) return;
+
+		const highCells: { key: string; anim: CellAnimState; dist: number }[] = [];
+		for (let reel = 0; reel < currentGrid.length; reel++) {
+			for (let row = 0; row < currentGrid[reel].length; row++) {
+				if (currentGrid[reel][row] > SHIMMER_THRESHOLD) {
+					const key = getCellKey(reel, row);
+					const anim = scales.get(key);
+					if (anim && anim.alpha.current > 0) {
+						const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
+						highCells.push({ key, anim, dist });
+					}
+				}
+			}
+		}
+
+		if (highCells.length === 0) return;
+
+		// Sort by distance so shimmer ripples outward from center
+		highCells.sort((a, b) => a.dist - b.dist);
+
+		for (let i = 0; i < highCells.length; i++) {
+			const { anim } = highCells[i];
+			const delay = i * SHIMMER_STAGGER_MS;
+			setTimeout(() => {
+				// Ramp up
+				anim.vibrance.set(SHIMMER_PEAK, { duration: SHIMMER_CYCLE_MS * 0.35, easing: cubicOut });
+				anim.labelScale.set(LABEL_REST_SCALE + 0.06, { duration: SHIMMER_CYCLE_MS * 0.35, easing: cubicOut });
+				// Ramp back down
+				setTimeout(() => {
+					anim.vibrance.set(0, { duration: SHIMMER_CYCLE_MS * 0.55, easing: cubicInOut });
+					anim.labelScale.set(LABEL_REST_SCALE, { duration: SHIMMER_CYCLE_MS * 0.55, easing: cubicInOut });
+				}, SHIMMER_CYCLE_MS * 0.4);
+			}, delay);
+		}
+	}
+
+	onMount(() => {
+		shimmerInterval = setInterval(shimmerBreatheCycle, SHIMMER_CYCLE_MS + 800);
+	});
+
+	onDestroy(() => {
+		if (shimmerInterval) clearInterval(shimmerInterval);
+	});
 </script>
 
 {#snippet content()}
@@ -568,6 +636,7 @@
 							y={getSymbolYDynamic(rowIndex, symbolHeight) + anim.yOffset}
 							scale={anim.scale}
 							alpha={anim.alpha * 0.97}
+							zIndex={-2}
 						>
 							<Sprite
 								key={getMultiGridAssetKey(multiplier)}

@@ -34,6 +34,7 @@
 		<Container
 			x={getSymbolXDynamic(col, symbolWidth)}
 			y={getSymbolYDynamic(row, symbolHeight)}
+			zIndex={-3}
 		>
 			<Sprite
 				key="cellBackground"

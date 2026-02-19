@@ -60,6 +60,8 @@
 	let buyPressed = $state(false);
 	let arrowUpHovered = $state(false);
 	let arrowDownHovered = $state(false);
+	let infoHovered = $state(false);
+	let infoPressed = $state(false);
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
@@ -79,7 +81,7 @@
 	// CONFIGURATION
 	// ============================================================
 	const BAR_HEIGHT_RATIO = 0.12; // Bar height as ratio of board height — much thicker
-	const PLAYBAR_MARGIN_RATIO = 0.012; // Margin below board
+	const PLAYBAR_MARGIN_RATIO = 0.048; // Margin below board — clears the frame's bottom border
 
 	// Button sizing
 	const SPIN_BUTTON_SCALE = 1.3; // Spin button size relative to bar height
@@ -146,6 +148,11 @@
 
 	// Buy button — OUTSIDE the bar, to the left
 	const buyButtonX = $derived(-barWidth / 2 - buttonGap - buyButtonSize / 2);
+
+	// Info button — OUTSIDE the bar, to the left of the buy button
+	const INFO_BUTTON_SCALE = 0.48;
+	const infoButtonSize = $derived(barHeight * INFO_BUTTON_SCALE);
+	const infoButtonX = $derived(buyButtonX - buyButtonSize / 2 - buttonGap - infoButtonSize / 2);
 
 	// Info sections — fill the space from left edge of bar to spin button
 	const infoLeftEdge = $derived(-barWidth / 2 + barWidth * 0.03);
@@ -277,6 +284,10 @@
 
 	const handleBuyBonus = () => {
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
+	};
+
+	const handleInfo = () => {
+		context.eventEmitter.broadcast({ type: 'gameInfoOpen' } as any);
 	};
 
 	const handleBetMenu = () => {
@@ -476,6 +487,31 @@
 					width={smallButtonSize}
 					height={smallButtonSize}
 					anchor={0.5}
+				/>
+			</Container>
+
+			<!-- INFO BUTTON (outside bar, to the left of buy) -->
+			<Container x={infoButtonX} y={0} zIndex={3}>
+				<Graphics
+					draw={(g: PIXI.Graphics) => {
+						const r = infoButtonSize / 2;
+						g.circle(0, 0, r);
+						g.fill({ color: infoPressed ? 0x1a3350 : infoHovered ? 0x2a4a6a : 0x1e3550, alpha: 0.95 });
+						g.circle(0, 0, r);
+						g.stroke({ color: 0x88ccff, width: 1.5, alpha: infoHovered ? 0.8 : 0.4 });
+					}}
+					eventMode="static"
+					cursor="pointer"
+					onpointerover={() => { infoHovered = true; }}
+					onpointerout={() => { infoHovered = false; infoPressed = false; }}
+					onpointerdown={() => { infoPressed = true; }}
+					onpointerup={() => { infoPressed = false; handleInfo(); }}
+				/>
+				<Text
+					anchor={0.5}
+					resolution={TEXT_RESOLUTION}
+					text="i"
+					style={{ fontFamily: 'Georgia, serif', fontSize: Math.round(infoButtonSize * 0.55), fill: 0x88ccff, fontWeight: 'bold', fontStyle: 'italic' }}
 				/>
 			</Container>
 

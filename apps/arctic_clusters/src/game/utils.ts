@@ -18,10 +18,32 @@ import type { RawSymbol, SymbolState } from './types';
 
 // general utils
 export const { getEmptyBoard } = createGetEmptyPaddedBoard({ reelsDimensions: BOARD_DIMENSIONS });
-export const { playBookEvent, playBookEvents } = createPlayBookUtils({ bookEventHandlerMap });
+export const { playBookEvent, playBookEvents: _playBookEvents } = createPlayBookUtils({ bookEventHandlerMap });
+
+// Wrapped playBookEvents with per-event logging to trace freezes
+const playBookEventsWithLogging = async (bookEvents: Bet['state']) => {
+	let spinCount = 0;
+	for (let i = 0; i < bookEvents.length; i++) {
+		const evt = bookEvents[i];
+		if (evt.type === 'reveal') spinCount++;
+		const t0 = performance.now();
+		console.log(`[playBet] ▶ event[${i}] type="${evt.type}" index=${evt.index} spin=${spinCount} t=${Date.now()}`);
+		try {
+			await playBookEvent(evt, { bookEvents });
+			console.log(`[playBet] ✅ event[${i}] type="${evt.type}" done in ${(performance.now() - t0).toFixed(0)}ms`);
+		} catch (err) {
+			console.error(`[playBet] ❌ event[${i}] type="${evt.type}" THREW after ${(performance.now() - t0).toFixed(0)}ms`, err);
+			throw err;
+		}
+	}
+};
+
+export const playBookEvents = _playBookEvents;
 export const playBet = async (bet: Bet) => {
 	stateBet.winBookEventAmount = 0;
-	await playBookEvents(bet.state);
+	console.log(`[playBet] 🎬 Starting bet with ${bet.state.length} events`);
+	await playBookEventsWithLogging(bet.state);
+	console.log(`[playBet] 🏁 Bet complete`);
 	eventEmitter.broadcast({ type: 'stopButtonEnable' });
 };
 

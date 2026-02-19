@@ -346,6 +346,15 @@ const h1Win = {
 	frameCount: 32,
 	animationSpeed: 0.7,
 };
+const h2Win = { 
+	type: 'spriteSheet', 
+	assetKey: 'h2WinAnimation', 
+	animationName: 'h2_win', 
+	sizeRatios: { width: 1.0, height: 1.0 },
+	frameHeight: 256,
+	frameCount: 32,
+	animationSpeed: 0.35,
+};
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
 const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
@@ -356,6 +365,7 @@ const l3Static = { type: 'sprite', assetKey: 'l3.webp', sizeRatios: { width: 1, 
 const l4Static = { type: 'sprite', assetKey: 'l4.webp', sizeRatios: { width: 1, height: 1 } };
 
 const sStatic = { type: 'sprite', assetKey: 'S', sizeRatios: { width: 1, height: 1 } };
+const ssStatic = { type: 'sprite', assetKey: 'SS', sizeRatios: { width: 1, height: 1 } };
 const wSizeRatiosStatic = { width: 1.0, height: 1.0 };
 
 const m2Static = {
@@ -386,7 +396,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H2: {
 		explosion,
-		win: h2Static,
+		win: h2Win,
 		postWinStatic: h2Static,
 		static: h2Static,
 		spin: h2Static,
@@ -455,6 +465,14 @@ export const SYMBOL_INFO_MAP = {
 		spin: sStatic,
 		win: sStatic,
 		land: sStatic,
+	},
+	SS: {
+		explosion,
+		postWinStatic: ssStatic,
+		static: ssStatic,
+		spin: ssStatic,
+		win: ssStatic,
+		land: ssStatic,
 	},
 } as const;
 

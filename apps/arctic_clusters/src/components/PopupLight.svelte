@@ -31,10 +31,6 @@
 	});
 </script>
 
-<div>
-	{@render props.children()}
-</div>
-
 <OnHotkey hotkey="Escape" onpress={closeModal} />
 
 <div class="pop-up-wrap" class:disabled style={`z-index: ${props.zIndex};`}>

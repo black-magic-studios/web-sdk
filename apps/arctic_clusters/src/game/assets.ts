@@ -4,6 +4,10 @@ export default {
 		src: '/assets/sprites/background/arctic_clusters_background.png',
 		preload: true,
 	},
+	studioLogo: {
+		type: 'sprite',
+		src: '/assets/sprites/studio_logo.png',
+	},
 	loader: {
 		type: 'spine',
 		src: {
@@ -93,6 +97,10 @@ export default {
 	S: {
 		type: 'sprite',
 		src: '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png',
+	},
+	SS: {
+		type: 'sprite',
+		src: '/assets/super.png',
 	},
 	explosion: {
 		type: 'spine',
@@ -361,6 +369,10 @@ export default {
 	h1WinAnimation: {
 		type: 'spriteSheet',
 		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/polar_bear_sprite_centered_8x4_32f.json', import.meta.url).href,
+	},
+	h2WinAnimation: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/fox_win_8x4_32f.json', import.meta.url).href,
 	},
 	reelhouse: {
 		type: 'spine',
