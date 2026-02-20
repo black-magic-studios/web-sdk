@@ -29,4 +29,5 @@ export type EmitterEventGame =
 	| EmitterEventMultiplierGrid
 	| EmitterEventTransition
 	| EmitterEventAuroraCellIndicator
-	| EmitterEventWildPlacement;
+	| EmitterEventWildPlacement
+	| { type: 'screenShake' };

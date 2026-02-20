@@ -10,9 +10,41 @@
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
+	import HamburgerMenu from './HamburgerMenu.svelte';
 
 	const context = getContext();
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+
+	// ============================================================
+	// FREE SPIN STATE
+	// ============================================================
+	let inFreeSpins = $state(false);
+	let fsCurrent = $state(0);
+	let fsTotal = $state(0);
+
+	// Per-spin win (from tumbleWinAmount events)
+	let spinWin = $state(0);
+	const spinWinTween = new Tween(0);
+	$effect(() => { spinWinTween.set(spinWin); });
+	const spinWinText = $derived(bookEventAmountToCurrencyString(spinWinTween.current));
+	const showSpinWin = $derived(spinWin > 0);
+
+	// Total win during free spins (from stateBet)
+	const totalWinTween = new Tween(0);
+	$effect(() => { totalWinTween.set(stateBet.winBookEventAmount); });
+	const totalWinText = $derived(bookEventAmountToCurrencyString(totalWinTween.current));
+
+	context.eventEmitter.subscribeOnMount({
+		freeSpinCounterShow: () => (inFreeSpins = true),
+		freeSpinCounterHide: () => { inFreeSpins = false; spinWin = 0; },
+		freeSpinCounterUpdate: (ev) => {
+			if (ev.current !== undefined) fsCurrent = ev.current;
+			if (ev.total !== undefined) fsTotal = ev.total;
+		},
+		tumbleWinAmountUpdate: (ev) => { spinWin = ev.amount; },
+		tumbleWinAmountReset: () => { spinWin = 0; },
+		tumbleWinAmountHide: () => { spinWin = 0; },
+	});
 
 	// ============================================================
 	// BALANCE / WIN / SPIN STATE (with tweened animations)
@@ -64,8 +96,11 @@
 	let buyPressed = $state(false);
 	let arrowUpHovered = $state(false);
 	let arrowDownHovered = $state(false);
-	let infoHovered = $state(false);
-	let infoPressed = $state(false);
+
+
+	// Hamburger menu
+	let hamburgerOpen = $state(false);
+	let hamburgerHovered = $state(false);
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
@@ -135,40 +170,83 @@
 	const arrowFontSize = $derived(Math.round(Math.max(10, labelFontSize * 1.1)));
 
 	// ── Layout: everything INSIDE the bar ─────────────────────
-	// | BALANCE | WIN | SPIN [▲▼] | [SPIN_BTN] [AUTO] [FAST] |
-	// Buy button is OUTSIDE the bar, to the far left
-	//
-	// Right edge: small buttons (fast, auto), then spin button
-	// Left edge to spin button: info sections fill remaining space
+	// NORMAL:     | BALANCE | WIN | SPIN [▲▼] | [SPIN_BTN] [AUTO] [FAST] |
+	// FREE SPINS: | BALANCE | SPIN | TOTAL WIN | FREE SPINS [count] | [FAST] |
 
 	// Info section widths
 	const infoSectionWidth = $derived(barWidth * 0.2);
 
 	// Right side buttons — positioned from right edge inward
 	const rightPad = $derived(barWidth * 0.02);
+
+	// Normal mode button positions
 	const fastPlayX = $derived(barWidth / 2 - rightPad - smallButtonSize / 2);
 	const autoplayX = $derived(fastPlayX - smallButtonSize - buttonGap);
 	const spinButtonX = $derived(autoplayX - smallButtonSize / 2 - buttonGap - spinButtonSize / 2);
 
+	// Free spins mode: only turbo button at far right
+	const fsTurboX = $derived(barWidth / 2 - rightPad - smallButtonSize / 2);
+
 	// Buy button — OUTSIDE the bar, to the left
 	const buyButtonX = $derived(-barWidth / 2 - buttonGap - buyButtonSize / 2);
 
-	// Info button — OUTSIDE the bar, to the left of the buy button
-	const INFO_BUTTON_SCALE = 0.48;
-	const infoButtonSize = $derived(barHeight * INFO_BUTTON_SCALE);
-	const infoButtonX = $derived(buyButtonX - buyButtonSize / 2 - buttonGap - infoButtonSize / 2);
+	// Hamburger button — INSIDE bar at far left
+	const HAMBURGER_SCALE = 0.6;
+	const hamburgerSize = $derived(barHeight * HAMBURGER_SCALE);
+	const leftPad = $derived(barWidth * 0.025);
+	const hamburgerX = $derived(-barWidth / 2 + leftPad + hamburgerSize / 2);
 
-	// Info sections — fill the space from left edge of bar to spin button
-	const infoLeftEdge = $derived(-barWidth / 2 + barWidth * 0.03);
+	// ── Normal mode: 3 info sections ──
+	const infoLeftEdge = $derived(hamburgerX + hamburgerSize / 2 + buttonGap);
 	const infoRightEdge = $derived(spinButtonX - spinButtonSize / 2 - buttonGap);
 	const infoZoneWidth = $derived(infoRightEdge - infoLeftEdge);
-	const infoCenter = $derived((infoLeftEdge + infoRightEdge) / 2);
 
 	// Three equal sections within the info zone
 	const sectionWidth = $derived(infoZoneWidth / 3);
 	const balanceSectionX = $derived(infoLeftEdge + sectionWidth / 2);
 	const winSectionX = $derived(infoLeftEdge + sectionWidth + sectionWidth / 2);
 	const spinSectionX = $derived(infoLeftEdge + sectionWidth * 2 + sectionWidth / 2);
+
+	// ── Free spins mode: 3 info sections (BALANCE | SPIN | TOTAL WIN + FREE SPINS) ──
+	const fsInfoRightEdge = $derived(fsTurboX - smallButtonSize / 2 - buttonGap);
+	const fsInfoZoneWidth = $derived(fsInfoRightEdge - infoLeftEdge);
+	const fsSectionWidth = $derived(fsInfoZoneWidth / 3);
+	const fsBalanceSectionX = $derived(infoLeftEdge + fsSectionWidth / 2);
+	const fsSpinSectionX = $derived(infoLeftEdge + fsSectionWidth + fsSectionWidth / 2);
+	const fsCombinedSectionX = $derived(infoLeftEdge + fsSectionWidth * 2 + fsSectionWidth / 2);
+
+	// Vertical positions for combined TOTAL WIN + FREE SPINS section
+	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(9, barHeight * 0.13)));
+	const fsCombinedValueFontSize = $derived(Math.round(Math.max(10, barHeight * 0.16)));
+	// Top box: TOTAL WIN  (upper half of bar)
+	const fsTopBoxTop = $derived(-barHeight * 0.46);
+	const fsTopBoxH = $derived(barHeight * 0.42);
+	const fsTopLabelY = $derived(fsTopBoxTop + fsTopBoxH * 0.28);
+	const fsTopValueY = $derived(fsTopBoxTop + fsTopBoxH * 0.72);
+	// Bottom box: FREE SPINS (lower half of bar)
+	const fsBotBoxTop = $derived(barHeight * 0.04);
+	const fsBotBoxH = $derived(barHeight * 0.42);
+	const fsBottomLabelY = $derived(fsBotBoxTop + fsBotBoxH * 0.28);
+	const fsBottomValueY = $derived(fsBotBoxTop + fsBotBoxH * 0.72);
+
+	// Free spins remaining (countdown)
+	const fsRemaining = $derived(Math.max(0, fsTotal - fsCurrent));
+
+	// Border around TOTAL WIN box
+	const drawTotalWinBorder = $derived((g: PIXI.Graphics) => {
+		const bw = fsSectionWidth * 0.88;
+		const br = 4;
+		g.roundRect(-bw / 2, fsTopBoxTop, bw, fsTopBoxH, br);
+		g.stroke({ color: 0x88ccff, width: 1.5, alpha: 0.4 });
+	});
+
+	// Border around FREE SPINS box
+	const drawFreeSpinsBorder = $derived((g: PIXI.Graphics) => {
+		const bw = fsSectionWidth * 0.88;
+		const br = 4;
+		g.roundRect(-bw / 2, fsBotBoxTop, bw, fsBotBoxH, br);
+		g.stroke({ color: 0x88ccff, width: 1.5, alpha: 0.4 });
+	});
 
 	// Arrow X position — centered between SPIN text center and right edge of SPIN section
 	// The SPIN text+value sits at x=0 within the section. Arrows sit between text and right edge.
@@ -189,32 +267,47 @@
 	// ============================================================
 	const drawBar = $derived((g: PIXI.Graphics) => {
 		g.roundRect(-barWidth / 2, -barHeight / 2, barWidth, barHeight, barRadius);
-		g.fill({ color: 0x1a1a2e, alpha: 0.92 });
+		g.fill({ color: 0x000000, alpha: 0.65 });
 	});
 
-	// Divider lines between sections
+	// Divider lines between sections (normal mode)
 	const drawDividers = $derived((g: PIXI.Graphics) => {
 		const dividerH = barHeight * 0.5;
 		const y1 = -dividerH / 2;
 		const y2 = dividerH / 2;
 
-		// Between BALANCE and WIN
-		const d1x = infoLeftEdge + sectionWidth;
-		g.moveTo(d1x, y1);
-		g.lineTo(d1x, y2);
-		g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+		if (inFreeSpins) {
+			// 3-section free spins mode: 2 dividers between sections + 1 before turbo
+			for (let i = 1; i <= 2; i++) {
+				const dx = infoLeftEdge + fsSectionWidth * i;
+				g.moveTo(dx, y1);
+				g.lineTo(dx, y2);
+				g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+			}
+			// Divider before turbo button
+			const d3x = fsInfoRightEdge;
+			g.moveTo(d3x, y1);
+			g.lineTo(d3x, y2);
+			g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+		} else {
+			// Between BALANCE and WIN
+			const d1x = infoLeftEdge + sectionWidth;
+			g.moveTo(d1x, y1);
+			g.lineTo(d1x, y2);
+			g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
 
-		// Between WIN and SPIN
-		const d2x = infoLeftEdge + sectionWidth * 2;
-		g.moveTo(d2x, y1);
-		g.lineTo(d2x, y2);
-		g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+			// Between WIN and SPIN
+			const d2x = infoLeftEdge + sectionWidth * 2;
+			g.moveTo(d2x, y1);
+			g.lineTo(d2x, y2);
+			g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
 
-		// Between SPIN section and spin button area
-		const d3x = infoRightEdge;
-		g.moveTo(d3x, y1);
-		g.lineTo(d3x, y2);
-		g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+			// Between SPIN section and spin button area
+			const d3x = infoRightEdge;
+			g.moveTo(d3x, y1);
+			g.lineTo(d3x, y2);
+			g.stroke({ color: 0x444466, width: 1, alpha: 0.6 });
+		}
 	});
 
 	// Arrow colors derived from hover state
@@ -290,9 +383,7 @@
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
-	const handleInfo = () => {
-		context.eventEmitter.broadcast({ type: 'gameInfoOpen' } as any);
-	};
+
 
 	const handleBetMenu = () => {
 		if (betIdle) {
@@ -327,70 +418,200 @@
 		<!-- DIVIDER LINES -->
 		<Graphics draw={drawDividers} zIndex={1} />
 
-		<!-- BALANCE SECTION -->
-		<Container x={balanceSectionX} y={0} zIndex={2}>
-			<Text
-				anchor={{ x: 0.5, y: 1 }}
-				y={labelY}
-				resolution={TEXT_RESOLUTION}
-				text="BALANCE"
-				style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
-			/>
-			<Text
-				anchor={{ x: 0.5, y: 0 }}
-				y={valueY}
-				resolution={TEXT_RESOLUTION}
-				text={balanceText}
-				style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
-			/>
-		</Container>
-
-		<!-- WIN SECTION (only visible when there's a win) -->
-		{#if showWin}
-		<Container x={winSectionX} y={0} zIndex={2}>
-			<Text
-				anchor={{ x: 0.5, y: 1 }}
-				y={labelY}
-				resolution={TEXT_RESOLUTION}
-				text="WIN"
-				style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
-			/>
-			<Text
-				anchor={{ x: 0.5, y: 0 }}
-				y={valueY}
-				resolution={TEXT_RESOLUTION}
-				text={winText}
-				style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
-			/>
-		</Container>
-		{/if}
-
-		<!-- SPIN (BET) SECTION with integrated arrows -->
-		<Container x={spinSectionX} y={0} zIndex={2}>
-			<Text
-				anchor={{ x: 0.5, y: 1 }}
-				y={labelY}
-				resolution={TEXT_RESOLUTION}
-				text={betLabel}
-				style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
-			/>
-			<Text
-				anchor={{ x: 0.5, y: 0 }}
-				y={valueY}
-				resolution={TEXT_RESOLUTION}
-				text={spinText}
-				style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
-			/>
-			<!-- Invisible hit area for bet menu (tap value to open full menu) -->
+		<!-- HAMBURGER MENU BUTTON (inside bar, far left) -->
+		<Container x={hamburgerX} y={0} zIndex={3}>
 			<Graphics
 				draw={(g: PIXI.Graphics) => {
-					g.rect(-infoSectionWidth / 3, -barHeight / 2, infoSectionWidth * 0.66, barHeight);
-					g.fill({ color: 0xffffff, alpha: 0.001 });
+					const r = hamburgerSize / 2;
+					g.circle(0, 0, r);
+					g.fill({ color: hamburgerOpen ? 0x2a5580 : hamburgerHovered ? 0x2a4a6a : 0x1e3550, alpha: 0.95 });
+					g.circle(0, 0, r);
+					g.stroke({ color: 0x88ccff, width: 1.5, alpha: hamburgerHovered || hamburgerOpen ? 0.8 : 0.4 });
+					/* draw 3 horizontal lines (☰) */
+					const lineW = hamburgerSize * 0.45;
+					const lineH = Math.max(1.5, hamburgerSize * 0.06);
+					const gap = hamburgerSize * 0.16;
+					for (let i = -1; i <= 1; i++) {
+						g.roundRect(-lineW / 2, i * gap - lineH / 2, lineW, lineH, lineH / 2);
+						g.fill({ color: 0xc8e8ff, alpha: 0.95 });
+					}
 				}}
 				eventMode="static"
 				cursor="pointer"
-				onpointerup={handleBetMenu}
+				onpointerover={() => { hamburgerHovered = true; }}
+				onpointerout={() => { hamburgerHovered = false; }}
+				onpointerdown={() => {}}
+				onpointerup={() => { hamburgerOpen = !hamburgerOpen; }}
 			/>
+		</Container>
+
+		{#if inFreeSpins}
+			<!-- ═══════════════ FREE SPINS MODE ═══════════════ -->
+
+			<!-- BALANCE SECTION -->
+			<Container x={fsBalanceSectionX} y={0} zIndex={2}>
+				<Text
+					anchor={{ x: 0.5, y: 1 }}
+					y={labelY}
+					resolution={TEXT_RESOLUTION}
+					text="BALANCE"
+					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0 }}
+					y={valueY}
+					resolution={TEXT_RESOLUTION}
+					text={balanceText}
+					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+			</Container>
+
+			<!-- SPIN (BET) SECTION — no arrows during free spins -->
+			<Container x={fsSpinSectionX} y={0} zIndex={2}>
+				<Text
+					anchor={{ x: 0.5, y: 1 }}
+					y={labelY}
+					resolution={TEXT_RESOLUTION}
+					text={betLabel}
+					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0 }}
+					y={valueY}
+					resolution={TEXT_RESOLUTION}
+					text={spinText}
+					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+			</Container>
+
+			<!-- COMBINED: TOTAL WIN (top) + FREE SPINS (bottom) -->
+			<Container x={fsCombinedSectionX} y={0} zIndex={2}>
+				<!-- Individual borders -->
+				<Graphics draw={drawTotalWinBorder} />
+				<Graphics draw={drawFreeSpinsBorder} />
+				<!-- TOTAL WIN row -->
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsTopLabelY}
+					resolution={TEXT_RESOLUTION}
+					text="TOTAL WIN"
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsTopValueY}
+					resolution={TEXT_RESOLUTION}
+					text={totalWinText}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+				<!-- FREE SPINS row -->
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsBottomLabelY}
+					resolution={TEXT_RESOLUTION}
+					text="FREE SPINS"
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsBottomValueY}
+					resolution={TEXT_RESOLUTION}
+					text={`${fsRemaining}`}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+			</Container>
+
+			<!-- TURBO BUTTON (only button during free spins) -->
+			{#if assetsLoaded}
+				<Container x={fsTurboX} y={0} zIndex={3}>
+					<Circle
+						diameter={smallButtonSize}
+						anchor={0.5}
+						alpha={0}
+						backgroundColor={0xffffff}
+						eventMode="static"
+						cursor="pointer"
+						onpointerover={() => { fastHovered = true; }}
+						onpointerout={() => { fastHovered = false; fastPressed = false; }}
+						onpointerdown={() => { fastPressed = true; }}
+						onpointerup={() => { fastPressed = false; handleFastPlay(); }}
+					/>
+					<BaseSprite
+						texture={activeFastTexture}
+						width={smallButtonSize}
+						height={smallButtonSize}
+						anchor={0.5}
+					/>
+				</Container>
+			{/if}
+
+		{:else}
+			<!-- ═══════════════ NORMAL MODE ═══════════════ -->
+
+			<!-- BALANCE SECTION -->
+			<Container x={balanceSectionX} y={0} zIndex={2}>
+				<Text
+					anchor={{ x: 0.5, y: 1 }}
+					y={labelY}
+					resolution={TEXT_RESOLUTION}
+					text="BALANCE"
+					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0 }}
+					y={valueY}
+					resolution={TEXT_RESOLUTION}
+					text={balanceText}
+					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+			</Container>
+
+			<!-- WIN SECTION (only visible when there's a win) -->
+			{#if showWin}
+			<Container x={winSectionX} y={0} zIndex={2}>
+				<Text
+					anchor={{ x: 0.5, y: 1 }}
+					y={labelY}
+					resolution={TEXT_RESOLUTION}
+					text="WIN"
+					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0 }}
+					y={valueY}
+					resolution={TEXT_RESOLUTION}
+					text={winText}
+					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+				/>
+			</Container>
+			{/if}
+
+			<!-- SPIN (BET) SECTION with integrated arrows -->
+			<Container x={spinSectionX} y={0} zIndex={2}>
+				<Text
+					anchor={{ x: 0.5, y: 1 }}
+					y={labelY}
+					resolution={TEXT_RESOLUTION}
+					text={betLabel}
+					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0 }}
+					y={valueY}
+					resolution={TEXT_RESOLUTION}
+					text={spinText}
+					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+				/>
+				<!-- Invisible hit area for bet menu (tap value to open full menu) -->
+				<Graphics
+					draw={(g: PIXI.Graphics) => {
+						g.rect(-infoSectionWidth / 3, -barHeight / 2, infoSectionWidth * 0.66, barHeight);
+						g.fill({ color: 0xffffff, alpha: 0.001 });
+					}}
+					eventMode="static"
+					cursor="pointer"
+					onpointerup={handleBetMenu}
+				/>
 
 			<!-- INCREASE ARROW ▲ (top-right of SPIN section) -->
 			<Text
@@ -494,31 +715,6 @@
 				/>
 			</Container>
 
-			<!-- INFO BUTTON (outside bar, to the left of buy) -->
-			<Container x={infoButtonX} y={0} zIndex={3}>
-				<Graphics
-					draw={(g: PIXI.Graphics) => {
-						const r = infoButtonSize / 2;
-						g.circle(0, 0, r);
-						g.fill({ color: infoPressed ? 0x1a3350 : infoHovered ? 0x2a4a6a : 0x1e3550, alpha: 0.95 });
-						g.circle(0, 0, r);
-						g.stroke({ color: 0x88ccff, width: 1.5, alpha: infoHovered ? 0.8 : 0.4 });
-					}}
-					eventMode="static"
-					cursor="pointer"
-					onpointerover={() => { infoHovered = true; }}
-					onpointerout={() => { infoHovered = false; infoPressed = false; }}
-					onpointerdown={() => { infoPressed = true; }}
-					onpointerup={() => { infoPressed = false; handleInfo(); }}
-				/>
-				<Text
-					anchor={0.5}
-					resolution={TEXT_RESOLUTION}
-					text="i"
-					style={{ fontFamily: 'Georgia, serif', fontSize: Math.round(infoButtonSize * 0.55), fill: 0x88ccff, fontWeight: 'bold', fontStyle: 'italic' }}
-				/>
-			</Container>
-
 			<!-- BUY BONUS BUTTON (outside bar, to the left) -->
 			<Container x={buyButtonX} y={0} zIndex={3}>
 				<Circle
@@ -541,8 +737,9 @@
 				/>
 			</Container>
 		{/if}
+		{/if}
 
 	</Container>
 </BoardContainer>
 
-
+<HamburgerMenu show={hamburgerOpen} onclose={() => { hamburgerOpen = false; }} />

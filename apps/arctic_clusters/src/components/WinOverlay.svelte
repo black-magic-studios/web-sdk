@@ -22,6 +22,10 @@
 	let countUpCompleted = $state(false);
 	let oncomplete = $state(() => {});
 	let animFrame = $state<number | null>(null);
+	let autoDismissTimer = $state<ReturnType<typeof setTimeout> | null>(null);
+
+	/** Brief pause (ms) to show final amount before auto-dismissing */
+	const AUTO_DISMISS_DELAY = 1500;
 
 	// Only show for big wins (level 6+)
 	const isBigWin = $derived(winLevelData?.type === 'big');
@@ -35,6 +39,7 @@
 		winHide: () => {
 			show = false;
 			stopCountUp();
+			clearAutoDismiss();
 			displayAmount = 0;
 			countUpCompleted = false;
 			winLevelData = undefined;
@@ -74,6 +79,7 @@
 			} else {
 				displayAmount = target;
 				countUpCompleted = true;
+				scheduleAutoDismiss();
 			}
 		}
 
@@ -87,14 +93,30 @@
 		}
 	}
 
+	function scheduleAutoDismiss() {
+		clearAutoDismiss();
+		autoDismissTimer = setTimeout(() => {
+			oncomplete();
+		}, AUTO_DISMISS_DELAY);
+	}
+
+	function clearAutoDismiss() {
+		if (autoDismissTimer !== null) {
+			clearTimeout(autoDismissTimer);
+			autoDismissTimer = null;
+		}
+	}
+
 	function skipOrDismiss() {
 		if (!countUpCompleted) {
-			// Skip to end of count-up
+			// Skip to end of count-up, then auto-dismiss after brief pause
 			stopCountUp();
 			displayAmount = amount;
 			countUpCompleted = true;
+			scheduleAutoDismiss();
 		} else {
-			// Dismiss
+			// Already showing final result — dismiss immediately
+			clearAutoDismiss();
 			oncomplete();
 		}
 	}

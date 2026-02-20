@@ -129,48 +129,6 @@ export default {
 		// Cell background for 7x7 grid - rendered behind multipliers and symbols
 		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
 	},
-	// Aurora-borealis gradient multiplier cells (pre-rendered for performance)
-	// Each tier's gradient starts with the previous tier's end color for continuity
-	multiplierCell2x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_2x.png',
-	},
-	multiplierCell4x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_4x.png',
-	},
-	multiplierCell8x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_8x.png',
-	},
-	multiplierCell16x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_16x.png',
-	},
-	multiplierCell32x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_32x.png',
-	},
-	multiplierCell64x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_64x.png',
-	},
-	multiplierCell128x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_128x.png',
-	},
-	multiplierCell256x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_256x.png',
-	},
-	multiplierCell512x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_512x.png',
-	},
-	multiplierCell1024x: {
-		type: 'sprite',
-		src: '/assets/sprites/reelsFrame/cell/multipliers/multi_cell_1024x.png',
-	},
 	// Multiplier grid symbol sprites (new design)
 	multiGrid2x: {
 		type: 'sprite',
@@ -228,18 +186,7 @@ export default {
 		type: 'font',
 		src: new URL('../../assets/fonts/goldFont/mm_gold.xml', import.meta.url).href,
 	},
-	goldBlur: {
-		type: 'font',
-		src: new URL('../../assets/fonts/goldBlur/miningfont_gold_blur.xml', import.meta.url).href,
-	},
-	silverFont: {
-		type: 'font',
-		src: new URL('../../assets/fonts/silverFont/mm_silver.xml', import.meta.url).href,
-	},
-	purpleFont: {
-		type: 'font',
-		src: new URL('../../assets/fonts/purpleFont/mm_purple.xml', import.meta.url).href,
-	},
+
 	multiplierFont: {
 		type: 'font',
 		src: new URL('../../assets/fonts/multiplierFont/multiplier.xml', import.meta.url).href,
@@ -248,14 +195,7 @@ export default {
 		type: 'font',
 		src: new URL('../../assets/fonts/multiplierFont/multiplier_hi.xml', import.meta.url).href,
 	},
-	bigwin: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/bigwin/big_wins.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/bigwin/mm_bigwin.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
+
 	globalMultiplier: {
 		type: 'spine',
 		src: {
@@ -264,48 +204,8 @@ export default {
 			scale: 2,
 		},
 	},
-	fsIntro: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_screen.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	fsIntroNumber: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_screen_number.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	fsOutroNumber: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/fsIntro/fs_screen.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/fsIntro/fs_total_number.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	foregroundAnimation: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/foregroundAnimation/mm_bg.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/foregroundAnimation/mm_bg.json', import.meta.url).href,
-			scale: 2,
-		},
-		preload: true,
-	},
-	foregroundFeatureAnimation: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/foregroundFeatureAnimation/mm_bg_feature.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/foregroundFeatureAnimation/mm_bg_feature.json', import.meta.url).href,
-			scale: 2,
-		},
-		preload: true,
-	},
+
+
 	tumble_multiplier: {
 		type: 'spine',
 		src: {
@@ -386,14 +286,6 @@ export default {
 		type: 'sprites',
 		src: new URL('../../assets/sprites/progressBar/progressBar.json', import.meta.url).href,
 		preload: true,
-	},
-	freeSpins: {
-		type: 'sprites',
-		src: new URL('../../assets/sprites/freeSpins/freeSpins.json', import.meta.url).href,
-	},
-	winSmall: {
-		type: 'sprites',
-		src: new URL('../../assets/sprites/winSmall/MM_Localisation_winsmall.json', import.meta.url).href,
 	},
 	clusterWin: {
 		type: 'spine',

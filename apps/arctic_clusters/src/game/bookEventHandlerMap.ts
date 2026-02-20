@@ -15,15 +15,15 @@ import type { RawSymbol, Position } from './types';
 /**
  * Compute win level from the win amount (in book event units).
  * Thresholds are win-to-bet multiplier cutoffs:
- *   ≥250× → max, ≥100× → epic, ≥50× → mega, ≥25× → superwin, ≥10× → big
+ *   ≥25000× → max, ≥100× → epic, ≥50× → mega, ≥25× → superwin, ≥10× → big
  * Falls back to the winLevelMap key for smaller wins.
  */
 const WIN_LEVEL_THRESHOLDS: { multiplier: number; level: WinLevel }[] = [
-	{ multiplier: 250, level: 10 },  // MAX WIN
-	{ multiplier: 100, level: 9 },   // EPIC WIN!
-	{ multiplier: 50, level: 8 },    // MEGA WIN
-	{ multiplier: 25, level: 7 },    // SUPER WIN
-	{ multiplier: 10, level: 6 },    // BIG WIN
+	{ multiplier: 25000, level: 10 }, // MAX WIN (true max payout only)
+	{ multiplier: 100, level: 9 },    // EPIC WIN!
+	{ multiplier: 50, level: 8 },     // MEGA WIN
+	{ multiplier: 25, level: 7 },     // SUPER WIN
+	{ multiplier: 10, level: 6 },     // BIG WIN
 ];
 
 const getWinLevelFromAmount = (bookEventAmount: number): WinLevelData => {

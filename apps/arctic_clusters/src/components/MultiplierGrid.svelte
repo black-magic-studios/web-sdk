@@ -145,13 +145,14 @@
 	}
 
 	/** Highlight layer opacity by tier — higher tiers get glossier.
-	 *  Low tiers are subtler (0.55), high tiers more reflective (0.90). */
+	 *  Low tiers are subtler, high tiers more reflective. Kept low so
+	 *  the white highlight doesn't wash out the tier colour underneath. */
 	function getHighlightAlpha(mult: number): number {
-		if (mult <= 2) return 0.55;
-		if (mult <= 8) return 0.6;
-		if (mult <= 32) return 0.7;
-		if (mult <= 128) return 0.8;
-		return 0.9;
+		if (mult <= 2) return 0.15;
+		if (mult <= 8) return 0.20;
+		if (mult <= 32) return 0.25;
+		if (mult <= 128) return 0.30;
+		return 0.35;
 	}
 
 	/** Idle drop-shadow alpha per tier. Higher tiers cast slightly more. */

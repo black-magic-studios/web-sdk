@@ -31,6 +31,7 @@ const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
 			type: 'soundOnce',
 			name: SCATTER_LAND_SOUND_MAP[scatterLandIndex()],
 		});
+		eventEmitter.broadcast({ type: 'screenShake' });
 	}
 
 	if (rawSymbol.name === 'W') {

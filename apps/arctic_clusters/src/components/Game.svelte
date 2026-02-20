@@ -30,7 +30,6 @@
 	import MultiplierFlyOut from './MultiplierFlyOut.svelte';
 	import WinOverlay from './WinOverlay.svelte';
 	import FreeSpinIntro from './FreeSpinIntro.svelte';
-	import FreeSpinCounter from './FreeSpinCounter.svelte';
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
 	// import I18nTest from './I18nTest.svelte';
@@ -85,6 +84,8 @@
 		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
 	);
 
+	let shaking = $state(false);
+
 	context.eventEmitter.subscribeOnMount({
 		buyBonusConfirm: () => {
 			showBuyBonus = true;
@@ -92,9 +93,15 @@
 		gameInfoOpen: () => {
 			showGameInfo = true;
 		},
+		screenShake: () => {
+			shaking = false;
+			// Force reflow so re-adding the class restarts the animation
+			requestAnimationFrame(() => { shaking = true; });
+		},
 	});
 </script>
 
+<div class="game-root" class:shake={shaking} onanimationend={() => (shaking = false)}>
 <App>
 	<EnableSound />
 	<EnableHotkey />
@@ -141,16 +148,14 @@
 			width={REM * 2.5}
 		/>
 		<WinOverlay />
-		<FreeSpinIntro />
-		{#if ['desktop', 'landscape'].includes(context.stateLayoutDerived.layoutType())}
-			<FreeSpinCounter />
-		{/if}
-		<FreeSpinOutro />
 		<Transition />
 
 		<!-- <I18nTest /> -->
 	{/if}
 </App>
+
+<FreeSpinIntro />
+<FreeSpinOutro />
 
 <Modals>
 	{#snippet version()}
@@ -165,9 +170,35 @@
 {#if useMobileControls}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />
 {/if}
+</div>
 
 <svelte:head>
 	<style>
 		html, body { overflow: hidden !important; height: 100%; width: 100%; margin: 0; padding: 0; }
 	</style>
 </svelte:head>
+
+<style>
+	.game-root {
+		width: 100%;
+		height: 100%;
+	}
+
+	.shake {
+		animation: screenShake 0.4s ease-out;
+	}
+
+	@keyframes screenShake {
+		0%   { transform: translate(0, 0); }
+		10%  { transform: translate(-6px, 4px); }
+		20%  { transform: translate(5px, -6px); }
+		30%  { transform: translate(-4px, 5px); }
+		40%  { transform: translate(6px, -3px); }
+		50%  { transform: translate(-3px, 4px); }
+		60%  { transform: translate(4px, -2px); }
+		70%  { transform: translate(-2px, 3px); }
+		80%  { transform: translate(2px, -1px); }
+		90%  { transform: translate(-1px, 1px); }
+		100% { transform: translate(0, 0); }
+	}
+</style>

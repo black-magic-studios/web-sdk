@@ -11,6 +11,35 @@
 	const context = getContext();
 	const isSocial = $derived(stateUrlDerived.social());
 
+	// ── Free spin state ──
+	let inFreeSpins = $state(false);
+	let fsCurrent = $state(0);
+	let fsTotal = $state(0);
+
+	// Per-spin win (from tumbleWinAmount events)
+	let spinWin = $state(0);
+	const spinWinTween = new Tween(0);
+	$effect(() => { spinWinTween.set(spinWin); });
+	const spinWinText = $derived(bookEventAmountToCurrencyString(spinWinTween.current));
+	const showSpinWin = $derived(spinWin > 0);
+
+	// Total win during free spins
+	const totalWinTween = new Tween(0);
+	$effect(() => { totalWinTween.set(stateBet.winBookEventAmount); });
+	const totalWinText = $derived(bookEventAmountToCurrencyString(totalWinTween.current));
+
+	context.eventEmitter.subscribeOnMount({
+		freeSpinCounterShow: () => (inFreeSpins = true),
+		freeSpinCounterHide: () => { inFreeSpins = false; spinWin = 0; },
+		freeSpinCounterUpdate: (ev) => {
+			if (ev.current !== undefined) fsCurrent = ev.current;
+			if (ev.total !== undefined) fsTotal = ev.total;
+		},
+		tumbleWinAmountUpdate: (ev) => { spinWin = ev.amount; },
+		tumbleWinAmountReset: () => { spinWin = 0; },
+		tumbleWinAmountHide: () => { spinWin = 0; },
+	});
+
 	// Labels adapt for social mode
 	const betLabel = $derived(isSocial ? 'SPIN' : 'BET');
 
@@ -82,7 +111,37 @@
 </script>
 
 <div class="mobile-controls" class:hidden={props.hidden}>
-	<!-- ── Button row ── -->
+	{#if inFreeSpins}
+		<!-- ═══ FREE SPINS MODE ═══ -->
+		<!-- Info bar with 4 sections + turbo button -->
+		<div class="info-bar fs-bar">
+			<div class="info-section">
+				<span class="label">BALANCE</span>
+				<span class="value">{balanceText}</span>
+			</div>
+
+			<div class="info-section">
+				<span class="label">{betLabel}</span>
+				<span class="value">{spinText}</span>
+			</div>
+
+			<div class="info-section fs-combined-section">
+				<div class="fs-individual-border">
+					<span class="label fs-label">TOTAL WIN</span>
+					<span class="value">{totalWinText}</span>
+				</div>
+				<div class="fs-individual-border">
+					<span class="label">FREE SPINS</span>
+					<span class="value">{Math.max(0, fsTotal - fsCurrent)}</span>
+				</div>
+			</div>
+
+			<button class="ctrl-btn fast-btn fs-turbo-btn" onclick={handleFastPlay}>
+				<img src="/assets/sprites/buttons/arctic_clusters_fast_play.png" alt="Fast" />
+			</button>
+		</div>
+	{:else}
+		<!-- ═══ NORMAL MODE ═══ -->
 	<div class="button-row">
 		<button class="ctrl-btn info-btn" onclick={handleInfo}>
 			<span class="info-icon">i</span>
@@ -140,6 +199,7 @@
 			</div>
 		</div>
 	</div>
+	{/if}
 </div>
 
 <style lang="scss">
@@ -329,5 +389,48 @@
 		line-height: 1.3;
 		white-space: nowrap;
 		padding: 0;
+	}
+
+	/* ── Free spins mode ── */
+	.fs-bar {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.fs-label {
+		color: #00e6cc !important;
+	}
+
+	.fs-combined-section {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+		padding: 1px 6px;
+	}
+
+	.fs-individual-border {
+		border: 1.5px solid rgba(136, 204, 255, 0.4);
+		border-radius: 4px;
+		padding: 1px 10px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+	}
+
+	.fs-row {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		line-height: 1.1;
+	}
+
+	.fs-turbo-btn {
+		width: clamp(26px, 7vw, 36px);
+		height: clamp(26px, 7vw, 36px);
+		flex-shrink: 0;
+		margin: 0 clamp(4px, 1.5vw, 10px);
+		pointer-events: auto;
 	}
 </style>

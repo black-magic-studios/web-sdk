@@ -16,7 +16,7 @@
 	const canvas = $derived(context.stateLayoutDerived.canvasSizes());
 
 	// ── Configuration ──────────────────────────────────────
-	const PARTICLE_COUNT = 18;
+	const PARTICLE_COUNT = 8;
 	const MIN_RADIUS = 1.2;
 	const MAX_RADIUS = 3.0;
 	const MIN_SPEED_X = 0.3;
@@ -27,7 +27,7 @@
 	const MIN_ALPHA = 0.25;
 	const MAX_ALPHA = 0.65;
 	// Foreground particles are subtler — fewer, smaller, more transparent
-	const FG_PARTICLE_COUNT = 6;
+	const FG_PARTICLE_COUNT = 3;
 	const FG_MIN_RADIUS = 0.8;
 	const FG_MAX_RADIUS = 2.0;
 	const FG_MIN_ALPHA = 0.12;
