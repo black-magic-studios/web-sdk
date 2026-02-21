@@ -272,7 +272,7 @@ export default {
 	},
 	h2WinAnimation: {
 		type: 'spriteSheet',
-		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/fox_win_8x4_32f.json', import.meta.url).href,
+		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/fox_win_14x14_192f.json', import.meta.url).href,
 	},
 	reelhouse: {
 		type: 'spine',

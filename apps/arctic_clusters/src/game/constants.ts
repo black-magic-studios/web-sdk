@@ -350,10 +350,10 @@ const h2Win = {
 	type: 'spriteSheet', 
 	assetKey: 'h2WinAnimation', 
 	animationName: 'h2_win', 
-	sizeRatios: { width: 1.0, height: 1.0 },
-	frameHeight: 256,
-	frameCount: 32,
-	animationSpeed: 0.28,
+	sizeRatios: { width: 1.28, height: 1.28 },
+	frameHeight: 168,
+	frameCount: 192,
+	animationSpeed: 1,
 };
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
