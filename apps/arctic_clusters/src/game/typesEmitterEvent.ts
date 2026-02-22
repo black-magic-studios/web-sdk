@@ -30,4 +30,4 @@ export type EmitterEventGame =
 	| EmitterEventTransition
 	| EmitterEventAuroraCellIndicator
 	| EmitterEventWildPlacement
-	| { type: 'screenShake' };
+	| { type: 'screenShake'; intensity: 'light' | 'medium' | 'heavy' };

@@ -85,6 +85,7 @@
 	);
 
 	let shaking = $state(false);
+	let shakeClass = $state('');
 
 	context.eventEmitter.subscribeOnMount({
 		buyBonusConfirm: () => {
@@ -93,15 +94,15 @@
 		gameInfoOpen: () => {
 			showGameInfo = true;
 		},
-		screenShake: () => {
+		screenShake: ({ intensity }) => {
 			shaking = false;
-			// Force reflow so re-adding the class restarts the animation
+			shakeClass = `shake-${intensity}`;
 			requestAnimationFrame(() => { shaking = true; });
 		},
 	});
 </script>
 
-<div class="game-root" class:shake={shaking} onanimationend={() => (shaking = false)}>
+<div class="game-root" class:shake-light={shaking && shakeClass === 'shake-light'} class:shake-medium={shaking && shakeClass === 'shake-medium'} class:shake-heavy={shaking && shakeClass === 'shake-heavy'} onanimationend={() => (shaking = false)}>
 <App>
 	<EnableSound />
 	<EnableHotkey />
@@ -184,11 +185,38 @@
 		height: 100%;
 	}
 
-	.shake {
-		animation: screenShake 0.4s ease-out;
+	.shake-light {
+		animation: screenShakeLight 0.25s ease-out;
 	}
 
-	@keyframes screenShake {
+	.shake-medium {
+		animation: screenShakeMedium 0.35s ease-out;
+	}
+
+	.shake-heavy {
+		animation: screenShakeHeavy 0.4s ease-out;
+	}
+
+	@keyframes screenShakeLight {
+		0%   { transform: translate(0, 0); }
+		20%  { transform: translate(-2px, 1px); }
+		40%  { transform: translate(2px, -1px); }
+		60%  { transform: translate(-1px, 1px); }
+		80%  { transform: translate(1px, 0); }
+		100% { transform: translate(0, 0); }
+	}
+
+	@keyframes screenShakeMedium {
+		0%   { transform: translate(0, 0); }
+		15%  { transform: translate(-3px, 2px); }
+		30%  { transform: translate(3px, -3px); }
+		45%  { transform: translate(-2px, 3px); }
+		60%  { transform: translate(2px, -1px); }
+		75%  { transform: translate(-1px, 1px); }
+		100% { transform: translate(0, 0); }
+	}
+
+	@keyframes screenShakeHeavy {
 		0%   { transform: translate(0, 0); }
 		10%  { transform: translate(-6px, 4px); }
 		20%  { transform: translate(5px, -6px); }

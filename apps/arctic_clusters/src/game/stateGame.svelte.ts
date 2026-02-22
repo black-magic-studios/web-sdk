@@ -31,7 +31,10 @@ const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
 			type: 'soundOnce',
 			name: SCATTER_LAND_SOUND_MAP[scatterLandIndex()],
 		});
-		eventEmitter.broadcast({ type: 'screenShake' });
+		// Progressive shake: light for 1st scatter, medium for 2nd, heavy for 3+
+		const count = stateGame.scatterCounter;
+		const intensity = count >= 3 ? 'heavy' : count === 2 ? 'medium' : 'light';
+		eventEmitter.broadcast({ type: 'screenShake', intensity });
 	}
 
 	if (rawSymbol.name === 'W') {

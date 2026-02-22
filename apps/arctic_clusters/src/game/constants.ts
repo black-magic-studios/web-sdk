@@ -356,6 +356,15 @@ const h2Win = {
 	animationSpeed: 1,
 };
 const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
+const h3Win = { 
+	type: 'spriteSheet', 
+	assetKey: 'h3WinAnimation', 
+	animationName: 'h3_win', 
+	sizeRatios: { width: 1.6, height: 1.6 },
+	frameHeight: 168,
+	frameCount: 192,
+	animationSpeed: 1,
+};
 const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
 const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
 
@@ -404,7 +413,7 @@ export const SYMBOL_INFO_MAP = {
 	},
 	H3: {
 		explosion,
-		win: h3Static,
+		win: h3Win,
 		postWinStatic: h3Static,
 		static: h3Static,
 		spin: h3Static,

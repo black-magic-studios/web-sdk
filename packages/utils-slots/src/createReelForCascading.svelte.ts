@@ -162,7 +162,10 @@ export function createReelForCascading<TRawSymbol extends object, TSymbolState e
 				delay,
 			});
 			reelSymbol.symbolState = 'land' as TSymbolState;
-			reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol });
+			// Only fire onSymbolLand for visible board positions (skip top/bottom padding)
+			if (reelSymbol.symbolIndexOfBoard >= 0 && reelSymbol.symbolIndexOfBoard < reelLengthInBoard) {
+				reelOptions.onSymbolLand({ rawSymbol: reelSymbol.rawSymbol });
+			}
 			if (reelSymbol.symbolIndexOfBoard === reelLengthInBoard - 1) {
 				onSpinFinishing();
 			}
