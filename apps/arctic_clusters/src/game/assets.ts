@@ -278,6 +278,10 @@ export default {
 		type: 'spriteSheet',
 		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/narwhal_win_14x14_192f.json', import.meta.url).href,
 	},
+	h4WinAnimation: {
+		type: 'spriteSheet',
+		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/snowflake_spin_8x8_60f.json', import.meta.url).href,
+	},
 	reelhouse: {
 		type: 'spine',
 		src: {
