@@ -1,7 +1,7 @@
 export default {
 	background: {
 		type: 'sprite',
-		src: '/assets/sprites/background/arctic_clusters_background.png',
+		src: '/assets/sprites/background/arctic_background_3840x2160.webp',
 		preload: true,
 	},
 	studioLogo: {

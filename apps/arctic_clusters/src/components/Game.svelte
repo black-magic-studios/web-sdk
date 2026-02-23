@@ -26,7 +26,6 @@
 	import ClusterWinAmounts from './ClusterWinAmounts.svelte';
 	import TumbleBoard from './TumbleBoard.svelte';
 	import TumbleWinAmount from './TumbleWinAmount.svelte';
-	import GlobalMultiplier from './GlobalMultiplier.svelte';
 	import MultiplierFlyOut from './MultiplierFlyOut.svelte';
 	import WinOverlay from './WinOverlay.svelte';
 	import FreeSpinIntro from './FreeSpinIntro.svelte';
@@ -36,7 +35,7 @@
 	import PlayBar from './PlayBar.svelte';
 	import MobileControls from './MobileControls.svelte';
 	import GameInfoModal from './GameInfoModal.svelte';
-	import WildCounter from './WildCounter.svelte';
+	import ConstellationWildMeter from './ConstellationWildMeter.svelte';
 
 	const context = getContext();
 
@@ -128,11 +127,11 @@
 		<BoardFrame />
 		<Board />
 		<Anticipations />
-		<GlobalMultiplier />
 		<TumbleBoard />
 		<MultiplierFlyOut />
 		<ClusterWinAmounts />
 		<AuroraParticles layer="foreground" />
+		<ConstellationWildMeter />
 		{#if !useMobileControls}
 			<PlayBar />
 		{/if}
@@ -166,7 +165,6 @@
 
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
-<WildCounter />
 
 {#if useMobileControls}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />

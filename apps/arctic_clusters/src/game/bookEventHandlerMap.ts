@@ -241,7 +241,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		console.log(`[bookEventHandlerMap] 🏆 WIN_INFO at ${Date.now()}`, { totalWin: bookEvent.totalWin });
 
 		// Count aurora wilds that are part of winning clusters
-		if (stateGame.auroraWildPositions.length > 0) {
+		// During wild release, do NOT accumulate — the session total is frozen and only decrements
+		console.log(`[winInfo] aurora check: wildPositions=${stateGame.auroraWildPositions.length}, isWildRelease=${stateGame.isWildRelease}, sessionTotal=${stateGame.auroraWildsSessionTotal}`);
+		if (stateGame.auroraWildPositions.length > 0 && !stateGame.isWildRelease) {
 			const allWinPositions = _.flatten(bookEvent.wins.map((win) => win.positions));
 			const winPosKeys = new Set(allWinPositions.map((p) => `${p.reel}_${p.row}`));
 			let newConnected = 0;
@@ -551,11 +553,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Track aurora wild position for connected-wild counting
 		stateGame.auroraWildPositions = [...stateGame.auroraWildPositions, { reel, row }];
 
-		// During wild release, decrement the remaining counter
-		if (stateGame.isWildRelease && stateGame.wildReleaseRemaining > 0) {
-			stateGame.wildReleaseRemaining--;
-		}
-
 		// 1. Play border-trace + flash animation on the target cell (async — waits for full anim)
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_landing' });
 		await eventEmitter.broadcastAsync({ type: 'wildPlacementAnimate', position: { reel, row } });
@@ -564,10 +561,27 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		reelSymbol.rawSymbol = { name: 'W' as any, wild: true };
 		reelSymbol.symbolState = 'land';
 
-		// 3. Brief pause to let player see the wild in place
-		await new Promise((r) => setTimeout(r, 350));
+		// 3. Detect wild release from meterBefore > 0 (no separate wildRelease event in some data formats)
+		//    When meterBefore > 0 this is a wild release placement → set flag and decrement
+		if (bookEvent.meterBefore != null && bookEvent.meterBefore > 0) {
+			if (!stateGame.isWildRelease) {
+				stateGame.isWildRelease = true;
+				stateGame.wildReleaseRemaining = bookEvent.meterBefore;
+				console.log(`[auroraWildPlace] 🌟 Detected wild release start: meterBefore=${bookEvent.meterBefore}`);
+			}
+			if (stateGame.auroraWildsSessionTotal > 0) {
+				stateGame.auroraWildsSessionTotal--;
+			}
+			if (stateGame.wildReleaseRemaining > 0) {
+				stateGame.wildReleaseRemaining--;
+			}
+			console.log(`[auroraWildPlace] 📉 wildRelease decrement: remaining=${stateGame.wildReleaseRemaining}, sessionTotal=${stateGame.auroraWildsSessionTotal}`);
+		}
 
-		// 4. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
+		// 4. Brief pause to let player see the wild in place + constellation decrement
+		await new Promise((r) => setTimeout(r, 450));
+
+		// 5. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';
 		console.log(`[auroraWildPlace] ✅ wild placed at [${reel}][${row}], state now: ${reelSymbol.symbolState}`);
 	},
