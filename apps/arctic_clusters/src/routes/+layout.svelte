@@ -5,7 +5,8 @@
 	import Game from '../components/Game.svelte';
 	import { setContext } from '../game/context';
 
-	import messagesMap from '../i18n/messagesMap';
+	import messagesMap, { sweepsMessagesMap } from '../i18n/messagesMap';
+	import { stateUrlDerived, type Language } from 'state-shared';
 
 	type Props = { children: Snippet };
 
@@ -16,12 +17,23 @@
 	const loaderUrlStakeEngine = new URL('../../stake-engine-loader.gif', import.meta.url).href;
 	const loaderUrl = new URL('../../loader.gif', import.meta.url).href;
 
+	// When social=true, overlay sweeps_<lang> messages on top of the base messages
+	const effectiveMessagesMap = $derived.by(() => {
+		if (!stateUrlDerived.social()) return messagesMap;
+		const merged = { ...messagesMap };
+		for (const [lang, sweepsMsgs] of Object.entries(sweepsMessagesMap)) {
+			const base = merged[lang as Language] ?? {};
+			merged[lang as Language] = { ...base, ...sweepsMsgs };
+		}
+		return merged;
+	});
+
 	setContext();
 </script>
 
 <GlobalStyle>
 	<Authenticate>
-		<LoadI18n {messagesMap}>
+		<LoadI18n messagesMap={effectiveMessagesMap}>
 			<Game />
 		</LoadI18n>
 	</Authenticate>

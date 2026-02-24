@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'M128X (128x cells, 181.8x price)/book',
+		title: 'MODE_M128X/book',
 	});
 </script>
 
@@ -18,9 +18,11 @@
 	import Game from '../components/Game.svelte';
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
-	import books from './data/mode_m128x_books';
+	import books from './data/curated_m128x';
 
 	setContext();
+
+	const findBook = (label: string) => books.find((b: any) => b._label === label)!;
 </script>
 
 {#snippet template(args: TemplateArgs<any>)}
@@ -44,7 +46,7 @@
 		action: async () => {
 			const index = randomInteger({ min: 0, max: books.length - 1 });
 			const data = books[index];
-			console.log('M128X random book at index', index);
+			console.log('Running book at index', index, 'label:', (data as any)._label);
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -52,13 +54,12 @@
 />
 
 <Story
-	name="zero win 1 (0x, no win, 1 tumble)"
+	name="no_win"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[0];
-			console.log('M128X - zero_win_1, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('no_win');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -66,13 +67,12 @@
 />
 
 <Story
-	name="zero win 2 (0x, no win, 1 tumble)"
+	name="large_win"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[1];
-			console.log('M128X - zero_win_2, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('large_win');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -80,13 +80,12 @@
 />
 
 <Story
-	name="small base win 1 (0.70x, base game, 1 tumble)"
+	name="freespin_trigger"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[2];
-			console.log('M128X - small_base_win_1, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('freespin_trigger');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -94,13 +93,12 @@
 />
 
 <Story
-	name="small base win 2 (0.70x, base game, 1 tumble)"
+	name="super_bonus"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[3];
-			console.log('M128X - small_base_win_2, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('super_bonus');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -108,13 +106,12 @@
 />
 
 <Story
-	name="medium win 1 (1.76x, base game, 1 tumble)"
+	name="aurora_active"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[4];
-			console.log('M128X - medium_win_1, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('aurora_active');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -122,13 +119,12 @@
 />
 
 <Story
-	name="medium win 2 (1.97x, base game, 1 tumble)"
+	name="wild_release"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[5];
-			console.log('M128X - medium_win_2, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('wild_release');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -136,13 +132,12 @@
 />
 
 <Story
-	name="large win 1 (8.24x, base game, 1 tumble)"
+	name="long_tumble_chain"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[6];
-			console.log('M128X - large_win_1, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('long_tumble_chain');
 			await playBet({ ...data, state: data.events });
 		},
 	})}
@@ -150,41 +145,12 @@
 />
 
 <Story
-	name="large win 2 (13.24x, base game, 1 tumble)"
+	name="mega_win"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			const data = books[7];
-			console.log('M128X - large_win_2, id:', data.id, 'payout:', data.payoutMultiplier);
-			await playBet({ ...data, state: data.events });
-		},
-	})}
-	{template}
-/>
-
-<Story
-	name="freespin win (8.52x, free spins, 9 tumbles)"
-	args={templateArgs({
-		skipLoadingScreen: true,
-		data: {},
-		action: async () => {
-			const data = books[8];
-			console.log('M128X - freespin_win, id:', data.id, 'payout:', data.payoutMultiplier);
-			await playBet({ ...data, state: data.events });
-		},
-	})}
-	{template}
-/>
-
-<Story
-	name="highest win (137.51x, free spins, 10 tumbles)"
-	args={templateArgs({
-		skipLoadingScreen: true,
-		data: {},
-		action: async () => {
-			const data = books[9];
-			console.log('M128X - highest_win, id:', data.id, 'payout:', data.payoutMultiplier);
+			const data = findBook('mega_win');
 			await playBet({ ...data, state: data.events });
 		},
 	})}

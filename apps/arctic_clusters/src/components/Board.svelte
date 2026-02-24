@@ -51,6 +51,11 @@
 				symbolPositions.map(async (position) => {
 					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];
 					const prevState = reelSymbol.symbolState;
+					if (reelSymbol.rawSymbol.name === 'H4') {
+						console.log(`%c[H4 DEBUG] ❄️ Setting H4 to WIN state at [reel=${position.reel}][row=${position.row}] prevState=${prevState}`, 'color: cyan; font-weight: bold');
+						console.log(`[H4 DEBUG] ❄️ H4 rawSymbol:`, JSON.parse(JSON.stringify(reelSymbol.rawSymbol)));
+						console.trace('[H4 DEBUG] ❄️ Stack trace for H4 win trigger');
+					}
 					reelSymbol.symbolState = 'win';
 					const t0 = performance.now();
 					// Wait for oncomplete with safety timeout to prevent freeze on static sprites
@@ -64,6 +69,9 @@
 					// Ensure minimum win duration so the scale animation can play
 					const remaining = WIN_SCALE_DURATION_MS - (performance.now() - t0);
 					if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+					if (reelSymbol.rawSymbol.name === 'H4') {
+						console.log(`%c[H4 DEBUG] ❄️ H4 win animation DONE at [reel=${position.reel}][row=${position.row}] elapsed=${(performance.now() - t0).toFixed(0)}ms`, 'color: cyan');
+					}
 					reelSymbol.symbolState = 'postWinStatic';
 				});
 

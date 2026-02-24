@@ -341,10 +341,10 @@ const h1Win = {
 	type: 'spriteSheet', 
 	assetKey: 'h1WinAnimation', 
 	animationName: 'h1_win', 
-	sizeRatios: { width: 1.0, height: 1.0 },
-	frameHeight: 256,
-	frameCount: 32,
-	animationSpeed: 0.7,
+	sizeRatios: { width: 1.28, height: 1.28 },
+	frameHeight: 168,
+	frameCount: 192,
+	animationSpeed: 1,
 };
 const h2Win = { 
 	type: 'spriteSheet', 

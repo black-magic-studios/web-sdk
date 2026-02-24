@@ -10,6 +10,7 @@ let oldbalanceAmount = 0;
 const init = fromPromise(async () => {
 	stateBet.winBookEventAmount = 0;
 	stateBet.autoSpinsLoss = 0;
+	stateBet.lastSpinHadBonus = false;
 	oldbalanceAmount = stateBet.balanceAmount;
 });
 
@@ -57,6 +58,16 @@ const updateAutoSpinsCounter = fromPromise(async () => {
 	stateBet.autoSpinsCounter = newValue > 0 ? newValue : 0;
 });
 
+const checkStopOnBonus = fromPromise(async () => {
+	if (!stateBet.stopOnBonus) return 'continue';
+	if (!stateBet.lastSpinHadBonus) return 'continue';
+
+	// Bonus was triggered and player wants to stop — end auto spins
+	stateBet.autoSpinsCounter = 0;
+	stateBet.lastSpinHadBonus = false;
+	throw Error('End auto bet with stopOnBonus');
+});
+
 export const createIntermediateMachineAutoBet = ({ bet }: { bet: IntermediateMachineBet }) => {
 	const machine =
 		/** @xstate-layout N4IgpgJg5mDOIC5QCMwBcB0BLCAbMAxAEICiAKoqAA4D2sWaWNAdpSAB6ICMATAGwYADMMFcA7Dy4BWQQBZZgsQBoQAT24BmMRlkBOfQA4+fXWNl8pu2QF9rK1JgBm6AMYALLMygEILMNmYANxoAa38AWwBXNABDRhYidDZaenjWJA5EKQ0BWS0pHlMNGTE+FXUELlEMGRENXV4pKtFbe3QMZzR3T28wACc+mj6MKlw4xyHwjCjYtMS0ZLoGJnTQTgRs3PzCsWLFMrVEHjFBHX1TWXEzDQ0DGzsQBxGx1R8-AOCw55iK6iW0tjrKxcDAGRo8MEnRQ8crcHinc76QpSMxg3R8WwPZg0CBwNhPHD4RapFaAxCyGGHSoaEGI0oFPT1XStR7tTrdLzE5YsMkIeEGDC6O71LQGYSyMXKKlVXKIvhGc5cUwsp6jH5cgEZdYSXQYDQQrjmBrCKQHCq6U4iYQ0jQiMUaFXtMDMCAa0la7iKbSSAxiX2m4ToykVXgaQXnE5+iwNIyOhYZFLc1aZSoGWGpoRWrNWsSY6xAA */
@@ -70,6 +81,7 @@ export const createIntermediateMachineAutoBet = ({ bet }: { bet: IntermediateMac
 				checkLossLimit,
 				checkIfSingleWinLimit,
 				checkAutoSpinsCounter,
+				checkStopOnBonus,
 				bet,
 				updateAutoSpinsCounter,
 			},
@@ -122,7 +134,15 @@ export const createIntermediateMachineAutoBet = ({ bet }: { bet: IntermediateMac
 					invoke: {
 						id: 'bet',
 						src: 'bet',
+						onDone: 'checkStopOnBonus',
+					},
+				},
+				checkStopOnBonus: {
+					invoke: {
+						id: 'checkStopOnBonus',
+						src: 'checkStopOnBonus',
 						onDone: 'updateAutoSpinsCounter',
+						onError: 'end',
 					},
 				},
 				updateAutoSpinsCounter: {

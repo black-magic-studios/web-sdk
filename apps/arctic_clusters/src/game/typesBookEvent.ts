@@ -45,6 +45,8 @@ type BookEventFreeSpinTrigger = {
 	type: 'freeSpinTrigger';
 	totalFs: number;
 	positions: Position[];
+	/** Scatter positions at each tumble step: [0] = initial reveal, [1] = after 1st tumble, etc. */
+	positionHistory: Position[][];
 };
 
 type BookEventUpdateFreeSpin = {
@@ -100,6 +102,8 @@ type BookEventFreeSpinRetrigger = {
 	type: 'freeSpinRetrigger';
 	totalFs: number;
 	positions: Position[];
+	/** Scatter positions at each tumble step: [0] = initial reveal, [1] = after 1st tumble, etc. */
+	positionHistory: Position[][];
 };
 
 type BookEventSuperBonusTrigger = {
@@ -107,6 +111,8 @@ type BookEventSuperBonusTrigger = {
 	type: 'superBonusTrigger';
 	totalFs: number;
 	positions: Position[];
+	/** Scatter positions at each tumble step: [0] = initial reveal, [1] = after 1st tumble, etc. */
+	positionHistory: Position[][];
 };
 
 // aurora

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateModal, stateConfig, stateI18nDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -9,7 +9,6 @@
 	const props: Props = $props();
 
 	const context = getContext();
-	const isSocial = $derived(stateUrlDerived.social());
 
 	// ── Free spin state ──
 	let inFreeSpins = $state(false);
@@ -40,8 +39,8 @@
 		tumbleWinAmountHide: () => { spinWin = 0; },
 	});
 
-	// Labels adapt for social mode
-	const betLabel = $derived(isSocial ? 'SPIN' : 'BET');
+	// Labels adapt for social mode via sweeps_en language file
+	const betLabel = $derived(stateI18nDerived.translate('BET'));
 
 	// ── Balance / Win / Spin text (with tween) ──
 	const balanceTween = new Tween(stateBet.balanceAmount);
@@ -71,11 +70,17 @@
 	};
 
 	const handleAutoPlay = () => {
-		context.eventEmitter.broadcast({ type: 'autoSpinOpen' });
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		if (stateBetDerived.hasAutoBetCounter()) {
+			stateBet.autoSpinsCounter = 0;
+		} else {
+			stateModal.modal = { name: 'autoSpin' };
+		}
 	};
 
 	const handleFastPlay = () => {
-		context.eventEmitter.broadcast({ type: 'turboToggle' });
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		stateBetDerived.updateIsTurbo(!stateBet.isTurbo, { persistent: true });
 	};
 
 	const handleBuyBonus = () => {
@@ -164,7 +169,7 @@
 		</button>
 
 		<button class="ctrl-btn buy-btn" onclick={handleBuyBonus}>
-			<img src="/assets/sprites/buttons/black_magic_studios_buy_button.png" alt="Buy" />
+			<img src="/assets/sprites/buttons/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
 		</button>
 	</div>
 

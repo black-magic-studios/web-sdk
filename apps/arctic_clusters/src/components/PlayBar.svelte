@@ -5,12 +5,13 @@
 	import { Assets, Texture } from 'pixi.js';
 	import type * as PIXI from 'pixi.js';
 	import { OnHotkey } from 'components-shared';
-	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived, stateI18nDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
 	import HamburgerMenu from './HamburgerMenu.svelte';
+	import AutoplayMenu from './AutoplayMenu.svelte';
 
 	const context = getContext();
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
@@ -35,7 +36,7 @@
 	const totalWinText = $derived(bookEventAmountToCurrencyString(totalWinTween.current));
 
 	context.eventEmitter.subscribeOnMount({
-		freeSpinCounterShow: () => (inFreeSpins = true),
+		freeSpinCounterShow: () => { inFreeSpins = true; stateBet.lastSpinHadBonus = true; },
 		freeSpinCounterHide: () => { inFreeSpins = false; spinWin = 0; },
 		freeSpinCounterUpdate: (ev) => {
 			if (ev.current !== undefined) fsCurrent = ev.current;
@@ -59,29 +60,93 @@
 	const winText = $derived(bookEventAmountToCurrencyString(winTween.current));
 	const spinText = $derived(numberToCurrencyString(stateBetDerived.betCost()));
 
-	// Social mode text overrides
-	const isSocial = $derived(stateUrlDerived.social());
-	const betLabel = $derived(isSocial ? 'SPIN' : 'BET');
+	// Social mode text overrides — uses sweeps_en language file when social=true
+	const betLabel = $derived(stateI18nDerived.translate('BET'));
 
 	// WIN section only visible when there's an actual win (hides when win resets to 0 at spin start)
 	const showWin = $derived(stateBet.winBookEventAmount > 0);
 
-	// Texture state — default / hover / pressed for each button
+	// ============================================================
+	// SPEED MODE: normal (0) → turbo (1) → super turbo (2) → back to normal
+	// ============================================================
+	type SpeedMode = 0 | 1 | 2;
+	let speedMode = $state<SpeedMode>(0);
+
+	// Sync speedMode → shared isTurbo state
+	$effect(() => {
+		stateBetDerived.updateIsTurbo(speedMode >= 1, { persistent: true });
+	});
+
+	// ============================================================
+	// AUTOPLAY SPINNING ANIMATION
+	// ============================================================
+	const isAutoplaying = $derived(stateBetDerived.hasAutoBetCounter());
+	let autoplayFrame = $state(0);
+	const AUTOPLAY_SPIN_FRAMES = 8;
+	const AUTOPLAY_SPIN_INTERVAL = 80; // ms per frame
+
+	let autoplayAnimInterval: ReturnType<typeof setInterval> | null = null;
+
+	$effect(() => {
+		if (isAutoplaying) {
+			autoplayFrame = 0;
+			autoplayAnimInterval = setInterval(() => {
+				autoplayFrame = (autoplayFrame + 1) % AUTOPLAY_SPIN_FRAMES;
+			}, AUTOPLAY_SPIN_INTERVAL);
+		} else {
+			if (autoplayAnimInterval) {
+				clearInterval(autoplayAnimInterval);
+				autoplayAnimInterval = null;
+			}
+			autoplayFrame = 0;
+		}
+		return () => {
+			if (autoplayAnimInterval) clearInterval(autoplayAnimInterval);
+		};
+	});
+
+	// ============================================================
+	// TEXTURE STATE — new button assets
+	// ============================================================
+	// Play button
 	let playTexture = $state<Texture>(Texture.EMPTY);
 	let playHoverTexture = $state<Texture>(Texture.EMPTY);
 	let playPressedTexture = $state<Texture>(Texture.EMPTY);
 
+	// Autoplay: base, hover, pressed + spinning frames
 	let autoTexture = $state<Texture>(Texture.EMPTY);
 	let autoHoverTexture = $state<Texture>(Texture.EMPTY);
 	let autoPressedTexture = $state<Texture>(Texture.EMPTY);
+	let autoSpinningTextures = $state<Texture[]>([]);
 
-	let fastPlayTexture = $state<Texture>(Texture.EMPTY);
-	let fastPlayHoverTexture = $state<Texture>(Texture.EMPTY);
-	let fastPlayPressedTexture = $state<Texture>(Texture.EMPTY);
+	// Turbo: 3 speed modes × 3 states (base, hover, pressed)
+	let turboBaseTexture = $state<Texture>(Texture.EMPTY);
+	let turboBaseHoverTexture = $state<Texture>(Texture.EMPTY);
+	let turboBasePressedTexture = $state<Texture>(Texture.EMPTY);
+	let turboTurboTexture = $state<Texture>(Texture.EMPTY);
+	let turboTurboHoverTexture = $state<Texture>(Texture.EMPTY);
+	let turboTurboPressedTexture = $state<Texture>(Texture.EMPTY);
+	let turboSuperTexture = $state<Texture>(Texture.EMPTY);
+	let turboSuperHoverTexture = $state<Texture>(Texture.EMPTY);
+	let turboSuperPressedTexture = $state<Texture>(Texture.EMPTY);
 
+	// Increase / Decrease arrows
+	let increaseTexture = $state<Texture>(Texture.EMPTY);
+	let increaseHoverTexture = $state<Texture>(Texture.EMPTY);
+	let increasePressedTexture = $state<Texture>(Texture.EMPTY);
+	let decreaseTexture = $state<Texture>(Texture.EMPTY);
+	let decreaseHoverTexture = $state<Texture>(Texture.EMPTY);
+	let decreasePressedTexture = $state<Texture>(Texture.EMPTY);
+
+	// Buy button
 	let buyTexture = $state<Texture>(Texture.EMPTY);
 	let buyHoverTexture = $state<Texture>(Texture.EMPTY);
 	let buyPressedTexture = $state<Texture>(Texture.EMPTY);
+
+	// Menu button (replaces old Graphics-drawn hamburger)
+	let menuTexture = $state<Texture>(Texture.EMPTY);
+	let menuHoverTexture = $state<Texture>(Texture.EMPTY);
+	let menuPressedTexture = $state<Texture>(Texture.EMPTY);
 
 	let assetsLoaded = $state(false);
 
@@ -94,26 +159,56 @@
 	let fastPressed = $state(false);
 	let buyHovered = $state(false);
 	let buyPressed = $state(false);
-	let arrowUpHovered = $state(false);
-	let arrowDownHovered = $state(false);
-
+	let incHovered = $state(false);
+	let incPressed = $state(false);
+	let decHovered = $state(false);
+	let decPressed = $state(false);
+	let menuHovered = $state(false);
+	let menuPressed = $state(false);
 
 	// Hamburger menu
 	let hamburgerOpen = $state(false);
-	let hamburgerHovered = $state(false);
+
+	// Autoplay menu
+	let autoplayMenuOpen = $state(false);
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
 		spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
 	);
+
+	// Autoplay: if autoplaying, show spinning frame; otherwise hover/pressed logic
 	const activeAutoTexture = $derived(
-		autoPressed ? autoPressedTexture : autoHovered ? autoHoverTexture : autoTexture
+		isAutoplaying
+			? (autoSpinningTextures[autoplayFrame] ?? autoTexture)
+			: autoPressed ? autoPressedTexture : autoHovered ? autoHoverTexture : autoTexture
 	);
-	const activeFastTexture = $derived(
-		fastPressed ? fastPlayPressedTexture : fastHovered ? fastPlayHoverTexture : fastPlayTexture
+
+	// Turbo: pick textures by speed mode, then apply hover/pressed
+	const activeTurboTexture = $derived.by(() => {
+		if (speedMode === 2) {
+			return fastPressed ? turboSuperPressedTexture : fastHovered ? turboSuperHoverTexture : turboSuperTexture;
+		} else if (speedMode === 1) {
+			return fastPressed ? turboTurboPressedTexture : fastHovered ? turboTurboHoverTexture : turboTurboTexture;
+		} else {
+			return fastPressed ? turboBasePressedTexture : fastHovered ? turboBaseHoverTexture : turboBaseTexture;
+		}
+	});
+
+	// Increase/Decrease arrow textures
+	const activeIncreaseTexture = $derived(
+		incPressed ? increasePressedTexture : incHovered ? increaseHoverTexture : increaseTexture
 	);
+	const activeDecreaseTexture = $derived(
+		decPressed ? decreasePressedTexture : decHovered ? decreaseHoverTexture : decreaseTexture
+	);
+
 	const activeBuyTexture = $derived(
 		buyPressed ? buyPressedTexture : buyHovered ? buyHoverTexture : buyTexture
+	);
+
+	const activeMenuTexture = $derived(
+		menuPressed ? menuPressedTexture : menuHovered ? menuHoverTexture : menuTexture
 	);
 
 	// ============================================================
@@ -125,6 +220,7 @@
 	// Button sizing
 	const SPIN_BUTTON_SCALE = 1.3; // Spin button size relative to bar height
 	const SMALL_BUTTON_SCALE = 0.55; // Small buttons relative to bar height
+	const ARROW_BUTTON_SCALE = 0.38; // Increase/decrease arrow buttons relative to bar height
 	const BUY_BUTTON_SCALE = 1.17; // Buy button = 90% of spin button (SPIN_BUTTON_SCALE * 0.9)
 	const BUTTON_GAP = 0.015; // Gap between buttons as ratio of bar width
 
@@ -133,8 +229,6 @@
 	const VALUE_COLOR = 0xffffff; // White for values
 	const WIN_COLOR = 0x00ffcc; // Cyan-green for win value
 	const SPIN_LABEL_COLOR = 0x88ccff;
-	const ARROW_COLOR = 0x88ccff;
-	const ARROW_HOVER_COLOR = 0xccffff;
 
 	// ============================================================
 	// DERIVED LAYOUT
@@ -152,6 +246,7 @@
 	// Button sizes
 	const spinButtonSize = $derived(barHeight * SPIN_BUTTON_SCALE);
 	const smallButtonSize = $derived(barHeight * SMALL_BUTTON_SCALE);
+	const arrowButtonSize = $derived(barHeight * ARROW_BUTTON_SCALE);
 	const buyButtonSize = $derived(barHeight * BUY_BUTTON_SCALE);
 	const buttonGap = $derived(barWidth * BUTTON_GAP);
 
@@ -165,9 +260,6 @@
 
 	// Text resolution — render at 2x to prevent glyph artifacts (e.g. dot at top)
 	const TEXT_RESOLUTION = 2;
-
-	// Arrow font size — scales with label text
-	const arrowFontSize = $derived(Math.round(Math.max(10, labelFontSize * 1.1)));
 
 	// ── Layout: everything INSIDE the bar ─────────────────────
 	// NORMAL:     | BALANCE | WIN | SPIN [▲▼] | [SPIN_BTN] [AUTO] [FAST] |
@@ -184,21 +276,28 @@
 	const autoplayX = $derived(fastPlayX - smallButtonSize - buttonGap);
 	const spinButtonX = $derived(autoplayX - smallButtonSize / 2 - buttonGap - spinButtonSize / 2);
 
+	// Increase/Decrease arrow button positions (between SPIN section and spin button)
+	const arrowGap = $derived(arrowButtonSize * 0.1);
+	const increaseX = $derived(spinButtonX - spinButtonSize / 2 - buttonGap - arrowButtonSize / 2);
+	const decreaseX = $derived(increaseX);
+	const increaseY = $derived(-arrowButtonSize / 2 - arrowGap / 2);
+	const decreaseY = $derived(arrowButtonSize / 2 + arrowGap / 2);
+
 	// Free spins mode: only turbo button at far right
 	const fsTurboX = $derived(barWidth / 2 - rightPad - smallButtonSize / 2);
 
 	// Buy button — OUTSIDE the bar, to the left
 	const buyButtonX = $derived(-barWidth / 2 - buttonGap - buyButtonSize / 2);
 
-	// Hamburger button — INSIDE bar at far left
-	const HAMBURGER_SCALE = 0.6;
-	const hamburgerSize = $derived(barHeight * HAMBURGER_SCALE);
+	// Menu button — INSIDE bar at far left
+	const LEFT_BUTTON_SCALE = 0.55;
+	const leftBtnSize = $derived(barHeight * LEFT_BUTTON_SCALE);
 	const leftPad = $derived(barWidth * 0.025);
-	const hamburgerX = $derived(-barWidth / 2 + leftPad + hamburgerSize / 2);
+	const menuBtnX = $derived(-barWidth / 2 + leftPad + leftBtnSize / 2);
 
 	// ── Normal mode: 3 info sections ──
-	const infoLeftEdge = $derived(hamburgerX + hamburgerSize / 2 + buttonGap);
-	const infoRightEdge = $derived(spinButtonX - spinButtonSize / 2 - buttonGap);
+	const infoLeftEdge = $derived(menuBtnX + leftBtnSize / 2 + buttonGap);
+	const infoRightEdge = $derived(increaseX - arrowButtonSize / 2 - buttonGap);
 	const infoZoneWidth = $derived(infoRightEdge - infoLeftEdge);
 
 	// Three equal sections within the info zone
@@ -247,10 +346,6 @@
 		g.roundRect(-bw / 2, fsBotBoxTop, bw, fsBotBoxH, br);
 		g.stroke({ color: 0x88ccff, width: 1.5, alpha: 0.4 });
 	});
-
-	// Arrow X position — centered between SPIN text center and right edge of SPIN section
-	// The SPIN text+value sits at x=0 within the section. Arrows sit between text and right edge.
-	const arrowLocalX = $derived(sectionWidth * 0.35);
 
 	// Bet disabled state
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
@@ -310,36 +405,62 @@
 		}
 	});
 
-	// Arrow colors derived from hover state
-	const arrowUpColor = $derived(arrowUpHovered && !increaseDisabled ? ARROW_HOVER_COLOR : ARROW_COLOR);
-	const arrowDownColor = $derived(arrowDownHovered && !decreaseDisabled ? ARROW_HOVER_COLOR : ARROW_COLOR);
-	const arrowUpAlpha = $derived(increaseDisabled ? 0.3 : 1);
-	const arrowDownAlpha = $derived(decreaseDisabled ? 0.3 : 1);
-	const arrowHitSize = $derived(arrowFontSize * 2);
-
 	// ============================================================
 	// ASSET LOADING
 	// ============================================================
 	onMount(async () => {
+		const B = '/assets/sprites/buttons_new';
 		try {
 			const [
 				play, playHover, playPressed,
 				auto, autoHover, autoPressed,
-				fastPlay, fastPlayHover, fastPlayPressed,
+				// Turbo: base (normal speed)
+				tBase, tBaseHover, tBasePressed,
+				// Turbo: turbo speed
+				tTurbo, tTurboHover, tTurboPressed,
+				// Turbo: super turbo speed
+				tSuper, tSuperHover, tSuperPressed,
+				// Increase / Decrease
+				inc, incHover, incPressed,
+				dec, decHover, decPressed,
+				// Buy
 				buy, buyHover, buyPressed,
+				// Menu
+				menu, menuHov, menuPrs,
+				// Autoplay spinning frames
+				...spinningFrames
 			] = await Promise.all([
-				Assets.load('/assets/sprites/buttons/play_button.png'),
-				Assets.load('/assets/sprites/buttons/play_button_hover.png'),
-				Assets.load('/assets/sprites/buttons/play_button_pressed.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay_hover.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_autoplay_pressed.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play_hover.png'),
-				Assets.load('/assets/sprites/buttons/arctic_clusters_fast_play_pressed.png'),
-				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button.png'),
-				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button_hover.png'),
-				Assets.load('/assets/sprites/buttons/black_magic_studios_buy_button_pressed.png'),
+				Assets.load(`${B}/playbutton_base.png`),
+				Assets.load(`${B}/playbutton_hover.png`),
+				Assets.load(`${B}/playbutton_pressed.png`),
+				Assets.load(`${B}/autoplay_base.png`),
+				Assets.load(`${B}/autoplay_hover.png`),
+				Assets.load(`${B}/autoplay_pressed.png`),
+				Assets.load(`${B}/turbo_base.png`),
+				Assets.load(`${B}/turbo_base_hover.png`),
+				Assets.load(`${B}/turbo_base_pressed.png`),
+				Assets.load(`${B}/turbo_turbo.png`),
+				Assets.load(`${B}/turbo_turbo_hover.png`),
+				Assets.load(`${B}/turbo_turbo_pressed.png`),
+				Assets.load(`${B}/turbo_super.png`),
+				Assets.load(`${B}/turbo_super_hover.png`),
+				Assets.load(`${B}/turbo_super_pressed.png`),
+				Assets.load(`${B}/increase_base.png`),
+				Assets.load(`${B}/increase_hover.png`),
+				Assets.load(`${B}/increase_pressed.png`),
+				Assets.load(`${B}/decrease_base.png`),
+				Assets.load(`${B}/decrease_hover.png`),
+				Assets.load(`${B}/decrease_pressed.png`),
+				Assets.load(`${B}/black_magic_studios_buy_button.png`),
+				Assets.load(`${B}/black_magic_studios_buy_button_hover.png`),
+				Assets.load(`${B}/black_magic_studios_buy_button_pressed.png`),
+				Assets.load(`${B}/menu_base.png`),
+				Assets.load(`${B}/menu_hover.png`),
+				Assets.load(`${B}/menu_pressed.png`),
+				// 8 spinning animation frames
+				...Array.from({ length: 8 }, (_, i) =>
+					Assets.load(`${B}/autoplay_spinning_${String(i).padStart(2, '0')}.png`)
+				),
 			]);
 
 			playTexture = play;
@@ -349,14 +470,32 @@
 			autoTexture = auto;
 			autoHoverTexture = autoHover;
 			autoPressedTexture = autoPressed;
+			autoSpinningTextures = spinningFrames;
 
-			fastPlayTexture = fastPlay;
-			fastPlayHoverTexture = fastPlayHover;
-			fastPlayPressedTexture = fastPlayPressed;
+			turboBaseTexture = tBase;
+			turboBaseHoverTexture = tBaseHover;
+			turboBasePressedTexture = tBasePressed;
+			turboTurboTexture = tTurbo;
+			turboTurboHoverTexture = tTurboHover;
+			turboTurboPressedTexture = tTurboPressed;
+			turboSuperTexture = tSuper;
+			turboSuperHoverTexture = tSuperHover;
+			turboSuperPressedTexture = tSuperPressed;
+
+			increaseTexture = inc;
+			increaseHoverTexture = incHover;
+			increasePressedTexture = incPressed;
+			decreaseTexture = dec;
+			decreaseHoverTexture = decHover;
+			decreasePressedTexture = decPressed;
 
 			buyTexture = buy;
 			buyHoverTexture = buyHover;
 			buyPressedTexture = buyPressed;
+
+			menuTexture = menu;
+			menuHoverTexture = menuHov;
+			menuPressedTexture = menuPrs;
 
 			assetsLoaded = true;
 		} catch (error) {
@@ -372,16 +511,27 @@
 	};
 
 	const handleAutoPlay = () => {
-		context.eventEmitter.broadcast({ type: 'autoSpinOpen' });
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		if (stateBetDerived.hasAutoBetCounter()) {
+			// Stop autoplay if running
+			stateBet.autoSpinsCounter = 0;
+		} else {
+			// Open inline autoplay popup
+			autoplayMenuOpen = !autoplayMenuOpen;
+		}
 	};
 
-	const handleFastPlay = () => {
-		context.eventEmitter.broadcast({ type: 'turboToggle' });
+	const handleSpeedToggle = () => {
+		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		// Cycle: 0 (normal) → 1 (turbo) → 2 (super turbo) → 0 (normal)
+		speedMode = ((speedMode + 1) % 3) as SpeedMode;
 	};
 
 	const handleBuyBonus = () => {
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
+
+
 
 
 
@@ -418,32 +568,31 @@
 		<!-- DIVIDER LINES -->
 		<Graphics draw={drawDividers} zIndex={1} />
 
-		<!-- HAMBURGER MENU BUTTON (inside bar, far left) -->
-		<Container x={hamburgerX} y={0} zIndex={3}>
+		<!-- MENU BUTTON (inside bar, far left) -->
+		{#if assetsLoaded}
+		<Container x={menuBtnX} y={0} zIndex={3}>
 			<Graphics
 				draw={(g: PIXI.Graphics) => {
-					const r = hamburgerSize / 2;
-					g.circle(0, 0, r);
-					g.fill({ color: hamburgerOpen ? 0x2a5580 : hamburgerHovered ? 0x2a4a6a : 0x1e3550, alpha: 0.95 });
-					g.circle(0, 0, r);
-					g.stroke({ color: 0x88ccff, width: 1.5, alpha: hamburgerHovered || hamburgerOpen ? 0.8 : 0.4 });
-					/* draw 3 horizontal lines (☰) */
-					const lineW = hamburgerSize * 0.45;
-					const lineH = Math.max(1.5, hamburgerSize * 0.06);
-					const gap = hamburgerSize * 0.16;
-					for (let i = -1; i <= 1; i++) {
-						g.roundRect(-lineW / 2, i * gap - lineH / 2, lineW, lineH, lineH / 2);
-						g.fill({ color: 0xc8e8ff, alpha: 0.95 });
-					}
+					g.rect(-leftBtnSize / 2, -leftBtnSize / 2, leftBtnSize, leftBtnSize);
+					g.fill({ color: 0xffffff, alpha: 0.001 });
 				}}
 				eventMode="static"
 				cursor="pointer"
-				onpointerover={() => { hamburgerHovered = true; }}
-				onpointerout={() => { hamburgerHovered = false; }}
-				onpointerdown={() => {}}
-				onpointerup={() => { hamburgerOpen = !hamburgerOpen; }}
+				onpointerover={() => { menuHovered = true; }}
+				onpointerout={() => { menuHovered = false; menuPressed = false; }}
+				onpointerdown={() => { menuPressed = true; }}
+				onpointerup={() => { menuPressed = false; hamburgerOpen = !hamburgerOpen; }}
+			/>
+			<BaseSprite
+				texture={activeMenuTexture}
+				width={leftBtnSize}
+				height={leftBtnSize * (90 / 100)}
+				anchor={0.5}
 			/>
 		</Container>
+
+
+		{/if}
 
 		{#if inFreeSpins}
 			<!-- ═══════════════ FREE SPINS MODE ═══════════════ -->
@@ -534,10 +683,10 @@
 						onpointerover={() => { fastHovered = true; }}
 						onpointerout={() => { fastHovered = false; fastPressed = false; }}
 						onpointerdown={() => { fastPressed = true; }}
-						onpointerup={() => { fastPressed = false; handleFastPlay(); }}
+						onpointerup={() => { fastPressed = false; handleSpeedToggle(); }}
 					/>
 					<BaseSprite
-						texture={activeFastTexture}
+						texture={activeTurboTexture}
 						width={smallButtonSize}
 						height={smallButtonSize}
 						anchor={0.5}
@@ -586,7 +735,7 @@
 			</Container>
 			{/if}
 
-			<!-- SPIN (BET) SECTION with integrated arrows -->
+			<!-- SPIN (BET) SECTION with increase/decrease sprite buttons -->
 			<Container x={spinSectionX} y={0} zIndex={2}>
 				<Text
 					anchor={{ x: 0.5, y: 1 }}
@@ -612,41 +761,55 @@
 					cursor="pointer"
 					onpointerup={handleBetMenu}
 				/>
-
-			<!-- INCREASE ARROW ▲ (top-right of SPIN section) -->
-			<Text
-				x={arrowLocalX}
-				y={labelY}
-				anchor={{ x: 0.5, y: 1 }}
-				resolution={TEXT_RESOLUTION}
-				text="▲"
-				alpha={arrowUpAlpha}
-				style={{ fontFamily: 'Arial', fontSize: arrowFontSize, fill: arrowUpColor, fontWeight: 'bold' }}
-				eventMode="static"
-				cursor={increaseDisabled ? 'not-allowed' : 'pointer'}
-				onpointerover={() => { arrowUpHovered = true; }}
-				onpointerout={() => { arrowUpHovered = false; }}
-				onpointerup={() => { if (!increaseDisabled) handleBetIncrease(); }}
-			/>
-
-			<!-- DECREASE ARROW ▼ (bottom-right of SPIN section) -->
-			<Text
-				x={arrowLocalX}
-				y={valueY}
-				anchor={{ x: 0.5, y: 0 }}
-				resolution={TEXT_RESOLUTION}
-				text="▼"
-				alpha={arrowDownAlpha}
-				style={{ fontFamily: 'Arial', fontSize: arrowFontSize, fill: arrowDownColor, fontWeight: 'bold' }}
-				eventMode="static"
-				cursor={decreaseDisabled ? 'not-allowed' : 'pointer'}
-				onpointerover={() => { arrowDownHovered = true; }}
-				onpointerout={() => { arrowDownHovered = false; }}
-				onpointerup={() => { if (!decreaseDisabled) handleBetDecrease(); }}
-			/>
 		</Container>
 
 		{#if assetsLoaded}
+			<!-- INCREASE BUTTON (sprite, above decrease) -->
+			<Container x={increaseX} y={increaseY} zIndex={3}>
+				<Graphics
+					draw={(g: PIXI.Graphics) => {
+						g.rect(-arrowButtonSize / 2, -arrowButtonSize / 2, arrowButtonSize, arrowButtonSize);
+						g.fill({ color: 0xffffff, alpha: 0.001 });
+					}}
+					eventMode="static"
+					cursor={increaseDisabled ? 'not-allowed' : 'pointer'}
+					onpointerover={() => { incHovered = true; }}
+					onpointerout={() => { incHovered = false; incPressed = false; }}
+					onpointerdown={() => { incPressed = true; }}
+					onpointerup={() => { incPressed = false; if (!increaseDisabled) handleBetIncrease(); }}
+				/>
+				<BaseSprite
+					texture={activeIncreaseTexture}
+					width={arrowButtonSize}
+					height={arrowButtonSize * (42 / 56)}
+					anchor={0.5}
+					{...(increaseDisabled ? { alpha: 0.3 } : {})}
+				/>
+			</Container>
+
+			<!-- DECREASE BUTTON (sprite, below increase) -->
+			<Container x={decreaseX} y={decreaseY} zIndex={3}>
+				<Graphics
+					draw={(g: PIXI.Graphics) => {
+						g.rect(-arrowButtonSize / 2, -arrowButtonSize / 2, arrowButtonSize, arrowButtonSize);
+						g.fill({ color: 0xffffff, alpha: 0.001 });
+					}}
+					eventMode="static"
+					cursor={decreaseDisabled ? 'not-allowed' : 'pointer'}
+					onpointerover={() => { decHovered = true; }}
+					onpointerout={() => { decHovered = false; decPressed = false; }}
+					onpointerdown={() => { decPressed = true; }}
+					onpointerup={() => { decPressed = false; if (!decreaseDisabled) handleBetDecrease(); }}
+				/>
+				<BaseSprite
+					texture={activeDecreaseTexture}
+					width={arrowButtonSize}
+					height={arrowButtonSize * (42 / 56)}
+					anchor={0.5}
+					{...(decreaseDisabled ? { alpha: 0.3 } : {})}
+				/>
+			</Container>
+
 			<!-- SPIN BUTTON -->
 			<Container x={spinButtonX} y={0} zIndex={3}>
 				<OnHotkey hotkey="Space" {disabled} onpress={handleSpin} />
@@ -693,7 +856,7 @@
 				/>
 			</Container>
 
-			<!-- FAST PLAY BUTTON (right of autoplay) -->
+			<!-- TURBO / SPEED BUTTON (right of autoplay) -->
 			<Container x={fastPlayX} y={0} zIndex={3}>
 				<Circle
 					diameter={smallButtonSize}
@@ -705,10 +868,10 @@
 					onpointerover={() => { fastHovered = true; }}
 					onpointerout={() => { fastHovered = false; fastPressed = false; }}
 					onpointerdown={() => { fastPressed = true; }}
-					onpointerup={() => { fastPressed = false; handleFastPlay(); }}
+					onpointerup={() => { fastPressed = false; handleSpeedToggle(); }}
 				/>
 				<BaseSprite
-					texture={activeFastTexture}
+					texture={activeTurboTexture}
 					width={smallButtonSize}
 					height={smallButtonSize}
 					anchor={0.5}
@@ -743,3 +906,4 @@
 </BoardContainer>
 
 <HamburgerMenu show={hamburgerOpen} onclose={() => { hamburgerOpen = false; }} />
+<AutoplayMenu show={autoplayMenuOpen} onclose={() => { autoplayMenuOpen = false; }} />

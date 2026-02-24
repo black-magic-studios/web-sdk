@@ -62,12 +62,12 @@
 			children: '',
 			assets: { icon: '', dialogImage: '', dialogVolatility: '', volatility: '', button: '' },
 			text: {
-				title: `${m.label.toUpperCase()} MULTIPLIER`,
-				dialog: `Every cell starts with a ${m.label} multiplier for ${m.cost}x the player bet amount.`,
-				description: `Every cell starts with a ${m.label} multiplier.`,
+				title: `${m.label} Grid`,
+				dialog: `Every Cell on the Grid starts with a ${m.label} multiplier for ${m.cost}x the player play amount.`,
+				description: `Every Cell on the Grid starts with a ${m.label} multiplier.`,
 				button: 'ACTIVATE',
-				betAmountLabel: `${m.label.toUpperCase()} MULTIPLIER`,
-				tickerIdle: `${m.label.toUpperCase()} MULTIPLIER ACTIVE`,
+				betAmountLabel: `${m.label} GRID`,
+				tickerIdle: `${m.label} GRID ACTIVE`,
 				tickerSpin: 'GOOD LUCK',
 			},
 		};

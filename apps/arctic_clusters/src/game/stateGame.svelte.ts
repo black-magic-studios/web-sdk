@@ -120,6 +120,9 @@ export const stateGame = $state({
 	] as number[][],
 	multiplierExplodingCells: new Set() as Set<string>,
 	scatterCounter: 0,
+	// Scatter position history from freeSpinTrigger / retrigger / superBonusTrigger
+	// Each entry is the scatter positions at a tumble step: [0] = reveal, [1] = after 1st tumble, …
+	scatterPositionHistory: [] as Position[][],
 	// Aurora state
 	auroraPositions: [] as Position[],
 	auroraMeterTotal: 0,

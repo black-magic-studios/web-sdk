@@ -268,7 +268,7 @@ export default {
 	},
 	h1WinAnimation: {
 		type: 'spriteSheet',
-		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/polar_bear_sprite_centered_8x4_32f.json', import.meta.url).href,
+		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/clapping_paws_win_14x14_192f.json', import.meta.url).href,
 	},
 	h2WinAnimation: {
 		type: 'spriteSheet',

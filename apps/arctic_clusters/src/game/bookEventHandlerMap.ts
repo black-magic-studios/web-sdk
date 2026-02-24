@@ -62,6 +62,18 @@ const winLevelSoundsStop = () => {
 };
 
 const animateSymbols = async ({ positions }: { positions: Position[] }) => {
+	const h4Positions = positions.filter(p => {
+		const sym = stateGame.board[p.reel]?.reelState?.symbols[p.row];
+		return sym?.rawSymbol?.name === 'H4';
+	});
+	if (h4Positions.length > 0) {
+		console.log(`%c[H4 DEBUG] ❄️ animateSymbols called with ${h4Positions.length} H4 position(s):`, 'color: cyan; font-weight: bold',
+			h4Positions.map(p => `[reel=${p.reel}, row=${p.row}]`).join(', '));
+		console.log('[H4 DEBUG] ❄️ All positions in this win:', positions.map(p => {
+			const sym = stateGame.board[p.reel]?.reelState?.symbols[p.row];
+			return `[${p.reel},${p.row}]=${sym?.rawSymbol?.name}`;
+		}).join(' '));
+	}
 	eventEmitter.broadcast({ type: 'boardShow' });
 	await eventEmitter.broadcastAsync({
 		type: 'boardWithAnimateSymbols',
@@ -311,7 +323,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.auroraWildsSessionTotal = 0;
 		stateGame.isWildRelease = false;
 		stateGame.wildReleaseRemaining = 0;
-		// animate scatters
+		// Store scatter tumble history for gravity animation during tumble sequence
+		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
+		// Animate scatters at their final post-tumble positions (backend now sends correct coords)
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
 		// show free spin intro
@@ -343,9 +357,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		await eventEmitter.broadcastAsync({ type: 'drawerButtonShow' });
 		eventEmitter.broadcast({ type: 'drawerFold' });
 	},
-	freeSpinRetrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
+	freeSpinRetrigger: async (bookEvent: BookEventOfType<'freeSpinRetrigger'>) => {
 		// Do NOT reset session total on retrigger — wilds continue accumulating
-		// animate scatters
+		// Store scatter tumble history for gravity animation during tumble sequence
+		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
+		// Animate scatters at their final post-tumble positions
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
 		// show free spin intro
@@ -598,7 +614,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.auroraWildsSessionTotal = 0;
 		stateGame.isWildRelease = false;
 		stateGame.wildReleaseRemaining = 0;
-		// Super bonus trigger — same flow as freeSpinTrigger (SS scatter instead of S)
+		// Store scatter tumble history for gravity animation during tumble sequence
+		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
+		// Animate scatters at their final post-tumble positions
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });

@@ -17,6 +17,8 @@ export const stateBet = $state({
 	autoSpinsCounter: 0,
 	autoSpinsLossLimitAmount: Infinity,
 	autoSpinsSingleWinLimitAmount: Infinity,
+	stopOnBonus: false,
+	lastSpinHadBonus: false,
 	isSpaceHold: false,
 	isTurbo: false,
 });

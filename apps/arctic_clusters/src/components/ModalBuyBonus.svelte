@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateBet } from 'state-shared';
+	import { stateBet, stateI18nDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { stateBonus } from 'components-ui-html/src/stateBonus.svelte';
 	import { getContextEventEmitter } from 'utils-event-emitter';
@@ -76,15 +76,15 @@
 					onclick={() => activateMode('ANTE')}
 				>
 					<span class="card-title">EXTRA CHANCE</span>
-					<span class="card-desc">Extra chance to trigger the bonus each spin.</span>
+					<span class="card-desc">{stateI18nDerived.translate('Extra chance to trigger the bonus each spin.')}</span>
 					<span class="card-price">{numberToCurrencyString(anteCost)}</span>
 					<span class="card-btn">ACTIVATE</span>
 				</button>
 
 				<!-- Card 2: xN Spins (multiplier selector) -->
 				<div class="card mult-card">
-					<span class="card-title">x{currentMult.label.replace('x', '')} SPINS</span>
-					<span class="card-desc">Every cell starts with a {currentMult.label} multiplier.</span>
+					<span class="card-title">{currentMult.label} Grid</span>
+					<span class="card-desc">Every Cell on the Grid starts with a {currentMult.label} multiplier.</span>
 
 					<div class="mult-selector">
 						<button class="arrow-btn" onclick={multDown} disabled={multIndex === 0}>&#9660;</button>
@@ -108,10 +108,10 @@
 					disabled={!canAfford(bonusCost)}
 					onclick={() => buyMode('BONUS')}
 				>
-					<span class="card-title">BUY BONUS</span>
-					<span class="card-desc">Instantly trigger the free spins bonus round.</span>
+					<span class="card-title">{stateI18nDerived.translate('BUY BONUS')}</span>
+					<span class="card-desc">{stateI18nDerived.translate('Instantly trigger the free spins bonus round.')}</span>
 					<span class="card-price">{numberToCurrencyString(bonusCost)}</span>
-					<span class="card-btn">BUY</span>
+					<span class="card-btn">{stateI18nDerived.translate('BUY')}</span>
 				</button>
 
 				<!-- Card 4: Buy Super Bonus -->
@@ -121,10 +121,10 @@
 					disabled={!canAfford(superCost)}
 					onclick={() => buyMode('SUPER')}
 				>
-					<span class="card-title">BUY SUPER BONUS</span>
-					<span class="card-desc">Trigger the enhanced free spins with higher multipliers.</span>
+					<span class="card-title">{stateI18nDerived.translate('BUY SUPER BONUS')}</span>
+					<span class="card-desc">{stateI18nDerived.translate('Trigger the enhanced free spins with higher multipliers.')}</span>
 					<span class="card-price">{numberToCurrencyString(superCost)}</span>
-					<span class="card-btn">BUY</span>
+					<span class="card-btn">{stateI18nDerived.translate('BUY')}</span>
 				</button>
 			</div>
 		</div>

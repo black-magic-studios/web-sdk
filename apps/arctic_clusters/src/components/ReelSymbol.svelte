@@ -36,6 +36,9 @@
 
 		untrack(() => {
 			if (state === 'win') {
+				if (props.reelSymbol.rawSymbol.name === 'H4') {
+					console.log(`%c[H4 DEBUG] ❄️ ReelSymbol win anim START [reel=${props.reelIndex}] symbolInfo.type=${info.type} assetKey=${info.assetKey}`, 'color: cyan; font-weight: bold');
+				}
 				runWinAnim(anim);
 				// For static sprites (type='sprite'), the underlying Symbol component
 				// won't fire oncomplete because symbolInfo doesn't change between

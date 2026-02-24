@@ -1,9 +1,11 @@
 <script lang="ts">
 	import PopupLight from './PopupLight.svelte';
 	import { zIndex } from 'constants-shared/zIndex';
+	import { stateI18nDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 
 	const context = getContext();
+	const t = (key: string) => stateI18nDerived.translate(key);
 
 	type Props = {
 		show: boolean;
@@ -71,7 +73,7 @@
 				<button class:active={activeTab === 'paytable'} onclick={() => (activeTab = 'paytable')}>Paytable</button>
 				<button class:active={activeTab === 'features'} onclick={() => (activeTab = 'features')}>Features</button>
 				<button class:active={activeTab === 'rules'} onclick={() => (activeTab = 'rules')}>Rules</button>
-				<button class:active={activeTab === 'modes'} onclick={() => (activeTab = 'modes')}>Bet Modes</button>
+				<button class:active={activeTab === 'modes'} onclick={() => (activeTab = 'modes')}>{t('BET MODES')}</button>
 			</nav>
 			{/if}
 
@@ -82,7 +84,7 @@
 				{#if isMobile || activeTab === 'paytable'}
 					<div class="section">
 						<h2>Paytable</h2>
-						<p class="subtitle">All pays are multiplied by total bet. Minimum cluster size: 5 symbols.</p>
+						<p class="subtitle">{@html t('All pays are multiplied by total bet. Minimum cluster size: 5 symbols.')}</p>
 
 						<h3>High Pay Symbols</h3>
 						{#each highPay as sym}
@@ -297,7 +299,7 @@
 								<li>Wild symbols can participate in multiple winning clusters simultaneously, but their cell multiplier only increases once per tumble.</li>
 								<li>Scatter symbols are counted before tumbles begin.</li>
 								<li>All wins from a single spin (including all tumbles) are accumulated into one total win.</li>
-								<li>Maximum win per spin is capped at <strong>25,000x</strong> the bet. If the cap is reached, remaining tumbles are stopped.</li>
+							<li>Maximum win per spin is capped at <strong>25,000x</strong> the {t('BET').toLowerCase()}. If the cap is reached, remaining tumbles are stopped.</li>
 								<li>Cluster payouts are capped at cluster size 20 — clusters larger than 20 pay the same as 20.</li>
 							</ul>
 						</div>
@@ -310,29 +312,29 @@
 				<!-- ═══════════════════════════════════════════ -->
 				{#if isMobile || activeTab === 'modes'}
 					<div class="section">
-						<h2>Bet Modes</h2>
+						<h2>{t('BET MODES')}</h2>
 
 						<h3>Standard Mode</h3>
 						<div class="feature-block">
-							<p>Normal gameplay at 1x bet cost. All cell multipliers start at 1x.</p>
+							<p>{@html t('Normal gameplay at 1x bet cost. All cell multipliers start at 1x.')}</p>
 						</div>
 
-						<h3>Ante Bet</h3>
+						<h3>{t('ANTE BET')}</h3>
 						<div class="feature-block">
-							<p>Costs <strong>2.5x</strong> the standard bet. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.</p>
+							<p>{@html t('Costs <strong>2.5x</strong> the standard bet. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.')}</p>
 						</div>
 
-						<h3>Buy Bonus</h3>
+						<h3>{t('BUY BONUS')}</h3>
 						<div class="feature-block">
-							<p>Costs <strong>100x</strong> the standard bet. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.</p>
+							<p>{@html t('Costs <strong>100x</strong> the standard bet. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.')}</p>
 						</div>
 
 						<h3>Multiplier Base Modes</h3>
 						<div class="feature-block">
-							<p>Start every cell at a higher multiplier for an increased bet cost. All wins benefit from amplified multipliers from the very first tumble.</p>
+							<p>{@html t('Start every cell at a higher multiplier for an increased bet cost. All wins benefit from amplified multipliers from the very first tumble.')}</p>
 							<table class="info-table">
 								<thead>
-									<tr><th>Start Mult</th><th>Bet Cost</th></tr>
+									<tr><th>Start Mult</th><th>{t('BET COST')}</th></tr>
 								</thead>
 								<tbody>
 									<tr><td>2x</td><td>2.9x</td></tr>

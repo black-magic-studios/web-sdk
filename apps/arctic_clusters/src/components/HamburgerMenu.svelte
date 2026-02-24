@@ -95,7 +95,7 @@
 		position: fixed;
 		z-index: 999;
 		bottom: calc(env(safe-area-inset-bottom, 0px) + 12%);
-		left: 8px;
+		left: 72px;
 		display: flex;
 		flex-direction: column;
 		gap: 0;
