@@ -21,6 +21,8 @@ export const stateBet = $state({
 	lastSpinHadBonus: false,
 	isSpaceHold: false,
 	isTurbo: false,
+	/** 3-mode speed: 0 = normal, 1 = turbo (1.5×), 2 = super turbo (2× + skip win anims) */
+	speedMode: 0 as 0 | 1 | 2,
 });
 
 const correctBetAmount = (value: number) => {
@@ -49,13 +51,34 @@ const updateIsTurbo = (value: boolean, options: { persistent: boolean }) => {
 	if (persistent) isTurboLocked = value;
 
 	stateBet.isTurbo = value;
+	// Keep speedMode in sync for apps that still use the binary toggle
+	if (!value) stateBet.speedMode = 0;
+	else if (stateBet.speedMode === 0) stateBet.speedMode = 1;
+};
+
+const updateSpeedMode = (mode: 0 | 1 | 2, options: { persistent: boolean }) => {
+	const { persistent } = options;
+	const turboOn = mode >= 1;
+
+	if (!persistent && isTurboLocked) return;
+	if (persistent) isTurboLocked = turboOn;
+
+	stateBet.speedMode = mode;
+	stateBet.isTurbo = turboOn;
 };
 
 const activeBetMode = () => stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toUpperCase()]
 	?? stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toLowerCase()]
 	?? null;
 const isContinuousBet = () => stateBet.autoSpinsCounter > 1 || stateBet.isSpaceHold;
-const timeScale = () => (stateBet.isTurbo ? 2 : 1);
+/** Speed multiplier: normal = 1, turbo = 1.5, super turbo = 2 */
+const timeScale = () => {
+	if (stateBet.speedMode === 2) return 2;
+	if (stateBet.speedMode === 1) return 1.5;
+	return stateBet.isTurbo ? 2 : 1; // fallback for apps using binary toggle
+};
+/** True when super turbo — skip symbol win animations, show only glow */
+const skipWinAnimation = () => stateBet.speedMode === 2;
 const betCostMultiplier = () =>
 	stateBetDerived.activeBetMode().type === 'activate'
 		? stateBetDerived.activeBetMode().costMultiplier
@@ -68,9 +91,11 @@ export const stateBetDerived = {
 	setBetAmount,
 	updateBetAmount,
 	updateIsTurbo,
+	updateSpeedMode,
 	activeBetMode,
 	isContinuousBet,
 	timeScale,
+	skipWinAnimation,
 	betCost,
 	isBetCostAvailable,
 	hasAutoBetCounter,

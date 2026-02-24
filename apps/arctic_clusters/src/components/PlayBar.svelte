@@ -70,12 +70,8 @@
 	// SPEED MODE: normal (0) → turbo (1) → super turbo (2) → back to normal
 	// ============================================================
 	type SpeedMode = 0 | 1 | 2;
-	let speedMode = $state<SpeedMode>(0);
+	const speedMode = $derived(stateBet.speedMode as SpeedMode);
 
-	// Sync speedMode → shared isTurbo state
-	$effect(() => {
-		stateBetDerived.updateIsTurbo(speedMode >= 1, { persistent: true });
-	});
 
 	// ============================================================
 	// AUTOPLAY SPINNING ANIMATION
@@ -119,16 +115,10 @@
 	let autoPressedTexture = $state<Texture>(Texture.EMPTY);
 	let autoSpinningTextures = $state<Texture[]>([]);
 
-	// Turbo: 3 speed modes × 3 states (base, hover, pressed)
-	let turboBaseTexture = $state<Texture>(Texture.EMPTY);
-	let turboBaseHoverTexture = $state<Texture>(Texture.EMPTY);
-	let turboBasePressedTexture = $state<Texture>(Texture.EMPTY);
+	// Turbo: 3 speed modes — single sprite per mode (no hover/pressed variants)
+	let turboNormalTexture = $state<Texture>(Texture.EMPTY);
 	let turboTurboTexture = $state<Texture>(Texture.EMPTY);
-	let turboTurboHoverTexture = $state<Texture>(Texture.EMPTY);
-	let turboTurboPressedTexture = $state<Texture>(Texture.EMPTY);
 	let turboSuperTexture = $state<Texture>(Texture.EMPTY);
-	let turboSuperHoverTexture = $state<Texture>(Texture.EMPTY);
-	let turboSuperPressedTexture = $state<Texture>(Texture.EMPTY);
 
 	// Increase / Decrease arrows
 	let increaseTexture = $state<Texture>(Texture.EMPTY);
@@ -184,15 +174,11 @@
 			: autoPressed ? autoPressedTexture : autoHovered ? autoHoverTexture : autoTexture
 	);
 
-	// Turbo: pick textures by speed mode, then apply hover/pressed
+	// Turbo: pick texture by speed mode
 	const activeTurboTexture = $derived.by(() => {
-		if (speedMode === 2) {
-			return fastPressed ? turboSuperPressedTexture : fastHovered ? turboSuperHoverTexture : turboSuperTexture;
-		} else if (speedMode === 1) {
-			return fastPressed ? turboTurboPressedTexture : fastHovered ? turboTurboHoverTexture : turboTurboTexture;
-		} else {
-			return fastPressed ? turboBasePressedTexture : fastHovered ? turboBaseHoverTexture : turboBaseTexture;
-		}
+		if (speedMode === 2) return turboSuperTexture;
+		if (speedMode === 1) return turboTurboTexture;
+		return turboNormalTexture;
 	});
 
 	// Increase/Decrease arrow textures
@@ -414,12 +400,8 @@
 			const [
 				play, playHover, playPressed,
 				auto, autoHover, autoPressed,
-				// Turbo: base (normal speed)
-				tBase, tBaseHover, tBasePressed,
-				// Turbo: turbo speed
-				tTurbo, tTurboHover, tTurboPressed,
-				// Turbo: super turbo speed
-				tSuper, tSuperHover, tSuperPressed,
+				// Turbo: 3 mode sprites (single sprite per mode)
+				tNormal, tTurbo, tSuper,
 				// Increase / Decrease
 				inc, incHover, incPressed,
 				dec, decHover, decPressed,
@@ -430,21 +412,15 @@
 				// Autoplay spinning frames
 				...spinningFrames
 			] = await Promise.all([
-				Assets.load(`${B}/playbutton_base.png`),
-				Assets.load(`${B}/playbutton_hover.png`),
-				Assets.load(`${B}/playbutton_pressed.png`),
+				Assets.load(`${B}/play_button.png`),
+				Assets.load(`${B}/play_button_hover.png`),
+				Assets.load(`${B}/play_button_pressed.png`),
 				Assets.load(`${B}/autoplay_base.png`),
 				Assets.load(`${B}/autoplay_hover.png`),
 				Assets.load(`${B}/autoplay_pressed.png`),
-				Assets.load(`${B}/turbo_base.png`),
-				Assets.load(`${B}/turbo_base_hover.png`),
-				Assets.load(`${B}/turbo_base_pressed.png`),
-				Assets.load(`${B}/turbo_turbo.png`),
-				Assets.load(`${B}/turbo_turbo_hover.png`),
-				Assets.load(`${B}/turbo_turbo_pressed.png`),
-				Assets.load(`${B}/turbo_super.png`),
-				Assets.load(`${B}/turbo_super_hover.png`),
-				Assets.load(`${B}/turbo_super_pressed.png`),
+				Assets.load(`${B}/play_bar_0002_turbo_normal.png`),
+				Assets.load(`${B}/play_bar_0002_turbo_turbo.png`),
+				Assets.load(`${B}/play_bar_0002_turbo_super_turbo.png`),
 				Assets.load(`${B}/increase_base.png`),
 				Assets.load(`${B}/increase_hover.png`),
 				Assets.load(`${B}/increase_pressed.png`),
@@ -472,15 +448,9 @@
 			autoPressedTexture = autoPressed;
 			autoSpinningTextures = spinningFrames;
 
-			turboBaseTexture = tBase;
-			turboBaseHoverTexture = tBaseHover;
-			turboBasePressedTexture = tBasePressed;
+			turboNormalTexture = tNormal;
 			turboTurboTexture = tTurbo;
-			turboTurboHoverTexture = tTurboHover;
-			turboTurboPressedTexture = tTurboPressed;
 			turboSuperTexture = tSuper;
-			turboSuperHoverTexture = tSuperHover;
-			turboSuperPressedTexture = tSuperPressed;
 
 			increaseTexture = inc;
 			increaseHoverTexture = incHover;
@@ -524,7 +494,8 @@
 	const handleSpeedToggle = () => {
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
 		// Cycle: 0 (normal) → 1 (turbo) → 2 (super turbo) → 0 (normal)
-		speedMode = ((speedMode + 1) % 3) as SpeedMode;
+		const next = ((speedMode + 1) % 3) as SpeedMode;
+		stateBetDerived.updateSpeedMode(next, { persistent: true });
 	};
 
 	const handleBuyBonus = () => {

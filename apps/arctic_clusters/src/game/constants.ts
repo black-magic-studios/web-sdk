@@ -336,13 +336,13 @@ const explosion = {
 	frameHeight: 440,
 };
 
-const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1.0, height: 1.0 } };
+const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1.1, height: 1.1 } };
 const h1Win = { 
 	type: 'spriteSheet', 
 	assetKey: 'h1WinAnimation', 
 	animationName: 'h1_win', 
-	sizeRatios: { width: 1.28, height: 1.28 },
-	frameHeight: 168,
+	sizeRatios: { width: 1.1, height: 1.1 },
+	frameHeight: 256,
 	frameCount: 192,
 	animationSpeed: 1,
 };
@@ -350,32 +350,32 @@ const h2Win = {
 	type: 'spriteSheet', 
 	assetKey: 'h2WinAnimation', 
 	animationName: 'h2_win', 
-	sizeRatios: { width: 1.28, height: 1.28 },
-	frameHeight: 168,
+	sizeRatios: { width: 1.5, height: 1.5 },
+	frameHeight: 256,
 	frameCount: 192,
 	animationSpeed: 1,
 };
-const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
+const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1.5, height: 1.5 } };
 const h3Win = { 
 	type: 'spriteSheet', 
 	assetKey: 'h3WinAnimation', 
 	animationName: 'h3_win', 
 	sizeRatios: { width: 1.6, height: 1.6 },
-	frameHeight: 168,
+	frameHeight: 256,
 	frameCount: 192,
 	animationSpeed: 1,
 };
-const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
+const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1.6, height: 1.6 } };
 const h4Win = { 
 	type: 'spriteSheet', 
 	assetKey: 'h4WinAnimation', 
 	animationName: 'h4_win', 
-	sizeRatios: { width: 1.0, height: 1.0 },
+	sizeRatios: { width: 1.2, height: 1.2 },
 	frameHeight: 168,
 	frameCount: 60,
 	animationSpeed: 0.5,
 };
-const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
+const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1.2, height: 1.2 } };
 
 const l1Static = { type: 'sprite', assetKey: 'l1.webp', sizeRatios: { width: 1, height: 1 } };
 const l2Static = { type: 'sprite', assetKey: 'l2.webp', sizeRatios: { width: 1, height: 1 } };

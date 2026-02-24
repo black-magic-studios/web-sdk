@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SpriteSheet } from 'pixi-svelte';
+	import { stateBetDerived } from 'state-shared';
 
 	import { getSymbolInfo } from '../game/utils';
 	import { getContext } from '../game/context';
@@ -9,6 +10,7 @@
 		x?: number;
 		y?: number;
 		oncomplete?: () => void;
+		loop?: boolean;
 	};
 
 	const props: Props = $props();
@@ -16,9 +18,10 @@
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 
-	// Animation settings - use symbolInfo values or defaults
+	// Animation settings - use symbolInfo values or defaults, scaled by speed mode
 	const DEFAULT_ANIMATION_SPEED = 1;
-	const animationSpeed = $derived(props.symbolInfo.animationSpeed ?? DEFAULT_ANIMATION_SPEED);
+	const baseAnimSpeed = $derived(props.symbolInfo.animationSpeed ?? DEFAULT_ANIMATION_SPEED);
+	const animationSpeed = $derived(baseAnimSpeed * stateBetDerived.timeScale());
 	const DEFAULT_ANIMATION_SIZE = 512;
 	const animationSize = $derived(props.symbolInfo.frameHeight ?? DEFAULT_ANIMATION_SIZE);
 	// Use explicit width/height (like SymbolSprite) instead of uniform scale
@@ -103,6 +106,6 @@
 	{width}
 	{height}
 	{animationSpeed}
-	loop={false}
+	loop={props.loop ?? false}
 	{play}
 />

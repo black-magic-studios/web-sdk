@@ -80,7 +80,8 @@
 
 	const handleFastPlay = () => {
 		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-		stateBetDerived.updateIsTurbo(!stateBet.isTurbo, { persistent: true });
+		const next = ((stateBet.speedMode + 1) % 3) as 0 | 1 | 2;
+		stateBetDerived.updateSpeedMode(next, { persistent: true });
 	};
 
 	const handleBuyBonus = () => {
@@ -153,7 +154,7 @@
 		</button>
 
 		<button class="ctrl-btn auto-btn" onclick={handleAutoPlay}>
-			<img src="/assets/sprites/buttons/arctic_clusters_autoplay.png" alt="Auto" />
+			<img src="/assets/sprites/buttons_new/autoplay_base.png" alt="Auto" />
 		</button>
 
 		<button
@@ -161,15 +162,15 @@
 			class:disabled
 			onclick={handleSpin}
 		>
-			<img src="/assets/sprites/buttons/play_button.png" alt="Spin" />
+			<img src="/assets/sprites/buttons_new/play_button.png" alt="Spin" />
 		</button>
 
 		<button class="ctrl-btn fast-btn" onclick={handleFastPlay}>
-			<img src="/assets/sprites/buttons/arctic_clusters_fast_play.png" alt="Fast" />
+			<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
 		</button>
 
 		<button class="ctrl-btn buy-btn" onclick={handleBuyBonus}>
-			<img src="/assets/sprites/buttons/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
+			<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
 		</button>
 	</div>
 

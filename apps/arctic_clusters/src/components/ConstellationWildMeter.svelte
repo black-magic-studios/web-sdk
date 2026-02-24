@@ -1,347 +1,424 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { Container, Graphics, Text } from 'pixi-svelte';
-	import { FadeContainer } from 'components-pixi';
+/**
+ * ConstellationWildMeter — "Node Map" wild meter
+ *
+ * A reusable starlight node-map that draws glowing connections between
+ * waypoints as `sessionTotal` increments.  Every graphic uses additive
+ * blending so it interacts with the dark background like real light.
+ *
+ * Architecture:
+ *   • `nodeCoordinates` — 49 waypoints forming an 8-pointed star
+ *   • Lines use the "core + glow" method (wide blurred cyan + crisp thin white)
+ *   • Nodes are twinkling stars (concentric halo + white center)
+ *   • A leading spark travels along the newest connection
+ *   • Wild-release mode rapidly pulses all active connections
+ */
+import { onMount, onDestroy } from 'svelte';
+import { Container, Graphics, Text } from 'pixi-svelte';
+import { FadeContainer } from 'components-pixi';
 
-	import { getContext } from '../game/context';
-	import { stateGame } from '../game/stateGame.svelte';
+import { getContext } from '../game/context';
+import { stateGame } from '../game/stateGame.svelte';
 
-	const context = getContext();
-	const canvas = $derived(context.stateLayoutDerived.canvasSizes());
-	const boardLayout = $derived(context.stateGameDerived.boardLayout());
-	const isStacked = $derived(context.stateLayoutDerived.isStacked());
+const context = getContext();
+const canvas = $derived(context.stateLayoutDerived.canvasSizes());
+const boardLayout = $derived(context.stateGameDerived.boardLayout());
+const isStacked = $derived(context.stateLayoutDerived.isStacked());
 
-	// ── Wild count ─────────────────────────────────────────
-	const isWildRelease = $derived(stateGame.isWildRelease);
-	const sessionTotal = $derived(stateGame.auroraWildsSessionTotal);
-	const remaining = $derived(stateGame.wildReleaseRemaining);
-	const totalPlaced = $derived(stateGame.auroraWildPositions.length);
+// ── Props from game state ──────────────────────────────
+const isWildRelease = $derived(stateGame.isWildRelease);
+const sessionTotal = $derived(stateGame.auroraWildsSessionTotal);
+const totalPlaced = $derived(stateGame.auroraWildPositions.length);
+const count = $derived(sessionTotal);
 
-	// Always use sessionTotal — during wild release, sessionTotal is decremented
-	// directly by the auroraWildPlace handler so the constellation counts down smoothly
-	const count = $derived(sessionTotal);
-	const visible = $derived(
-		stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
-	);
+const visible = $derived(
+stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
+);
 
-	const MAX_WILDS = 49;
-	const LINE_ANIM_MS = 1200;
+// ── Constants ──────────────────────────────────────────
+const MAX_NODES = 49;
+const LINE_ANIM_MS = 900;
 
-	// ── Positioning — right side of board ──────────────────
-	const meterSize = $derived(isStacked ? canvas.width * 0.22 : canvas.width * 0.18);
-	const meterX = $derived(
-		boardLayout.x + boardLayout.width * 0.5 + (isStacked ? meterSize * 0.05 : meterSize * 0.15),
-	);
-	const meterY = $derived(boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1);
+// ── Positioning — right side of board ──────────────────
+const meterSize = $derived(isStacked ? canvas.width * 0.22 : canvas.width * 0.18);
+const meterX = $derived(
+boardLayout.x + boardLayout.width * 0.5 + (isStacked ? meterSize * 0.05 : meterSize * 0.15),
+);
+const meterY = $derived(boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1);
 
-	// ── Star geometry ─────────────────────────────────────
-	// Builds an 8-pointed star with 49 line segments in 5 phases:
-	//   Phase 1 (0-15):  Outer perimeter  — 8 tip→notch + 8 notch→tip
-	//   Phase 2 (16-23): Radial spokes    — each tip → inner mid-point
-	//   Phase 3 (24-31): Inner ring       — connecting mid-points
-	//   Phase 4 (32-47): Faceted detail   — each notch → two adjacent mids
-	//   Phase 5 (48):    Center glow      — final completion marker
+// ── Node Map — star geometry builder ───────────────────
+// Builds 49 line segments in 5 phases and collects unique vertices.
+type Pt = { x: number; y: number };
+type Seg = { from: Pt; to: Pt };
 
-	type Pt = { x: number; y: number };
-	type Seg = { from: Pt; to: Pt };
+function buildSegments(size: number): Seg[] {
+const cx = size * 0.5, cy = size * 0.5;
+const outerR = size * 0.46, notchR = size * 0.18, midR = size * 0.30;
+const tips: Pt[] = [], notches: Pt[] = [], mids: Pt[] = [];
 
-	function buildGeometry(cx: number, cy: number, size: number) {
-		const outerR = size * 0.46;
-		const notchR = size * 0.18;
-		const midR = size * 0.30;
+for (let i = 0; i < 8; i++) {
+const tipA = -Math.PI / 2 + i * (Math.PI / 4);
+const notchA = tipA + Math.PI / 8;
+tips.push({ x: cx + outerR * Math.cos(tipA), y: cy + outerR * Math.sin(tipA) });
+notches.push({ x: cx + notchR * Math.cos(notchA), y: cy + notchR * Math.sin(notchA) });
+mids.push({ x: cx + midR * Math.cos(tipA), y: cy + midR * Math.sin(tipA) });
+}
 
-		const tips: Pt[] = [];
-		const notches: Pt[] = [];
-		const mids: Pt[] = [];
+const center: Pt = { x: cx, y: cy };
+const segs: Seg[] = [];
 
-		for (let i = 0; i < 8; i++) {
-			const tipA = -Math.PI / 2 + i * (Math.PI / 4);
-			const notchA = tipA + Math.PI / 8;
-			tips.push({ x: cx + outerR * Math.cos(tipA), y: cy + outerR * Math.sin(tipA) });
-			notches.push({ x: cx + notchR * Math.cos(notchA), y: cy + notchR * Math.sin(notchA) });
-			mids.push({ x: cx + midR * Math.cos(tipA), y: cy + midR * Math.sin(tipA) });
-		}
+// Phase 1: Outer perimeter (16 segs)
+for (let i = 0; i < 8; i++) {
+segs.push({ from: tips[i], to: notches[i] });
+segs.push({ from: notches[i], to: tips[(i + 1) % 8] });
+}
+// Phase 2: Radial spokes (8 segs)
+for (let i = 0; i < 8; i++) segs.push({ from: tips[i], to: mids[i] });
+// Phase 3: Inner ring (8 segs)
+for (let i = 0; i < 8; i++) segs.push({ from: mids[i], to: mids[(i + 1) % 8] });
+// Phase 4: Notch-to-mid web (16 segs)
+for (let i = 0; i < 8; i++) {
+segs.push({ from: notches[i], to: mids[i] });
+segs.push({ from: notches[i], to: mids[(i + 1) % 8] });
+}
+// Phase 5: Center completion marker (1 seg)
+segs.push({ from: center, to: center });
 
-		const center: Pt = { x: cx, y: cy };
-		const segs: Seg[] = [];
+return segs;
+}
 
-		// Phase 1: Outer perimeter (16 segs)
-		for (let i = 0; i < 8; i++) {
-			segs.push({ from: tips[i], to: notches[i] });
-			segs.push({ from: notches[i], to: tips[(i + 1) % 8] });
-		}
+/** Unique vertex positions for drawing star-node dots */
+function collectVertices(size: number): Pt[] {
+const cx = size * 0.5, cy = size * 0.5;
+const outerR = size * 0.46, notchR = size * 0.18, midR = size * 0.30;
+const verts: Pt[] = [];
 
-		// Phase 2: Radial spokes (8 segs)
-		for (let i = 0; i < 8; i++) {
-			segs.push({ from: tips[i], to: mids[i] });
-		}
+for (let i = 0; i < 8; i++) {
+const tipA = -Math.PI / 2 + i * (Math.PI / 4);
+const notchA = tipA + Math.PI / 8;
+verts.push({ x: cx + outerR * Math.cos(tipA), y: cy + outerR * Math.sin(tipA) });
+verts.push({ x: cx + notchR * Math.cos(notchA), y: cy + notchR * Math.sin(notchA) });
+}
+for (let i = 0; i < 8; i++) {
+const tipA = -Math.PI / 2 + i * (Math.PI / 4);
+verts.push({ x: cx + midR * Math.cos(tipA), y: cy + midR * Math.sin(tipA) });
+}
+verts.push({ x: cx, y: cy });
+return verts;
+}
 
-		// Phase 3: Inner ring (8 segs)
-		for (let i = 0; i < 8; i++) {
-			segs.push({ from: mids[i], to: mids[(i + 1) % 8] });
-		}
+// ── Visual palette ─────────────────────────────────────
+const GLOW_W = 5;
+const CORE_W = 1.5;
+const GLOW_COLOR = 0x66ccff;   // icy cyan
+const CORE_COLOR = 0xffffff;    // pure white
+const GHOST_COLOR = 0x334466;   // dim blue for dormant topology
+const STAR_HALO = 0x88ccff;
+const SPARK_COLOR = 0xeeffff;
 
-		// Phase 4: Notch-to-mid faceted detail (16 segs)
-		for (let i = 0; i < 8; i++) {
-			segs.push({ from: notches[i], to: mids[i] });
-			segs.push({ from: notches[i], to: mids[(i + 1) % 8] });
-		}
+// ── Animation loop ─────────────────────────────────────
+let time = $state(0);
+let raf: number;
 
-		// Phase 5: Center marker (1 seg — special)
-		segs.push({ from: center, to: center });
+onMount(() => {
+const t0 = performance.now();
+function tick() {
+time = (performance.now() - t0) * 0.001; // seconds
+raf = requestAnimationFrame(tick);
+}
+raf = requestAnimationFrame(tick);
+});
+onDestroy(() => cancelAnimationFrame(raf));
 
-		return { segs, tips, notches, mids, center };
-	}
+// ── Segment activation tracking ────────────────────────
+let prevCount = 0;
+let segActivation: number[] = new Array(MAX_NODES).fill(0);
+let segDeactivation: number[] = new Array(MAX_NODES).fill(0);
+const activeCount = $derived(Math.min(count, MAX_NODES));
 
-	// ── Visual constants ──────────────────────────────────
-	const LINE_W = 1.5;
-	const GHOST_OUTER_ALPHA = 0.14;
-	const GHOST_INNER_ALPHA = 0.06;
-	const ACTIVE_COLOR = 0xc8e0ff;
-	const GLOW_COLOR = 0x88aaee;
-	const GHOST_COLOR = 0x4466aa;
+$effect(() => {
+const now = performance.now();
+if (activeCount > prevCount) {
+for (let i = prevCount; i < activeCount; i++) {
+segActivation[i] = now + (i - prevCount) * (LINE_ANIM_MS * 0.65);
+segDeactivation[i] = 0;
+}
+} else if (activeCount < prevCount) {
+for (let i = prevCount - 1; i >= activeCount; i--) {
+segDeactivation[i] = now + (prevCount - 1 - i) * (LINE_ANIM_MS * 0.35);
+}
+}
+prevCount = activeCount;
+});
 
-	// ── Twinkle ───────────────────────────────────────────
-	let frameCount = $state(0);
-	let raf: number;
+function segProgress(i: number): number {
+const deact = segDeactivation[i];
+if (deact > 0) {
+const elapsed = performance.now() - deact;
+const fade = 1 - Math.min(1, Math.max(0, elapsed / (LINE_ANIM_MS * 0.5)));
+return fade <= 0 ? 0 : fade;
+}
+if (i >= activeCount) return 0;
+const t = segActivation[i];
+if (t === 0) return 1;
+const elapsed = performance.now() - t;
+return Math.min(1, Math.max(0, elapsed / LINE_ANIM_MS));
+}
 
-	onMount(() => {
-		const tick = () => {
-			frameCount++;
-			raf = requestAnimationFrame(tick);
-		};
-		raf = requestAnimationFrame(tick);
-	});
-	onDestroy(() => cancelAnimationFrame(raf));
+// ── Twinkle — each vertex gets a unique phase from golden angle ──
+function twinkle(vi: number, t: number): number {
+const phase = (vi * 2.39996) % (Math.PI * 2);
+const slow = Math.sin(t * 1.2 + phase) * 0.5 + 0.5;
+const fast = Math.sin(t * 3.7 + phase * 1.5) * 0.5 + 0.5;
+return 0.35 + 0.45 * slow + 0.2 * fast;
+}
 
-	// ── Segment activation timing ─────────────────────────
-	// During wild release the count goes DOWN (remaining decrements as wilds are placed).
-	// We track the "display count" which can go up or down, and animate accordingly.
-	let prevCount = 0;
-	let segActivationTime: number[] = new Array(MAX_WILDS).fill(0);
-	// segDeactivationTime tracks when a segment starts fading OUT (for decrement)
-	let segDeactivationTime: number[] = new Array(MAX_WILDS).fill(0);
-	const activeCount = $derived(Math.min(count, MAX_WILDS));
+// ── Wild-release rapid pulse (~3 Hz triangle wave) ─────
+function releasePulse(t: number): number {
+return 0.5 + 0.5 * Math.abs(((t * 3.0) % 1.0) * 2 - 1);
+}
 
-	$effect(() => {
-		const now = performance.now();
-		console.log(`[ConstellationMeter] $effect: activeCount=${activeCount}, prevCount=${prevCount}, sessionTotal=${stateGame.auroraWildsSessionTotal}, isWildRelease=${stateGame.isWildRelease}, remaining=${stateGame.wildReleaseRemaining}`);
-		if (activeCount > prevCount) {
-			// Building up — stagger new segments
-			console.log(`[ConstellationMeter] INCREMENT: ${prevCount} → ${activeCount}`);
-			for (let i = prevCount; i < activeCount; i++) {
-				segActivationTime[i] = now + (i - prevCount) * (LINE_ANIM_MS * 0.7);
-				segDeactivationTime[i] = 0; // clear any pending deactivation
-			}
-		} else if (activeCount < prevCount) {
-			// Decrementing — remove segments from the top (highest index first)
-			console.log(`[ConstellationMeter] DECREMENT: ${prevCount} → ${activeCount}`);
-			for (let i = prevCount - 1; i >= activeCount; i--) {
-				segDeactivationTime[i] = now + (prevCount - 1 - i) * (LINE_ANIM_MS * 0.4);
-			}
-		}
-		prevCount = activeCount;
-	});
-
-	function segProgress(i: number): number {
-		// Check deactivation first (segment fading out)
-		const deact = segDeactivationTime[i];
-		if (deact > 0) {
-			const elapsed = performance.now() - deact;
-			const fadeOut = 1 - Math.min(1, Math.max(0, elapsed / (LINE_ANIM_MS * 0.6)));
-			if (fadeOut <= 0) return 0;
-			return fadeOut;
-		}
-
-		if (i >= activeCount) return 0;
-		const t = segActivationTime[i];
-		if (t === 0) return 1; // was active before tracking started
-		const elapsed = performance.now() - t;
-		return Math.min(1, Math.max(0, elapsed / LINE_ANIM_MS));
-	}
+// ── Helper: partition segments into completed/animating ─
+function partitionSegs(segs: Seg[]): {
+completed: Seg[];
+animating: { seg: Seg; p: number }[];
+} {
+const completed: Seg[] = [];
+const animating: { seg: Seg; p: number }[] = [];
+for (let i = 0; i < 48; i++) {
+const p = segProgress(i);
+if (p <= 0) continue;
+if (p >= 1) completed.push(segs[i]);
+else animating.push({ seg: segs[i], p });
+}
+return { completed, animating };
+}
 </script>
 
 <FadeContainer show={visible}>
-	<Container x={meterX} y={meterY} zIndex={5}>
-		<!-- Title -->
-		<Text
-			x={meterSize * 0.5}
-			y={-10}
-			anchor={{ x: 0.5, y: 1 }}
-			text={`WILDS: ${count}`}
-			style={{
-				fill: 0xc8e0ff,
-				fontSize: Math.max(14, meterSize * 0.11),
-				fontFamily: 'proxima-nova, Arial, sans-serif',
-				fontWeight: '700',
-				dropShadow: true,
-				dropShadowColor: 0x000022,
-				dropShadowBlur: 4,
-				dropShadowDistance: 0,
-			}}
-		/>
+<Container x={meterX} y={meterY} zIndex={5}>
+<!-- Title -->
+<Text
+x={meterSize * 0.5}
+y={-10}
+anchor={{ x: 0.5, y: 1 }}
+text={`WILDS: ${count}`}
+style={{
+fill: 0xc8e0ff,
+fontSize: Math.max(14, meterSize * 0.11),
+fontFamily: 'proxima-nova, Arial, sans-serif',
+fontWeight: '700',
+dropShadow: true,
+dropShadowColor: 0x000022,
+dropShadowBlur: 4,
+dropShadowDistance: 0,
+}}
+/>
 
-		<!-- Star wireframe -->
-		<Graphics
-			draw={(g) => {
-				// Touch reactive state so the draw re-runs every frame
-				const _f = frameCount;
-				const _c = activeCount;
+<!-- All graphics use additive blending for true-light compositing -->
+<Container blendMode={'add'}>
 
-				const size = meterSize;
-				const cx = size * 0.5;
-				const cy = size * 0.5;
-				const { segs, tips, notches, mids, center } = buildGeometry(cx, cy, size);
+<!-- ════════ Ghost topology ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const segs = buildSegments(meterSize);
+const verts = collectVertices(meterSize);
 
-				// ── 1. Ghost outline — always visible so the star shape is clear ──
+for (const s of segs) {
+g.moveTo(s.from.x, s.from.y);
+g.lineTo(s.to.x, s.to.y);
+}
+g.stroke({ color: GHOST_COLOR, width: 0.5, alpha: 0.12 });
 
-				// Outer perimeter ghost (brighter)
-				g.moveTo(tips[0].x, tips[0].y);
-				for (let i = 0; i < 8; i++) {
-					g.lineTo(tips[i].x, tips[i].y);
-					g.lineTo(notches[i].x, notches[i].y);
-				}
-				g.lineTo(tips[0].x, tips[0].y);
-				g.stroke({ color: GHOST_COLOR, width: LINE_W * 0.5, alpha: GHOST_OUTER_ALPHA });
+for (const v of verts) {
+g.circle(v.x, v.y, 1.0);
+}
+g.fill({ color: GHOST_COLOR, alpha: 0.10 });
+}}
+/>
 
-				// Inner detail ghost (dimmer)
-				for (let i = 0; i < 8; i++) {
-					// Radials
-					g.moveTo(tips[i].x, tips[i].y);
-					g.lineTo(mids[i].x, mids[i].y);
-					// Inner ring
-					g.moveTo(mids[i].x, mids[i].y);
-					g.lineTo(mids[(i + 1) % 8].x, mids[(i + 1) % 8].y);
-					// Notch connections
-					g.moveTo(notches[i].x, notches[i].y);
-					g.lineTo(mids[i].x, mids[i].y);
-					g.moveTo(notches[i].x, notches[i].y);
-					g.lineTo(mids[(i + 1) % 8].x, mids[(i + 1) % 8].y);
-				}
-				g.stroke({ color: GHOST_COLOR, width: LINE_W * 0.35, alpha: GHOST_INNER_ALPHA });
+<!-- ════════ Glow lines (wide icy cyan) ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const _c = activeCount;
+const segs = buildSegments(meterSize);
+const { completed, animating } = partitionSegs(segs);
+const pulse = isWildRelease ? releasePulse(_t) : 1.0;
+const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
 
-				// Ghost dots at key vertices
-				for (const pt of [...tips, ...notches, ...mids]) {
-					g.circle(pt.x, pt.y, 1.2);
-				}
-				g.fill({ color: GHOST_COLOR, alpha: GHOST_OUTER_ALPHA * 0.8 });
+if (completed.length > 0) {
+for (const s of completed) {
+g.moveTo(s.from.x, s.from.y);
+g.lineTo(s.to.x, s.to.y);
+}
+g.stroke({ color: GLOW_COLOR, width: GLOW_W, alpha: breathe * pulse * 0.18 });
+}
 
-				// ── 2. Active segments — batch completed, animate leading edges ──
+for (const { seg, p } of animating) {
+const tx = seg.from.x + (seg.to.x - seg.from.x) * p;
+const ty = seg.from.y + (seg.to.y - seg.from.y) * p;
+g.moveTo(seg.from.x, seg.from.y);
+g.lineTo(tx, ty);
+g.stroke({ color: GLOW_COLOR, width: GLOW_W, alpha: p * pulse * 0.18 });
+}
+}}
+/>
 
-				const breathe = 0.82 + 0.18 * Math.sin(_f * 0.02);
+<!-- ════════ Core lines (thin white) ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const _c = activeCount;
+const segs = buildSegments(meterSize);
+const { completed, animating } = partitionSegs(segs);
+const pulse = isWildRelease ? releasePulse(_t) : 1.0;
+const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
 
-				// Separate completed segments from animating ones
-				// Also include deactivating segments (fading out during wild release)
-				const completedSegs: Seg[] = [];
-				const animatingSegs: { seg: Seg; p: number }[] = [];
+if (completed.length > 0) {
+for (const s of completed) {
+g.moveTo(s.from.x, s.from.y);
+g.lineTo(s.to.x, s.to.y);
+}
+g.stroke({ color: CORE_COLOR, width: CORE_W, alpha: breathe * pulse * 0.7 });
+}
 
-				for (let i = 0; i < 48; i++) {
-					const p = segProgress(i);
-					if (p <= 0) continue;
-					if (p >= 1) {
-						completedSegs.push(segs[i]);
-					} else {
-						animatingSegs.push({ seg: segs[i], p });
-					}
-				}
+for (const { seg, p } of animating) {
+const tx = seg.from.x + (seg.to.x - seg.from.x) * p;
+const ty = seg.from.y + (seg.to.y - seg.from.y) * p;
+g.moveTo(seg.from.x, seg.from.y);
+g.lineTo(tx, ty);
+g.stroke({ color: CORE_COLOR, width: CORE_W, alpha: p * pulse * 0.7 });
+}
+}}
+/>
 
-				// Completed — glow layer (one batch stroke)
-				if (completedSegs.length > 0) {
-					for (const s of completedSegs) {
-						g.moveTo(s.from.x, s.from.y);
-						g.lineTo(s.to.x, s.to.y);
-					}
-					g.stroke({ color: GLOW_COLOR, width: LINE_W * 3.5, alpha: breathe * 0.10 });
+<!-- ════════ Star nodes (twinkling) ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const _c = activeCount;
+const segs = buildSegments(meterSize);
+const verts = collectVertices(meterSize);
+const pulse = isWildRelease ? releasePulse(_t) : 1.0;
 
-					// Completed — core layer (one batch stroke)
-					for (const s of completedSegs) {
-						g.moveTo(s.from.x, s.from.y);
-						g.lineTo(s.to.x, s.to.y);
-					}
-					g.stroke({ color: ACTIVE_COLOR, width: LINE_W, alpha: breathe * 0.65 });
-				}
+// Determine lit vertices (touched by an active segment)
+const lit = new Set<string>();
+for (let i = 0; i < 48; i++) {
+const p = segProgress(i);
+if (p <= 0) continue;
+const s = segs[i];
+lit.add(`${s.from.x.toFixed(1)},${s.from.y.toFixed(1)}`);
+if (p >= 1) lit.add(`${s.to.x.toFixed(1)},${s.to.y.toFixed(1)}`);
+}
 
-				// Animating — individual strokes for per-segment progress
-				for (const { seg, p } of animatingSegs) {
-					const toX = seg.from.x + (seg.to.x - seg.from.x) * p;
-					const toY = seg.from.y + (seg.to.y - seg.from.y) * p;
+for (let vi = 0; vi < verts.length; vi++) {
+const v = verts[vi];
+const key = `${v.x.toFixed(1)},${v.y.toFixed(1)}`;
+const isLit = lit.has(key);
+const tw = twinkle(vi, _t);
 
-					// Glow
-					g.moveTo(seg.from.x, seg.from.y);
-					g.lineTo(toX, toY);
-					g.stroke({ color: GLOW_COLOR, width: LINE_W * 3.5, alpha: p * 0.10 });
+if (isLit) {
+const a = tw * pulse;
+// Outer halo (simulated blur via concentric circles)
+g.circle(v.x, v.y, 6);
+g.fill({ color: STAR_HALO, alpha: a * 0.08 });
+g.circle(v.x, v.y, 4);
+g.fill({ color: STAR_HALO, alpha: a * 0.14 });
+// White-hot center
+g.circle(v.x, v.y, 2.0);
+g.fill({ color: 0xffffff, alpha: a * 0.65 });
+g.circle(v.x, v.y, 1.0);
+g.fill({ color: 0xffffff, alpha: a * 0.9 });
+} else {
+// Dim dormant dot with subtle twinkle
+g.circle(v.x, v.y, 1.2);
+g.fill({ color: GHOST_COLOR, alpha: 0.06 + tw * 0.04 });
+}
+}
+}}
+/>
 
-					// Core
-					g.moveTo(seg.from.x, seg.from.y);
-					g.lineTo(toX, toY);
-					g.stroke({ color: ACTIVE_COLOR, width: LINE_W, alpha: p * 0.65 });
-				}
+<!-- ════════ Spark (leading edge of animating segments) ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const _c = activeCount;
+const segs = buildSegments(meterSize);
 
-				// ── 3. Vertex dots on all visible segment endpoints ──
-				const allVisible = [...completedSegs, ...animatingSegs.map(a => a.seg)];
-				if (allVisible.length > 0) {
-					// Glow halo pass
-					for (const s of allVisible) {
-						g.circle(s.to.x, s.to.y, 3.5);
-					}
-					g.fill({ color: ACTIVE_COLOR, alpha: breathe * 0.10 });
+for (let i = 0; i < 48; i++) {
+const p = segProgress(i);
+if (p <= 0 || p >= 1) continue;
 
-					// Core dot pass
-					for (const s of allVisible) {
-						g.circle(s.to.x, s.to.y, 1.8);
-					}
-					g.fill({ color: 0xffffff, alpha: breathe * 0.55 });
-				}
+const seg = segs[i];
+const sx = seg.from.x + (seg.to.x - seg.from.x) * p;
+const sy = seg.from.y + (seg.to.y - seg.from.y) * p;
+const shimmer = 0.7 + 0.3 * Math.sin(_t * 12 + i);
 
-				// ── 4. Polaris 8-pointed mini-star at the top tip ──
-				{
-					const pt = tips[0];
-					const p = segProgress(0);
-					if (p <= 0) { /* skip */ } else {
-					const a = breathe * p;
+// Outer bloom
+g.circle(sx, sy, 8);
+g.fill({ color: GLOW_COLOR, alpha: shimmer * 0.12 });
+// Mid glow
+g.circle(sx, sy, 5);
+g.fill({ color: SPARK_COLOR, alpha: shimmer * 0.25 });
+// Hot core
+g.circle(sx, sy, 2.5);
+g.fill({ color: CORE_COLOR, alpha: shimmer * 0.85 });
+}
+}}
+/>
 
-					// Outer halo
-					g.circle(pt.x, pt.y, 8);
-					g.fill({ color: 0xaaccff, alpha: a * 0.06 });
-					g.circle(pt.x, pt.y, 5);
-					g.fill({ color: 0xc8e0ff, alpha: a * 0.12 });
+<!-- ════════ Polaris (north tip) ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const size = meterSize;
+const cx = size * 0.5;
+const topY = size * 0.5 - size * 0.46;
+const p0 = segProgress(0);
+if (p0 <= 0) return;
 
-					// 8-pointed star polygon
-					const outerS = 5;
-					const innerS = 2;
-					const step = Math.PI / 8;
-					g.moveTo(pt.x, pt.y - outerS);
-					for (let j = 0; j < 8; j++) {
-						const oa = -Math.PI / 2 + j * 2 * step;
-						const ia = oa + step;
-						g.lineTo(pt.x + outerS * Math.cos(oa), pt.y + outerS * Math.sin(oa));
-						g.lineTo(pt.x + innerS * Math.cos(ia), pt.y + innerS * Math.sin(ia));
-					}
-					g.closePath();
-					g.fill({ color: 0xffffff, alpha: a * 0.9 });
-					}
-				}
+const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
+const a = breathe * p0;
 
-				// ── 5. Center glow (segment 48 — final completion) ──
-				{
-					const p = segProgress(48);
-					if (p > 0) {
-					const pulse = 0.7 + 0.3 * Math.sin(_f * 0.04);
-					g.circle(center.x, center.y, size * 0.06);
-					g.fill({ color: 0xc8e0ff, alpha: p * pulse * 0.3 });
-					g.circle(center.x, center.y, size * 0.025);
-					g.fill({ color: 0xffffff, alpha: p * pulse * 0.8 });
-					}
-				}
+g.circle(cx, topY, 10);
+g.fill({ color: 0xaaddff, alpha: a * 0.05 });
+g.circle(cx, topY, 6);
+g.fill({ color: 0xc8e0ff, alpha: a * 0.10 });
 
-				// ── 6. Pulse on the newest segment endpoint ──
-				if (_c > 0 && _c <= 48) {
-					const seg = segs[_c - 1];
-					const pulse = 0.5 + 0.5 * Math.sin(_f * 0.08);
-					g.circle(seg.to.x, seg.to.y, 6);
-					g.fill({ color: 0x88ccff, alpha: pulse * 0.12 });
-				}
-			}}
-		/>
-	</Container>
+const outerS = 5, innerS = 2, step = Math.PI / 8;
+g.moveTo(cx, topY - outerS);
+for (let j = 0; j < 8; j++) {
+const oa = -Math.PI / 2 + j * 2 * step;
+const ia = oa + step;
+g.lineTo(cx + outerS * Math.cos(oa), topY + outerS * Math.sin(oa));
+g.lineTo(cx + innerS * Math.cos(ia), topY + innerS * Math.sin(ia));
+}
+g.closePath();
+g.fill({ color: CORE_COLOR, alpha: a * 0.85 });
+}}
+/>
+
+<!-- ════════ Center completion glow ════════ -->
+<Graphics
+draw={(g) => {
+const _t = time;
+const size = meterSize;
+const cx = size * 0.5, cy = size * 0.5;
+const p48 = segProgress(48);
+if (p48 <= 0) return;
+
+const pulse = 0.7 + 0.3 * Math.sin(_t * 2.5);
+
+g.circle(cx, cy, size * 0.08);
+g.fill({ color: GLOW_COLOR, alpha: p48 * pulse * 0.10 });
+g.circle(cx, cy, size * 0.05);
+g.fill({ color: STAR_HALO, alpha: p48 * pulse * 0.20 });
+g.circle(cx, cy, size * 0.025);
+g.fill({ color: CORE_COLOR, alpha: p48 * pulse * 0.85 });
+}}
+/>
+</Container>
+</Container>
 </FadeContainer>

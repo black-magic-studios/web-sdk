@@ -3,6 +3,7 @@
 	import Symbol from './Symbol.svelte';
 	import SymbolWrap from './SymbolWrap.svelte';
 	import { Graphics } from 'pixi-svelte';
+	import { stateBetDerived } from 'state-shared';
 	import { getSymbolInfo, getSymbolXDynamic } from '../game/utils';
 	import type { ReelSymbol } from '../game/stateGame.svelte';
 	import { getContext } from '../game/context';
@@ -47,7 +48,7 @@
 				if (info.type === 'sprite') {
 					setTimeout(() => {
 						if (!anim.cancelled) handleComplete();
-					}, 650);
+					}, 650 / stateBetDerived.timeScale());
 				}
 			} else {
 				winScale = 1;
@@ -67,21 +68,23 @@
 
 	function runWinAnim(anim: { rafId: number; cancelled: boolean }) {
 		const startTime = performance.now();
-		// Scale keyframes
+		const ts = stateBetDerived.timeScale();
+		// Scale keyframes (timings divided by timeScale for speed)
 		const scaleKf = [
 			{ t: 0, s: 1 },
-			{ t: 150, s: 1.18 },
-			{ t: 350, s: 1.18 },
-			{ t: 500, s: 0.97 },
-			{ t: 600, s: 1.0 },
+			{ t: 150 / ts, s: 1.18 },
+			{ t: 350 / ts, s: 1.18 },
+			{ t: 500 / ts, s: 0.97 },
+			{ t: 600 / ts, s: 1.0 },
 		];
-		// Glow alpha keyframes — bright flash then sustained hold
+		// Glow alpha keyframes
 		const glowKf = [
 			{ t: 0, a: 0 },
-			{ t: 80, a: 0.75 },
-			{ t: 200, a: 0.45 },
-			{ t: 600, a: 0.45 },
+			{ t: 80 / ts, a: 0.75 },
+			{ t: 200 / ts, a: 0.45 },
+			{ t: 600 / ts, a: 0.45 },
 		];
+		const totalDuration = 600 / ts;
 
 		function lerpKf(kf: { t: number; [k: string]: number }[], elapsed: number, key: string): number {
 			for (let i = 0; i < kf.length - 1; i++) {
@@ -97,7 +100,7 @@
 		function tick() {
 			if (anim.cancelled) return;
 			const elapsed = performance.now() - startTime;
-			if (elapsed >= 600) {
+			if (elapsed >= totalDuration) {
 				winScale = 1;
 				// Keep glow on while still in 'win' state — it will clear via $effect cleanup
 				winGlowAlpha = 0.35;

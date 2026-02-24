@@ -14,6 +14,7 @@
 <script lang="ts">
 	import { waitForResolve } from 'utils-shared/wait';
 	import { BoardContext } from 'components-shared';
+	import { stateBetDerived } from 'state-shared';
 
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
@@ -45,8 +46,9 @@
 			show = false;
 		},
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
-			const WIN_SCALE_DURATION_MS = 600;
-			const SAFETY_TIMEOUT_MS = 3000;
+			const skipWin = stateBetDerived.skipWinAnimation();
+			const WIN_SCALE_DURATION_MS = skipWin ? 150 : 600;
+			const SAFETY_TIMEOUT_MS = skipWin ? 500 : 3000;
 			const getPromises = () =>
 				symbolPositions.map(async (position) => {
 					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];
@@ -55,6 +57,13 @@
 						console.log(`%c[H4 DEBUG] ❄️ Setting H4 to WIN state at [reel=${position.reel}][row=${position.row}] prevState=${prevState}`, 'color: cyan; font-weight: bold');
 						console.log(`[H4 DEBUG] ❄️ H4 rawSymbol:`, JSON.parse(JSON.stringify(reelSymbol.rawSymbol)));
 						console.trace('[H4 DEBUG] ❄️ Stack trace for H4 win trigger');
+					}
+					// In super turbo, skip the spritesheet/spine animation — just flash the glow
+					if (skipWin) {
+						reelSymbol.symbolState = 'win';
+						await new Promise((r) => setTimeout(r, WIN_SCALE_DURATION_MS));
+						reelSymbol.symbolState = 'postWinStatic';
+						return;
 					}
 					reelSymbol.symbolState = 'win';
 					const t0 = performance.now();

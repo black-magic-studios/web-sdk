@@ -26,7 +26,7 @@
 	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
 {:else if isSpriteSheet}
 	{#key `${symbolInfo.assetKey}-${props.state}`}
-		<SymbolSpriteSheet {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
+		<SymbolSpriteSheet {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} loop={props.loop} />
 	{/key}
 {:else}
 	<SymbolSpine
