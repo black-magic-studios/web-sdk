@@ -45,7 +45,7 @@
 		L4: 1.0,
 	};
 
-	// Paytable data — pays are multiplied by total bet
+	// Paytable data - pays are multiplied by total bet
 	const highPay = [
 		{ key: 'H1', pays: [1.0, 1.2, 1.4, 1.6, 1.9, 2.3, 2.8, 3.4, 4.2, 5.2, 6.5, 8.0, 9.8, 11.8, 14.0, 16.5] },
 		{ key: 'H2', pays: [0.8, 1.0, 1.2, 1.4, 1.7, 2.1, 2.6, 3.1, 3.8, 4.6, 5.7, 6.9, 8.4, 10.0, 11.9, 14.0] },
@@ -120,7 +120,7 @@
 				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
 						<h2>Paytable</h2>
-						<p class="subtitle">{isSocial ? 'All wins are multiplied by total play.' : 'All pays are multiplied by total bet.'} Minimum cluster size is 5 matching symbols.</p>
+						<p class="subtitle">{isSocial ? 'All values shown are multiplied by the total play amount.' : 'All values shown are multiplied by the total bet.'} A cluster must contain at least 5 matching symbols to pay.</p>
 
 						<h3>High Pay Symbols</h3>
 						{#each highPay as sym}
@@ -166,21 +166,21 @@
 								<img src={WILD_IMG} alt="Wild" class="special-icon" />
 								<div class="special-info">
 									<strong>Wild</strong>
-									<p>Substitutes for all paying symbols. Does not replace Bonus or Super Bonus symbols. Appears only through the Aurora feature.</p>
+									<p>Substitutes for all paying symbols. Does not replace Bonus or Super Bonus symbols. Wilds only appear through the Aurora Feature.</p>
 								</div>
 							</div>
 							<div class="special-row">
 								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
 								<div class="special-info">
 									<strong>Bonus</strong>
-									<p>Landing 3 or more Bonus symbols anywhere on the grid triggers the Bonus round. Does not need to be part of a cluster.</p>
+									<p>Landing 3 or more Bonus symbols anywhere on the grid triggers the Bonus Round. Bonus symbols do not need to form a cluster.</p>
 								</div>
 							</div>
 							<div class="special-row">
 								<img src={SUPER_IMG} alt="Super Bonus" class="special-icon" />
 								<div class="special-info">
 									<strong>Super Bonus</strong>
-									<p>Functions as a Bonus symbol. When 1 or more Super Bonus symbols appear alongside 3 or more Bonus symbols, the Super Bonus round is triggered instead of the standard Bonus round.</p>
+									<p>Counts as a Bonus symbol. When at least 1 Super Bonus symbol appears alongside 3 or more Bonus symbols, the Super Bonus Round is triggered instead of the standard Bonus Round.</p>
 								</div>
 							</div>
 						</div>
@@ -195,11 +195,11 @@
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
 							<div class="feature-steps">
-								<div class="step"><span class="step-num">1</span> Winning clusters are evaluated and {isSocial ? 'won.' : 'paid out.'}</div>
-								<div class="step"><span class="step-num">2</span> Winning symbols are removed from the grid.</div>
-								<div class="step"><span class="step-num">3</span> Remaining symbols drop down to fill empty spaces.</div>
-								<div class="step"><span class="step-num">4</span> New symbols appear from the top of each column.</div>
-								<div class="step"><span class="step-num">5</span> This repeats until no new winning clusters are formed.</div>
+								<div class="step"><span class="step-num">1</span> All clusters on the grid are evaluated and paid.</div>
+								<div class="step"><span class="step-num">2</span> Symbols that formed part of a paying cluster are removed.</div>
+								<div class="step"><span class="step-num">3</span> Remaining symbols fall downward to fill empty spaces.</div>
+								<div class="step"><span class="step-num">4</span> New symbols drop in from the top of each column.</div>
+								<div class="step"><span class="step-num">5</span> This repeats until no new clusters are formed.</div>
 							</div>
 						</div>
 					</div>
@@ -207,17 +207,16 @@
 					<div class="section">
 						<h2>Cell Multipliers</h2>
 						<div class="feature-block">
-							<p>Every cell on the grid has its own multiplier.</p>
+							<p>Every cell on the grid has a multiplier that starts inactive.</p>
 							<ul>
-								<li>When a cell is part of a winning cluster, it receives a <strong>2x</strong> multiplier after the win is paid.</li>
-								<li>On subsequent tumbles, if the same cell is part of another win, its multiplier doubles (<strong>2x → 4x → 8x → 16x</strong>, and so on up to <strong>1024x</strong>).</li>
-								<li>Multipliers are <strong>positional</strong> — they stay with the cell on the grid, not with the symbol. When symbols are removed and new ones fall in, the cell keeps its multiplier.</li>
-								<li>If a cell is part of multiple winning clusters in the same tumble, it still only doubles <strong>once</strong> for that tumble.</li>
-								<li>When calculating a cluster's payout, the multipliers of all cells in that cluster are summed.</li>
+								<li>When a cell is part of a winning cluster, it receives a <strong>2×</strong> multiplier. If the cell already has an active multiplier, it doubles with each additional winning tumble (<strong>2× → 4× → 8× → 16×</strong>, and so on, up to a maximum of <strong>1,024×</strong>).</li>
+								<li>Wild symbols are the only symbols that can belong to more than one cluster at a time. Even so, a Wild's cell multiplier only increases <strong>once</strong> per tumble step, regardless of how many clusters it helps complete.</li>
+								<li>Multipliers are <strong>positional</strong>. They stay at their cell location on the grid, not with the symbol.</li>
+								<li>When calculating a cluster's payout, the multipliers of all cells in that cluster with an active multiplier are added together, and the total is applied to the base pay. If no cells in the cluster have an active multiplier, only the base pay applies.</li>
 							</ul>
 							<div class="highlight-box">
-								<strong>Base Game:</strong> All multipliers reset at the start of each new spin.<br />
-								<strong>Bonus &amp; Super Bonus:</strong> Multipliers carry over and continue building across every spin in the round.
+								<strong>Base Game:</strong> All cell multipliers reset to inactive at the start of each spin.<br />
+								<strong>Bonus &amp; Super Bonus:</strong> Cell multipliers carry over from the triggering base-game spin and continue accumulating across every spin in the round.
 							</div>
 						</div>
 					</div>
@@ -225,27 +224,28 @@
 					<div class="section">
 						<h2>Aurora Feature</h2>
 						<div class="feature-block">
-							<p>At the start of each spin, <strong>0–5 Aurora cells</strong> are randomly placed on the grid.</p>
+							<p>At the start of each spin, <strong>0 to 5 Aurora cells</strong> are randomly assigned to positions on the grid.</p>
 							<ul>
-								<li>When a winning cluster lands on an Aurora cell, the cell <strong>activates</strong> and produces <strong>1–3 Wild symbols</strong>.</li>
-								<li>Wilds are held until no more wins remain, then placed on the board.</li>
-								<li>Aurora cells are consumed on activation and removed from the grid.</li>
+								<li>When a paying cluster forms on a cell marked as Aurora, the Aurora cell activates and generates <strong>1 to 3 Wild symbols</strong> as pending.</li>
+								<li>Once activated, the Aurora cell is removed from the grid. Each Aurora cell can only activate once.</li>
+								<li>Pending Wilds are not placed immediately. Tumbles continue until no further clusters form, at which point all pending Wilds are placed onto the board, replacing paying symbols only.</li>
+								<li>After placement, the tumble sequence resumes. If the placed Wilds create new clusters that overlap remaining Aurora cells, the process repeats.</li>
 							</ul>
 						</div>
 					</div>
 
 					<div class="section">
 						<h2>Aurora Collection</h2>
+						<p class="subtitle">Active during Bonus &amp; Super Bonus only</p>
 						<div class="feature-block">
-							<p>During Bonus or Super Bonus rounds, an <strong>Aurora collection</strong> tracker is shown on screen.</p>
+							<p>During Bonus or Super Bonus Rounds, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
 							<ul>
-								<li>When an Aurora cell activates, it places <strong>1–3 Wild symbols</strong> on the grid as usual.</li>
-								<li>After the Wilds are placed, any Wild that is part of a <strong>winning cluster</strong> is collected into the Aurora collection.</li>
-								<li>Wilds that are <strong>not</strong> part of any winning cluster are <strong>not collected</strong> and are removed normally.</li>
-								<li>After all Bonus spins are finished, every collected Wild is placed <strong>randomly</strong> on the grid for one <strong>final Aurora Spin</strong>.</li>
+								<li>When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a <strong>paying cluster</strong> is added to the collection.</li>
+								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
+								<li>After all Bonus spins are completed, a <strong>Final Aurora Spin</strong> occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.</li>
 							</ul>
 							<div class="highlight-box">
-								<strong>Super Bonus:</strong> Enhanced Aurora places 2–7 cells per spin, increasing the number of Wilds that can be collected.
+								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
 							</div>
 						</div>
 					</div>
@@ -253,7 +253,7 @@
 					<div class="section">
 						<h2>Bonus Round</h2>
 						<div class="feature-block">
-							<p>Land <strong>3 or more Bonus symbols</strong> anywhere on the grid to trigger the Bonus round.</p>
+							<p>Landing <strong>3 or more Bonus symbols</strong> anywhere on the grid triggers the Bonus Round.</p>
 							<table class="info-table">
 								<thead><tr><th>Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
@@ -262,7 +262,7 @@
 									<tr><td>5+</td><td>15</td></tr>
 								</tbody>
 							</table>
-							<p>Additional Bonus symbols during the round award extra spins:</p>
+							<p>Bonus symbols that land during the Bonus Round award additional spins (retrigger):</p>
 							<table class="info-table compact">
 								<thead><tr><th>Bonus Symbols</th><th>Extra Spins</th></tr></thead>
 								<tbody>
@@ -271,28 +271,30 @@
 									<tr><td>5</td><td>+10</td></tr>
 									<tr><td>6</td><td>+12</td></tr>
 									<tr><td>7</td><td>+15</td></tr>
-									<tr><td>8+</td><td>+18</td></tr>
 								</tbody>
 							</table>
+							<ul>
+								<li>If the Aurora Collection has any Wilds at the end of the round, a Final Aurora Spin is played (see Aurora Collection above).</li>
+							</ul>
 						</div>
 					</div>
 
 					<div class="section">
-						<h2>Super Bonus</h2>
+						<h2>Super Bonus Round</h2>
 						<div class="feature-block">
-							<p>Land <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> to trigger the Super Bonus.</p>
+							<p>Landing <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> on the same spin triggers the Super Bonus Round.</p>
 							<table class="info-table">
-								<thead><tr><th>Bonus + Super</th><th>Spins Awarded</th></tr></thead>
+								<thead><tr><th>Bonus Symbols</th><th>+ Super Bonus</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
-									<tr><td>3 + Super</td><td>10</td></tr>
-									<tr><td>4 + Super</td><td>12</td></tr>
-									<tr><td>5+ + Super</td><td>15</td></tr>
+									<tr><td>3</td><td>1+</td><td>10</td></tr>
+									<tr><td>4</td><td>1+</td><td>12</td></tr>
+									<tr><td>5+</td><td>1+</td><td>15</td></tr>
 								</tbody>
 							</table>
 							<ul>
-								<li>Enhanced Aurora: 2–7 cells per spin.</li>
-								<li>Cell multipliers persist throughout all Super Bonus spins.</li>
-								<li>Aurora Collection is active — collected Wilds are placed in a final Aurora Spin.</li>
+								<li>Aurora places <strong>2 to 7</strong> cells per spin.</li>
+								<li>Aurora Collection is active. Collected Wilds are placed during the Final Aurora Spin at the end of the round.</li>
+								<li>Bonus symbols that land during the Super Bonus Round award extra spins using the same retrigger table as the standard Bonus Round.</li>
 							</ul>
 						</div>
 					</div>
@@ -396,11 +398,87 @@
 						<h2>Game Overview</h2>
 						<div class="stats-grid">
 							<div class="stat"><span class="stat-label">Grid</span><span class="stat-value">7 × 7</span></div>
-							<div class="stat"><span class="stat-label">Engine</span><span class="stat-value">Cluster Pays</span></div>
 							<div class="stat"><span class="stat-label">RTP</span><span class="stat-value">96.50%</span></div>
-							<div class="stat"><span class="stat-label">Volatility</span><span class="stat-value">High</span></div>
 							<div class="stat"><span class="stat-label">Max Win</span><span class="stat-value">25,000x</span></div>
-							<div class="stat"><span class="stat-label">Min Cluster</span><span class="stat-value">5 symbols</span></div>
+						</div>
+
+						<div class="cluster-example">
+							<p class="cluster-example-label">Winning Cluster Example</p>
+							<p class="cluster-example-desc">5 or more matching symbols connected horizontally or vertically form a paying cluster. Diagonal connections do not count.</p>
+							<!-- svelte-ignore a11y_missing_attribute -->
+							<svg class="cluster-svg" viewBox="0 0 250 200" xmlns="http://www.w3.org/2000/svg">
+								<defs>
+									<clipPath id="cell-0-0"><rect x="7" y="7" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-1-0"><rect x="55" y="7" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-2-0"><rect x="103" y="7" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-3-0"><rect x="151" y="7" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-4-0"><rect x="199" y="7" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-0-1"><rect x="7" y="55" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-1-1"><rect x="55" y="55" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-2-1"><rect x="103" y="55" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-3-1"><rect x="151" y="55" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-4-1"><rect x="199" y="55" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-0-2"><rect x="7" y="103" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-1-2"><rect x="55" y="103" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-2-2"><rect x="103" y="103" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-3-2"><rect x="151" y="103" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-4-2"><rect x="199" y="103" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-0-3"><rect x="7" y="151" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-1-3"><rect x="55" y="151" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-2-3"><rect x="103" y="151" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-3-3"><rect x="151" y="151" width="40" height="40" rx="4" /></clipPath>
+									<clipPath id="cell-4-3"><rect x="199" y="151" width="40" height="40" rx="4" /></clipPath>
+								</defs>
+								<!-- Background grid cells -->
+								{#each [0,1,2,3,4] as col}
+									{#each [0,1,2,3] as row}
+										<rect x={col * 48 + 5} y={row * 48 + 5} width="44" height="44" rx="6" fill="rgba(100,180,255,0.06)" stroke="rgba(100,180,255,0.12)" stroke-width="1" />
+									{/each}
+								{/each}
+								<!-- Winning cluster highlight cells (H1 cluster of 7) -->
+								<rect x="53" y="5" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="53" y="53" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="101" y="53" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="101" y="101" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="149" y="101" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="149" y="53" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<rect x="197" y="53" width="44" height="44" rx="6" fill="rgba(136,204,255,0.15)" stroke="#88ccff" stroke-width="1.5" />
+								<!-- H1 symbols in winning cluster -->
+								<image href={SYMBOL_SHEET} x={55 - 256 * 0 * (40/256)} y={7 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-1-0)" />
+								<image href={SYMBOL_SHEET} x={55 - 256 * 0 * (40/256)} y={55 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-1-1)" />
+								<image href={SYMBOL_SHEET} x={103 - 256 * 0 * (40/256)} y={55 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-2-1)" />
+								<image href={SYMBOL_SHEET} x={103 - 256 * 0 * (40/256)} y={103 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-2-2)" />
+								<image href={SYMBOL_SHEET} x={151 - 256 * 0 * (40/256)} y={103 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-3-2)" />
+								<image href={SYMBOL_SHEET} x={151 - 256 * 0 * (40/256)} y={55 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-3-1)" />
+								<image href={SYMBOL_SHEET} x={199 - 256 * 0 * (40/256)} y={55 - 0 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-4-1)" />
+								<!-- Mixed other symbols in non-cluster cells -->
+								<!-- L2 at (0,0) - sprite pos (0,256) -->
+								<image href={SYMBOL_SHEET} x={7} y={7 - 256 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-0-0)" opacity="0.3" />
+								<!-- H3 at (2,0) - sprite pos (512,0) -->
+								<image href={SYMBOL_SHEET} x={103 - 512 * (40/256)} y={7} width={3 * 40} height={3 * 40} clip-path="url(#cell-2-0)" opacity="0.3" />
+								<!-- L4 at (3,0) - sprite pos (512,256) -->
+								<image href={SYMBOL_SHEET} x={151 - 512 * (40/256)} y={7 - 256 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-3-0)" opacity="0.3" />
+								<!-- H2 at (4,0) - sprite pos (256,0) -->
+								<image href={SYMBOL_SHEET} x={199 - 256 * (40/256)} y={7} width={3 * 40} height={3 * 40} clip-path="url(#cell-4-0)" opacity="0.3" />
+								<!-- L3 at (0,1) - sprite pos (256,256) -->
+								<image href={SYMBOL_SHEET} x={7 - 256 * (40/256)} y={55 - 256 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-0-1)" opacity="0.3" />
+								<!-- H4 at (0,2) - sprite pos (0,512) -->
+								<image href={SYMBOL_SHEET} x={7} y={103 - 512 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-0-2)" opacity="0.3" />
+								<!-- L1 at (1,2) - sprite pos (256,512) -->
+								<image href={SYMBOL_SHEET} x={55 - 256 * (40/256)} y={103 - 512 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-1-2)" opacity="0.3" />
+								<!-- H2 at (4,2) - sprite pos (256,0) -->
+								<image href={SYMBOL_SHEET} x={199 - 256 * (40/256)} y={103} width={3 * 40} height={3 * 40} clip-path="url(#cell-4-2)" opacity="0.3" />
+								<!-- L2 at (0,3) - sprite pos (0,256) -->
+								<image href={SYMBOL_SHEET} x={7} y={151 - 256 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-0-3)" opacity="0.3" />
+								<!-- H3 at (1,3) - sprite pos (512,0) -->
+								<image href={SYMBOL_SHEET} x={55 - 512 * (40/256)} y={151} width={3 * 40} height={3 * 40} clip-path="url(#cell-1-3)" opacity="0.3" />
+								<!-- L4 at (2,3) - sprite pos (512,256) -->
+								<image href={SYMBOL_SHEET} x={103 - 512 * (40/256)} y={151 - 256 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-2-3)" opacity="0.3" />
+								<!-- L1 at (3,3) - sprite pos (256,512) -->
+								<image href={SYMBOL_SHEET} x={151 - 256 * (40/256)} y={151 - 512 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-3-3)" opacity="0.3" />
+								<!-- H4 at (4,3) - sprite pos (0,512) -->
+								<image href={SYMBOL_SHEET} x={199} y={151 - 512 * (40/256)} width={3 * 40} height={3 * 40} clip-path="url(#cell-4-3)" opacity="0.3" />
+							</svg>
 						</div>
 					</div>
 
@@ -408,13 +486,11 @@
 						<h2>General Rules</h2>
 						<div class="feature-block">
 							<ul>
-								<li>A winning cluster requires 5 or more matching symbols connected horizontally or vertically (not diagonally).</li>
-								<li>Wild symbols substitute for all paying symbols but cannot replace Bonus symbols.</li>
-								<li>Wild symbols may contribute to multiple clusters at once, but their cell multiplier only increases once per tumble.</li>
-								<li>Bonus symbols are evaluated before tumbles begin.</li>
-								<li>All wins from a single spin, including tumbles, are combined into one total payout.</li>
-								<li>The maximum win per spin is capped at <strong>25,000x</strong> the {isSocial ? 'play' : 'bet'}. If the cap is reached, remaining tumbles are skipped.</li>
-								<li>Cluster payouts are capped at a cluster size of 20. Clusters larger than 20 pay the same as 20.</li>
+								<li>Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.</li>
+								<li>Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.</li>
+								<li>All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.</li>
+								<li>The maximum payout per spin is capped at <strong>25,000×</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
+								<li>Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.</li>
 							</ul>
 						</div>
 					</div>
@@ -434,17 +510,17 @@
 
 						<h3>Extra Chance</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>1.2x</strong> the standard {isSocial ? 'play' : 'bet'}. One Bonus symbol is guaranteed on the last reel each spin.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>2.5×</strong> the standard {isSocial ? 'play amount' : 'bet'}. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.</p>
 						</div>
 
 						<h3>{isSocial ? 'Get' : 'Buy'} Bonus</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>100x</strong> the standard {isSocial ? 'play' : 'bet'}. Immediately starts a Bonus round with <strong>8 spins</strong>.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>100×</strong> the standard {isSocial ? 'play amount' : 'bet'}. Immediately starts a Bonus Round with <strong>8 spins</strong>. No base-game spin occurs, and all cell multipliers start inactive.</p>
 						</div>
 
 						<h3>Grid Multiplier Modes</h3>
 						<div class="feature-block">
-							<p>Set every cell on the grid to a selected multiplier for an increased {isSocial ? 'play' : 'bet'} cost. The selected multiplier applies to all cells from the first tumble.</p>
+							<p>Sets a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the {isSocial ? 'play' : 'bet'} cost. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and continue accumulating from the selected starting level.</p>
 							<table class="info-table">
 								<thead>
 									<tr><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} Cost</th></tr>
@@ -473,10 +549,10 @@
 					<div class="section disclaimer-section">
 						<h2 class="disclaimer-title">General Disclaimer</h2>
 						<div class="disclaimer-block">
-							<p>Malfunction voids all wins and plays. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds.</p>
-							<p>The expected return is calculated over many plays. The game display is not representative of any physical device and is for illustrative purposes only.</p>
-							<p>Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser.</p>
-							<p class="disclaimer-copyright">TM and &copy; {new Date().getFullYear()} Stake Engine.</p>
+							<p>Any malfunction voids all plays and payouts. A stable internet connection is required. If a disconnection occurs, reload the game to resume any unfinished round.</p>
+							<p>The stated return percentage is based on a large number of rounds and does not apply to any individual session. The game display is illustrative only and does not represent a physical device.</p>
+							<p>All payouts are determined by the Remote Game Server. Values shown in the browser are for display purposes and may differ from the final settled amounts.</p>
+							<p class="disclaimer-copyright">&copy; {new Date().getFullYear()} Stake Engine. All rights reserved.</p>
 						</div>
 					</div>
 				{/if}
@@ -947,6 +1023,39 @@
 		gap: 8px;
 	}
 
+	/* ── Cluster example diagram ── */
+	.cluster-example {
+		margin-top: 16px;
+		padding: 14px;
+		border-radius: 10px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(100, 180, 255, 0.08);
+		text-align: center;
+	}
+
+	.cluster-example-label {
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: 12px;
+		font-weight: 600;
+		color: rgba(136, 204, 255, 0.7);
+		text-transform: uppercase;
+		letter-spacing: 0.4px;
+		margin: 0 0 4px;
+	}
+
+	.cluster-example-desc {
+		font-size: 11.5px;
+		color: rgba(255, 255, 255, 0.5);
+		line-height: 1.5;
+		margin: 0 0 12px;
+	}
+
+	.cluster-svg {
+		width: 100%;
+		max-width: 280px;
+		height: auto;
+	}
+
 	.stat {
 		display: flex;
 		flex-direction: column;
@@ -1055,6 +1164,6 @@
 			grid-template-columns: repeat(2, 1fr);
 		}
 
-		.stats-grid { grid-template-columns: repeat(2, 1fr); }
+		.stats-grid { grid-template-columns: repeat(3, 1fr); }
 	}
 </style>
