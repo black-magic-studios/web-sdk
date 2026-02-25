@@ -3,7 +3,8 @@
 		| { type: 'multiplierGridUpdate'; grid: number[][] }
 		| { type: 'multiplierGridExplode'; grid: number[][] }
 		| { type: 'multiplierGridReveal'; grid: number[][] }
-		| { type: 'multiplierGridClear' };
+		| { type: 'multiplierGridClear' }
+		| { type: 'multiplierGridHighlightHigh' };
 </script>
 
 <script lang="ts">
@@ -12,6 +13,7 @@
 	import { backOut, cubicOut, cubicInOut } from 'svelte/easing';
 	import { Container, SpriteSheet, Sprite } from 'pixi-svelte';
 
+	import { stateBetDerived } from 'state-shared';
 	import BoardContainer from './BoardContainer.svelte';
 	import MultiplierLabel from './MultiplierLabel.svelte';
 	import { getContext } from '../game/context';
@@ -286,55 +288,57 @@
 	/** Animate a cell appearing with depth cues + label scale pop + vibrance + hue sweep.
 	 *  Starts muted (rest tint) → ramps to full brightness at peak → settles back to muted. */
 	async function animateCellAppear(anim: CellAnimState, idleShadow: number) {
+		const ts = stateBetDerived.timeScale();
 		// Phase A: fade in at rest brightness, scale up to peak (250ms)
 		anim.vibrance.set(0, { duration: 0 }); // start muted
-		anim.alpha.set(1, { duration: 180, easing: cubicOut });
-		anim.yOffset.set(0, { duration: 350, easing: cubicOut });
-		anim.shadowAlpha.set(0.55, { duration: 200, easing: cubicOut });
-		anim.highlightBoost.set(0.20, { duration: 250, easing: cubicOut });
-		anim.labelScale.set(1.06, { duration: 250, easing: cubicOut });
-		anim.vibrance.set(1, { duration: 250, easing: cubicOut }); // ramp muted → bright
+		anim.alpha.set(1, { duration: 180 / ts, easing: cubicOut });
+		anim.yOffset.set(0, { duration: 350 / ts, easing: cubicOut });
+		anim.shadowAlpha.set(0.55, { duration: 200 / ts, easing: cubicOut });
+		anim.highlightBoost.set(0.20, { duration: 250 / ts, easing: cubicOut });
+		anim.labelScale.set(1.06, { duration: 250 / ts, easing: cubicOut });
+		anim.vibrance.set(1, { duration: 250 / ts, easing: cubicOut }); // ramp muted → bright
 		// Shimmer sweeps left→right during expand
 		anim.shimmer.set(-0.2, { duration: 0 });
-		anim.shimmer.set(1.2, { duration: 500, easing: cubicOut });
+		anim.shimmer.set(1.2, { duration: 500 / ts, easing: cubicOut });
 		// Hue-travel sweep: cyan→green→violet across fill
 		anim.hueSweep.set(0, { duration: 0 });
-		anim.hueSweep.set(1, { duration: 300, easing: cubicOut });
-		await anim.scale.set(1.12, { duration: 250, easing: cubicOut });
+		anim.hueSweep.set(1, { duration: 300 / ts, easing: cubicOut });
+		await anim.scale.set(1.12, { duration: 250 / ts, easing: cubicOut });
 		// Phase B: hold at peak briefly then settle to idle (400ms)
-		anim.shadowAlpha.set(idleShadow, { duration: 350, easing: cubicInOut });
-		anim.highlightBoost.set(0, { duration: 350, easing: cubicInOut });
-		anim.labelScale.set(LABEL_REST_SCALE, { duration: 400, easing: cubicInOut });
-		anim.vibrance.set(0, { duration: 400, easing: cubicInOut });
-		anim.hueSweep.set(0, { duration: 150 });
-		await anim.scale.set(1, { duration: 300, easing: cubicInOut });
+		anim.shadowAlpha.set(idleShadow, { duration: 350 / ts, easing: cubicInOut });
+		anim.highlightBoost.set(0, { duration: 350 / ts, easing: cubicInOut });
+		anim.labelScale.set(LABEL_REST_SCALE, { duration: 400 / ts, easing: cubicInOut });
+		anim.vibrance.set(0, { duration: 400 / ts, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 150 / ts });
+		await anim.scale.set(1, { duration: 300 / ts, easing: cubicInOut });
 	}
 
 	/** Animate a cell upgrading with punch + label pop + vibrance + hue sweep. */
 	async function animateCellUpgrade(anim: CellAnimState, idleShadow: number) {
+		const ts = stateBetDerived.timeScale();
 		// Phase A: expand + kick up + label grows + vibrance ramps up (200ms)
-		anim.yOffset.set(-5, { duration: 180, easing: cubicOut });
-		anim.shadowAlpha.set(0.60, { duration: 180, easing: cubicOut });
-		anim.highlightBoost.set(0.25, { duration: 200, easing: cubicOut });
-		anim.labelScale.set(1.10, { duration: 200, easing: cubicOut });
-		anim.vibrance.set(1, { duration: 200, easing: cubicOut });
+		anim.yOffset.set(-5, { duration: 180 / ts, easing: cubicOut });
+		anim.shadowAlpha.set(0.60, { duration: 180 / ts, easing: cubicOut });
+		anim.highlightBoost.set(0.25, { duration: 200 / ts, easing: cubicOut });
+		anim.labelScale.set(1.10, { duration: 200 / ts, easing: cubicOut });
+		anim.vibrance.set(1, { duration: 200 / ts, easing: cubicOut });
 		// Shimmer sweeps left→right during upgrade
 		anim.shimmer.set(-0.2, { duration: 0 });
-		anim.shimmer.set(1.2, { duration: 450, easing: cubicOut });
+		anim.shimmer.set(1.2, { duration: 450 / ts, easing: cubicOut });
 		// Hue-travel sweep: cyan→green→violet across fill
 		anim.hueSweep.set(0, { duration: 0 });
-		anim.hueSweep.set(1, { duration: 300, easing: cubicOut });
-		await anim.scale.set(1.22, { duration: 200, easing: cubicOut });
+		anim.hueSweep.set(1, { duration: 300 / ts, easing: cubicOut });
+		await anim.scale.set(1.22, { duration: 200 / ts, easing: cubicOut });
 		// Phase B: slight undershoot (150ms)
-		anim.yOffset.set(0, { duration: 280, easing: cubicInOut });
-		await anim.scale.set(0.97, { duration: 150 });
+		anim.yOffset.set(0, { duration: 280 / ts, easing: cubicInOut });
+		await anim.scale.set(0.97, { duration: 150 / ts });
 		// Phase C: settle back to muted (300ms)
-		anim.shadowAlpha.set(idleShadow, { duration: 280, easing: cubicInOut });
-		anim.highlightBoost.set(0, { duration: 280, easing: cubicInOut });
-		anim.labelScale.set(LABEL_REST_SCALE, { duration: 300, easing: cubicInOut });
-		anim.vibrance.set(0, { duration: 300, easing: cubicInOut });
-		anim.hueSweep.set(0, { duration: 150 });
-		await anim.scale.set(1, { duration: 220, easing: cubicInOut });
+		anim.shadowAlpha.set(idleShadow, { duration: 280 / ts, easing: cubicInOut });
+		anim.highlightBoost.set(0, { duration: 280 / ts, easing: cubicInOut });
+		anim.labelScale.set(LABEL_REST_SCALE, { duration: 300 / ts, easing: cubicInOut });
+		anim.vibrance.set(0, { duration: 300 / ts, easing: cubicInOut });
+		anim.hueSweep.set(0, { duration: 150 / ts });
+		await anim.scale.set(1, { duration: 220 / ts, easing: cubicInOut });
 	}
 
 	/** Animate newly-appearing cells with staggered multi-prop entrance.
@@ -342,6 +346,7 @@
 	function animateNewCells(newGrid: number[][]) {
 		const previousGrid = context.stateGame.multiplierPreviousGrid;
 		const nextScales = new Map(cellScales);
+		const ts = stateBetDerived.timeScale();
 
 		for (let reel = 0; reel < newGrid.length; reel++) {
 			for (let row = 0; row < newGrid[reel].length; row++) {
@@ -356,7 +361,7 @@
 					nextScales.set(key, anim);
 					const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
 					const microOffset = ((reel + row) % 4) * MICRO_STAGGER_MS;
-					const delay = ((MAX_DIST - dist) * DIST_STAGGER_MS) + microOffset + BASE_OFFSET_MS;
+					const delay = (((MAX_DIST - dist) * DIST_STAGGER_MS) + microOffset + BASE_OFFSET_MS) / ts;
 					setTimeout(() => animateCellAppear(anim, idle), delay);
 				} else if (newVal > 1 && prevVal > 1 && newVal !== prevVal) {
 					// Multiplier upgraded
@@ -365,7 +370,7 @@
 						const idle = getIdleShadowAlpha(newVal);
 						const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
 						const microOffset = ((reel + row) % 4) * MICRO_STAGGER_MS;
-						const delay = ((MAX_DIST - dist) * DIST_STAGGER_MS) + microOffset + BASE_OFFSET_MS;
+						const delay = (((MAX_DIST - dist) * DIST_STAGGER_MS) + microOffset + BASE_OFFSET_MS) / ts;
 						setTimeout(() => animateCellUpgrade(existing, idle), delay);
 					}
 				} else if (newVal <= 1) {
@@ -401,6 +406,7 @@
 
 	// Scale for explosion spritesheet (fit to symbol height × 1.5)
 	const explosionScale = $derived((symbolHeight * EXPLOSION_SIZE_RATIO) / EXPLOSION_FRAME_HEIGHT);
+	const explosionAnimSpeed = $derived(EXPLOSION_ANIMATION_SPEED * stateBetDerived.timeScale());
 	const hasExplosions = $derived(context.stateGame.multiplierExplodingCells.size > 0);
 
 	context.eventEmitter.subscribeOnMount({
@@ -433,7 +439,8 @@
 			// matches the vanish stagger in TumbleBoard per-cell.
 			const explosionPromises = upgradingCells.map((cell) => {
 				return new Promise<void>((resolve) => {
-					const delay = Math.round((maxDist - cell.dist) * EXPLOSION_STAGGER_PER_DIST);
+					const ts = stateBetDerived.timeScale();
+					const delay = Math.round((maxDist - cell.dist) * EXPLOSION_STAGGER_PER_DIST / ts);
 					setTimeout(() => {
 						const key = getCellKey(cell.reel, cell.row);
 						context.stateGame.multiplierExplodingCells = new Set([...context.stateGame.multiplierExplodingCells, key]);
@@ -444,7 +451,7 @@
 							nextExploding.delete(key);
 							context.stateGame.multiplierExplodingCells = nextExploding;
 							resolve();
-						}, EXPLOSION_DURATION_MS);
+						}, EXPLOSION_DURATION_MS / ts);
 					}, delay);
 				});
 			});
@@ -493,7 +500,7 @@
 			// Stagger cell reveals
 			const revealPromises = upgradingCells.map((cell, sortedIndex) => {
 				return new Promise<void>((resolve) => {
-					const delay = sortedIndex * DIST_STAGGER_MS;
+					const delay = sortedIndex * DIST_STAGGER_MS / stateBetDerived.timeScale();
 					setTimeout(async () => {
 						const key = getCellKey(cell.reel, cell.row);
 
@@ -547,6 +554,47 @@
 			context.stateGame.multiplierExplodingCells = new Set();
 			// Update GLOBAL state
 			context.stateGame.multiplierGrid = DEFAULT_GRID;
+		},
+		multiplierGridHighlightHigh: async () => {
+			// Briefly brighten all multiplier cells ≥32× so the player can see them
+			const currentGrid = context.stateGame.multiplierGrid;
+			const scales = context.stateGame.multiplierCellScales as Map<string, CellAnimState>;
+			if (!scales || scales.size === 0) return;
+
+			const highCells: { key: string; anim: CellAnimState }[] = [];
+			for (let reel = 0; reel < currentGrid.length; reel++) {
+				for (let row = 0; row < currentGrid[reel].length; row++) {
+					if (currentGrid[reel][row] >= 32) {
+						const key = getCellKey(reel, row);
+						const anim = scales.get(key);
+						if (anim) highCells.push({ key, anim });
+					}
+				}
+			}
+
+			if (highCells.length === 0) return;
+
+			const ts = stateBetDerived.timeScale();
+
+			// Ramp up vibrance + label scale
+			for (const { anim } of highCells) {
+				anim.vibrance.set(1, { duration: 150 / ts, easing: cubicOut });
+				anim.labelScale.set(1.06, { duration: 150 / ts, easing: cubicOut });
+				anim.highlightBoost.set(0.20, { duration: 150 / ts, easing: cubicOut });
+			}
+
+			// Hold for a moment so the player can see the high multipliers
+			await new Promise((r) => setTimeout(r, 500 / ts));
+
+			// Ramp back down
+			for (const { anim } of highCells) {
+				anim.vibrance.set(0, { duration: 250 / ts, easing: cubicInOut });
+				anim.labelScale.set(LABEL_REST_SCALE, { duration: 250 / ts, easing: cubicInOut });
+				anim.highlightBoost.set(0, { duration: 250 / ts, easing: cubicInOut });
+			}
+
+			// Wait for ramp-down to finish
+			await new Promise((r) => setTimeout(r, 260 / ts));
 		},
 	});
 
@@ -678,7 +726,7 @@
 					animationName={EXPLOSION_ANIMATION_NAME}
 					anchor={0.5}
 					scale={explosionScale}
-					animationSpeed={EXPLOSION_ANIMATION_SPEED}
+					animationSpeed={explosionAnimSpeed}
 					loop={false}
 					play={true}
 				/>

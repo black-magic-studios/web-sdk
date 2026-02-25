@@ -24,6 +24,7 @@
 	import { BoardContext } from 'components-shared';
 	import { Container, SpriteSheet } from 'pixi-svelte';
 	import { waitForResolve } from 'utils-shared/wait';
+	import { stateBetDerived } from 'state-shared';
 
 	import BoardContainer from './BoardContainer.svelte';
 	import TumbleBoardBase from './TumbleBoardBase.svelte';
@@ -37,6 +38,11 @@
 		L1: 'glowL1', L2: 'glowL2', L3: 'glowL3', L4: 'glowL4',
 	};
 	const GLOW_FALLBACK_KEY = 'glowGeneric';
+
+	// Per-symbol size ratios — glow must scale to match the symbol's display size
+	const SYMBOL_GLOW_SCALE: Record<string, number> = {
+		H1: 1.1, H2: 1.5, H3: 1.6, H4: 1.2,
+	};
 	const POOF_ANIMATION_NAME = 'poof';
 	const POOF_ANIMATION_SPEED = 1.0;
 	const POOF_FRAME_COUNT = 16;
@@ -60,14 +66,18 @@
 
 	let show = $state(false);
 
-	// Glow animation state: cellKey → asset key
-	let poofingCells = $state<Map<string, string>>(new Map());
+	// Glow animation state: cellKey → { asset key, symbol size ratio }
+	let poofingCells = $state<Map<string, { assetKey: string; sizeRatio: number }>>(new Map());
 	// Explosion animation state: cellKey → true
 	let explodingCells = $state<Set<string>>(new Set());
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const poofScale = $derived((symbolHeight * POOF_SIZE_RATIO) / POOF_FRAME_HEIGHT);
 	const explosionScale = $derived((symbolHeight * EXPLOSION_SIZE_RATIO) / EXPLOSION_FRAME_HEIGHT);
+
+	// Speed-scaled animation speeds for SpriteSheet components
+	const poofAnimSpeed = $derived(POOF_ANIMATION_SPEED * stateBetDerived.timeScale());
+	const explosionAnimSpeed = $derived(EXPLOSION_ANIMATION_SPEED * stateBetDerived.timeScale());
 	const hasPoofs = $derived(poofingCells.size > 0);
 	const hasExplosions = $derived(explodingCells.size > 0);
 
@@ -153,7 +163,7 @@
 			console.log('[TumbleBoard] tumbleBoardExplode called with positions:', explodingPositions);
 			
 			// Small delay to ensure any previous spriteSheet animations are cleared
-			await new Promise(resolve => setTimeout(resolve, 50));
+			await new Promise(resolve => setTimeout(resolve, 50 / stateBetDerived.timeScale()));
 
 			// Stagger explosions from outermost to innermost.
 			// Sort by Euclidean distance from center (descending) so every
@@ -171,7 +181,7 @@
 			
 			const getPromises = () =>
 				sorted.map(async (position, sortedIndex) => {
-					await new Promise(resolve => setTimeout(resolve, sortedIndex * CELL_STAGGER_MS));
+					await new Promise(resolve => setTimeout(resolve, sortedIndex * CELL_STAGGER_MS / stateBetDerived.timeScale()));
 					const tumbleSymbol = context.stateGame.tumbleBoardBase[position.reel][position.row];
 					console.log('[TumbleBoard] Setting symbol to explosion:', tumbleSymbol.rawSymbol.name, 'at', position, 'index', sortedIndex);
 					tumbleSymbol.symbolState = 'explosion';
@@ -201,7 +211,8 @@
 				.sort((a, b) => b.dist - a.dist);
 
 			const promises = sorted.map(async (pos, sortedIndex) => {
-				const staggerDelay = sortedIndex * CELL_STAGGER_MS;
+				const ts = stateBetDerived.timeScale();
+				const staggerDelay = sortedIndex * CELL_STAGGER_MS / ts;
 
 				// Stagger start
 				if (staggerDelay > 0) {
@@ -214,14 +225,15 @@
 				const symbolName = tumbleSymbol.rawSymbol?.name ?? '??';
 				const key = `${pos.reel},${pos.row}`;
 				const assetKey = GLOW_ASSET_MAP[symbolName] ?? GLOW_FALLBACK_KEY;
+				const sizeRatio = SYMBOL_GLOW_SCALE[symbolName] ?? 1;
 
 				// Start glow overlay — symbol stays visible underneath
 				const nextMap = new Map(poofingCells);
-				nextMap.set(key, assetKey);
+				nextMap.set(key, { assetKey, sizeRatio });
 				poofingCells = nextMap;
 
 				// Wait for full glow animation (symbol stays visible)
-				await new Promise((r) => setTimeout(r, POOF_DURATION_MS));
+				await new Promise((r) => setTimeout(r, POOF_DURATION_MS / ts));
 
 				// Hide symbol + start explosion at the SAME moment
 				tumbleSymbol.symbolState = 'vanished';
@@ -233,7 +245,7 @@
 				poofingCells = next;
 
 				// Wait for explosion to finish
-				await new Promise((r) => setTimeout(r, EXPLOSION_DURATION_MS));
+				await new Promise((r) => setTimeout(r, EXPLOSION_DURATION_MS / ts));
 
 				// Cleanup explosion sprite
 				const nextExploding = new Set(explodingCells);
@@ -271,8 +283,7 @@
 							const startY = tumbleSymbol.symbolY.current;
 							if (targetY !== startY) {
 								console.log(`[TumbleBoard]   Reel ${reelIndex}, Symbol ${symbolIndex}: ${tumbleSymbol.rawSymbol.name} sliding from Y=${startY.toFixed(1)} → Y=${targetY.toFixed(1)} (distance: ${(targetY - startY).toFixed(1)})`);
-								const bounceDuration = 200;
-
+						const bounceDuration = 200 / stateBetDerived.timeScale();
 								await tumbleSymbol.symbolY.set(targetY, {
 									duration: bounceDuration,
 									easing: constrainedBackOut,
@@ -316,7 +327,7 @@
 	<!-- Glow overlay in its own high-zIndex layer so it renders ABOVE symbols -->
 	{#if hasPoofs}
 		<BoardContainer zIndex={20}>
-			{#each [...poofingCells] as [cellKey, assetKey] (cellKey)}
+			{#each [...poofingCells] as [cellKey, cellData] (cellKey)}
 				{@const [reelStr, rowStr] = cellKey.split(',')}
 				{@const reel = parseInt(reelStr)}
 				{@const row = parseInt(rowStr)}
@@ -324,13 +335,13 @@
 					x={getSymbolXDynamic(reel, symbolWidth)}
 					y={getSymbolYDynamic(row - 1, symbolHeight)}
 				>
-					<!-- Main glow -->
+					<!-- Main glow — scaled to match symbol's display sizeRatio -->
 					<SpriteSheet
-						key={assetKey}
+						key={cellData.assetKey}
 						animationName={POOF_ANIMATION_NAME}
 						anchor={0.5}
-						scale={poofScale}
-						animationSpeed={POOF_ANIMATION_SPEED}
+						scale={poofScale * cellData.sizeRatio}
+						animationSpeed={poofAnimSpeed}
 						loop={false}
 						play={true}
 					/>
@@ -355,7 +366,7 @@
 						animationName={EXPLOSION_ANIMATION_NAME}
 						anchor={0.5}
 						scale={explosionScale}
-						animationSpeed={EXPLOSION_ANIMATION_SPEED}
+						animationSpeed={explosionAnimSpeed}
 						loop={false}
 						play={true}
 					/>

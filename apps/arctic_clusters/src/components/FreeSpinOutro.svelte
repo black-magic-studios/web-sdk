@@ -10,6 +10,7 @@
 <script lang="ts">
 	import { waitForResolve } from 'utils-shared/wait';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
+	import { stateBetDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 
 	const context = getContext();
@@ -46,7 +47,7 @@
 
 	function startCountUp() {
 		const target = amount;
-		const duration = winLevelData?.presentDuration ?? 6000;
+		const duration = (winLevelData?.presentDuration ?? 6000) / stateBetDerived.timeScale();
 		const startTime = performance.now();
 
 		function tick() {

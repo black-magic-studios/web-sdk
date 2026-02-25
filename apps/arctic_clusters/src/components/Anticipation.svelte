@@ -9,6 +9,7 @@
 	type Props = {
 		reel: Reel;
 		oncomplete: () => void;
+		visible?: boolean;
 	};
 
 	const props: Props = $props();
@@ -20,11 +21,17 @@
 
 	$effect(() => {
 		if (props.reel.reelState.motion === 'stopped') {
-			animationName = 'anticipation_out';
+			if (props.visible === false) {
+				// Not showing visual — clean up immediately
+				props.oncomplete();
+			} else {
+				animationName = 'anticipation_out';
+			}
 		}
 	});
 </script>
 
+{#if props.visible !== false}
 <SpineProvider
 	key="anticipation"
 	width={SYMBOL_SIZE * 0.56}
@@ -52,3 +59,4 @@
 		}}
 	/>
 </SpineProvider>
+{/if}

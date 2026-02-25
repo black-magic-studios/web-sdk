@@ -6,7 +6,13 @@
 	import Anticipation from './Anticipation.svelte';
 
 	const context = getContext();
+
+	// Only show anticipation when 2+ scatters are already on the board
+	// (the 3rd scatter would trigger the bonus)
+	const shouldShowAnticipation = $derived(context.stateGame.scatterCounter >= 2);
+
 	const hasAnticipation = $derived(
+		shouldShowAnticipation &&
 		context.stateGame.board.some((reel) => reel.reelState.anticipating),
 	);
 </script>
@@ -32,6 +38,6 @@
 
 {#each context.stateGame.board as reel}
 	{#if reel.reelState.anticipating}
-		<Anticipation {reel} oncomplete={() => (reel.reelState.anticipating = false)} />
+		<Anticipation {reel} oncomplete={() => (reel.reelState.anticipating = false)} visible={shouldShowAnticipation} />
 	{/if}
 {/each}

@@ -7,7 +7,7 @@
 
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet } from 'state-shared';
+	import { stateBet, stateBetDerived } from 'state-shared';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 
@@ -43,7 +43,7 @@
 			if (emitterEvent.current !== undefined) {
 				current = emitterEvent.current;
 				pop = true;
-				setTimeout(() => (pop = false), 350);
+				setTimeout(() => (pop = false), 350 / stateBetDerived.timeScale());
 			}
 			if (emitterEvent.total !== undefined) total = emitterEvent.total;
 		},

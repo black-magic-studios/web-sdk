@@ -9,6 +9,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { Container, Graphics } from 'pixi-svelte';
 
+	import { stateBetDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
 
@@ -46,10 +47,10 @@
 	let raf = 0;
 	let animTime = $state(0);
 
-	// ── Timing constants (ms) ──
-	const TRACE_DURATION = 350;    // border traces around cell
-	const FLASH_DURATION = 150;    // bright flash when symbol swaps
-	const BURST_DURATION = 300;    // expanding ring dissipates
+	// ── Timing constants (ms) ── scaled by turbo speed
+	const TRACE_DURATION = $derived(350 / stateBetDerived.timeScale());
+	const FLASH_DURATION = $derived(150 / stateBetDerived.timeScale());
+	const BURST_DURATION = $derived(300 / stateBetDerived.timeScale());
 
 	onMount(() => {
 		const t0 = performance.now();

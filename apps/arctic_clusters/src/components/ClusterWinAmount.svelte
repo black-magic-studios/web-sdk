@@ -5,6 +5,8 @@
 		result: number;
 		reel: number; // 0 | 1 | 2 | 3 | 4 | 5;
 		row: number; // 1 | 2 | 3 | 4 | 5; // excluding the off top row and the off bottom row
+		dirX?: number; // normalized spread direction X (-1 to 1)
+		dirY?: number; // normalized spread direction Y (-1 to 1)
 	};
 	export type Win = RawWin & { oncomplete: () => void };
 </script>
@@ -31,7 +33,14 @@
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolSize = $derived((symbolWidth + symbolHeight) / 2);
-	const y = new Tween(0);
+
+	// Spread offset: float outward from center of winning cluster group
+	const spreadDistance = $derived(symbolHeight * 0.8);
+	const dirX = props.win.dirX ?? 0;
+	const dirY = props.win.dirY ?? -1; // default: float up if no direction given
+
+	const offsetX = new Tween(0);
+	const offsetY = new Tween(0);
 	const scale = new Tween(1);
 	let show = $state(true);
 
@@ -53,9 +62,13 @@
 		}
 	});
 
-	// update y
+	// Float outward along spread direction
 	onMount(async () => {
-		await y.set(-symbolHeight, { duration: (SECOND * 0.8) / stateBetDerived.timeScale() });
+		const dur = (SECOND * 0.8) / stateBetDerived.timeScale();
+		await Promise.all([
+			offsetX.set(dirX * spreadDistance, { duration: dur }),
+			offsetY.set(dirY * spreadDistance, { duration: dur }),
+		]);
 		show = false;
 	});
 </script>
@@ -69,8 +82,8 @@
 	{@const textContent = showMultiplier
 		? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
 		: bookEventAmountToCurrencyString(props.win.result)}
-	{@const textX = getSymbolXDynamic(props.win.reel, symbolWidth)}
-	{@const textY = getSymbolYDynamic(props.win.row - 1, symbolHeight) + y.current}
+	{@const textX = getSymbolXDynamic(props.win.reel, symbolWidth) + offsetX.current}
+	{@const textY = getSymbolYDynamic(props.win.row - 1, symbolHeight) + offsetY.current}
 	{@const fs = symbolSize * 0.5}
 	{@const textStyle = { fontFamily: FONT_FAMILY, fontSize: fs }}
 	{@const sc = scale.current}

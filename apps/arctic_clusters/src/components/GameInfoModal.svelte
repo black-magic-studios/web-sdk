@@ -21,9 +21,6 @@
 	const SUPER_IMG = '/assets/super.png';
 
 	// Spritesheet: 768x768, each symbol 256x256
-	// h1: 0,0  h2: 256,0  h3: 512,0
-	// l2: 0,256  l3: 256,256  l4: 512,256
-	// h4: 0,512  l1: 256,512
 	const symbolPos: Record<string, { x: number; y: number }> = {
 		H1: { x: 0, y: 0 },
 		H2: { x: 256, y: 0 },
@@ -37,30 +34,48 @@
 
 	// Paytable data — pays are multiplied by total bet
 	const highPay = [
-		{ key: 'H1', name: 'Polar Bear', pays: [1.0, 1.2, 1.4, 1.6, 1.9, 2.3, 2.8, 3.4, 4.2, 5.2, 6.5, 8.0, 9.8, 11.8, 14.0, 16.5] },
-		{ key: 'H2', name: 'Arctic Fox', pays: [0.8, 1.0, 1.2, 1.4, 1.7, 2.1, 2.6, 3.1, 3.8, 4.6, 5.7, 6.9, 8.4, 10.0, 11.9, 14.0] },
-		{ key: 'H3', name: 'Narwhal', pays: [0.6, 0.8, 1.0, 1.2, 1.4, 1.7, 2.1, 2.5, 3.0, 3.6, 4.3, 5.1, 6.0, 7.0, 8.1, 9.3] },
-		{ key: 'H4', name: 'Snowflake', pays: [0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.7, 2.0, 2.4, 2.9, 3.5, 4.1, 4.8, 5.6, 6.5, 7.5] },
+		{ key: 'H1', pays: [1.0, 1.2, 1.4, 1.6, 1.9, 2.3, 2.8, 3.4, 4.2, 5.2, 6.5, 8.0, 9.8, 11.8, 14.0, 16.5] },
+		{ key: 'H2', pays: [0.8, 1.0, 1.2, 1.4, 1.7, 2.1, 2.6, 3.1, 3.8, 4.6, 5.7, 6.9, 8.4, 10.0, 11.9, 14.0] },
+		{ key: 'H3', pays: [0.6, 0.8, 1.0, 1.2, 1.4, 1.7, 2.1, 2.5, 3.0, 3.6, 4.3, 5.1, 6.0, 7.0, 8.1, 9.3] },
+		{ key: 'H4', pays: [0.5, 0.6, 0.8, 1.0, 1.2, 1.4, 1.7, 2.0, 2.4, 2.9, 3.5, 4.1, 4.8, 5.6, 6.5, 7.5] },
 	];
 
 	const lowPay = [
-		{ key: 'L1', name: 'A', pays: [0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.2, 3.8, 4.5, 5.3, 6.2] },
-		{ key: 'L2', name: 'K', pays: [0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.2, 2.6, 3.1, 3.6, 4.2, 4.9] },
-		{ key: 'L3', name: 'Q', pays: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.1, 1.3, 1.6, 1.9, 2.3, 2.7, 3.2, 3.7, 4.3] },
-		{ key: 'L4', name: 'J', pays: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.1, 1.3, 1.6, 1.9, 2.2, 2.6, 3.0, 3.5] },
+		{ key: 'L1', pays: [0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.2, 3.8, 4.5, 5.3, 6.2] },
+		{ key: 'L2', pays: [0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.2, 2.6, 3.1, 3.6, 4.2, 4.9] },
+		{ key: 'L3', pays: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.1, 1.3, 1.6, 1.9, 2.3, 2.7, 3.2, 3.7, 4.3] },
+		{ key: 'L4', pays: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.1, 1.3, 1.6, 1.9, 2.2, 2.6, 3.0, 3.5] },
 	];
 
-	// Full cluster sizes: 5 through 20+
+	// Cluster sizes: 5 through 20+
 	const allClusterSizes = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
-	// Navigation tabs (used on desktop)
-	type Tab = 'paytable' | 'features' | 'rules' | 'modes';
+	// Navigation tabs
+	type Tab = 'paytable' | 'features' | 'controls' | 'rules' | 'modes' | 'disclaimer';
 	let activeTab = $state<Tab>('paytable');
+	const tabs: Tab[] = ['paytable', 'features', 'controls', 'rules', 'modes', 'disclaimer'];
+	const tabLabels: Record<Tab, string> = {
+		paytable: 'Paytable',
+		features: 'Features',
+		controls: 'Controls',
+		rules: 'Rules',
+		modes: 'Bet Modes',
+		disclaimer: 'Disclaimer',
+	};
+
+	// For mobile, swipe pages
+	let currentPage = $state(0);
+	const totalPages = tabs.length;
+	const nextPage = () => { if (currentPage < totalPages - 1) currentPage++; };
+	const prevPage = () => { if (currentPage > 0) currentPage--; };
 
 	// Detect mobile layout
 	const isMobile = $derived(
 		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
 	);
+
+	// Current page tab (for mobile)
+	const currentTab = $derived(tabs[currentPage]);
 </script>
 
 {#if props.show}
@@ -70,49 +85,45 @@
 			<!-- Tab navigation (desktop only) -->
 			{#if !isMobile}
 			<nav class="tabs">
-				<button class:active={activeTab === 'paytable'} onclick={() => (activeTab = 'paytable')}>Paytable</button>
-				<button class:active={activeTab === 'features'} onclick={() => (activeTab = 'features')}>Features</button>
-				<button class:active={activeTab === 'rules'} onclick={() => (activeTab = 'rules')}>Rules</button>
-				<button class:active={activeTab === 'modes'} onclick={() => (activeTab = 'modes')}>{t('BET MODES')}</button>
+				{#each tabs as tab}
+					<button class:active={activeTab === tab} onclick={() => (activeTab = tab)}>{tabLabels[tab]}</button>
+				{/each}
 			</nav>
+			{/if}
+
+			<!-- Mobile page navigation -->
+			{#if isMobile}
+				<div class="mobile-nav">
+					<button class="nav-arrow" onclick={prevPage} disabled={currentPage === 0}>&#9664;</button>
+					<span class="page-title">{tabLabels[currentTab]}</span>
+					<button class="nav-arrow" onclick={nextPage} disabled={currentPage === totalPages - 1}>&#9654;</button>
+				</div>
 			{/if}
 
 			<div class="content" class:mobile-content={isMobile}>
 				<!-- ═══════════════════════════════════════════ -->
 				<!-- PAYTABLE                                   -->
 				<!-- ═══════════════════════════════════════════ -->
-				{#if isMobile || activeTab === 'paytable'}
+				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
 						<h2>Paytable</h2>
-						<p class="subtitle">{@html t('All pays are multiplied by total bet. Minimum cluster size: 5 symbols.')}</p>
+						<p class="subtitle">All pays are multiplied by total bet. Minimum cluster size is 5 matching symbols.</p>
 
 						<h3>High Pay Symbols</h3>
 						{#each highPay as sym}
 							<div class="pay-symbol-block">
-								<div class="symbol-cell">
-									<div
-										class="symbol-icon"
+								<div class="pay-vertical-layout">
+									<div class="symbol-icon"
 										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256};"
 									></div>
-									<span class="symbol-name">{sym.name}</span>
-								</div>
-								<div class="pay-table-scroll">
-									<table class="pay-table">
-										<thead>
-											<tr>
-												{#each allClusterSizes as size, i}
-													<th>{size}{i === allClusterSizes.length - 1 ? '+' : ''}</th>
-												{/each}
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												{#each sym.pays as pay}
-													<td>{pay.toFixed(1)}x</td>
-												{/each}
-											</tr>
-										</tbody>
-									</table>
+									<div class="pay-rows">
+										{#each sym.pays as pay, i}
+											<div class="pay-row">
+												<span class="cluster-size">{allClusterSizes[i]}{i === allClusterSizes.length - 1 ? '+' : ''}</span>
+												<span class="pay-value">{pay.toFixed(1)}x</span>
+											</div>
+										{/each}
+									</div>
 								</div>
 							</div>
 						{/each}
@@ -120,30 +131,18 @@
 						<h3>Low Pay Symbols</h3>
 						{#each lowPay as sym}
 							<div class="pay-symbol-block">
-								<div class="symbol-cell">
-									<div
-										class="symbol-icon"
+								<div class="pay-vertical-layout">
+									<div class="symbol-icon"
 										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256};"
 									></div>
-									<span class="symbol-name">{sym.name}</span>
-								</div>
-								<div class="pay-table-scroll">
-									<table class="pay-table">
-										<thead>
-											<tr>
-												{#each allClusterSizes as size, i}
-													<th>{size}{i === allClusterSizes.length - 1 ? '+' : ''}</th>
-												{/each}
-											</tr>
-										</thead>
-										<tbody>
-											<tr>
-												{#each sym.pays as pay}
-													<td>{pay.toFixed(1)}x</td>
-												{/each}
-											</tr>
-										</tbody>
-									</table>
+									<div class="pay-rows">
+										{#each sym.pays as pay, i}
+											<div class="pay-row">
+												<span class="cluster-size">{allClusterSizes[i]}{i === allClusterSizes.length - 1 ? '+' : ''}</span>
+												<span class="pay-value">{pay.toFixed(1)}x</span>
+											</div>
+										{/each}
+									</div>
 								</div>
 							</div>
 						{/each}
@@ -154,41 +153,40 @@
 								<img src={WILD_IMG} alt="Wild" class="special-icon" />
 								<div class="special-info">
 									<strong>Wild</strong>
-									<p>Substitutes for all paying symbols. Cannot substitute for Scatter or Super Scatter. Only appears via the Aurora feature — never lands on an initial spin.</p>
+									<p>Substitutes for all paying symbols. Does not replace Bonus or Super Bonus symbols. Appears only through the Aurora feature.</p>
 								</div>
 							</div>
 							<div class="special-row">
-								<img src={SCATTER_IMG} alt="Scatter" class="special-icon" />
+								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
 								<div class="special-info">
-									<strong>Scatter</strong>
-									<p>Triggers Free Spins when 3 or more land anywhere on the grid. Does not need to be part of a cluster.</p>
+									<strong>Bonus</strong>
+									<p>Landing 3 or more Bonus symbols anywhere on the grid triggers the Bonus round. Does not need to be part of a cluster.</p>
 								</div>
 							</div>
 							<div class="special-row">
-								<img src={SUPER_IMG} alt="Super Scatter" class="special-icon" />
+								<img src={SUPER_IMG} alt="Super Bonus" class="special-icon" />
 								<div class="special-info">
-									<strong>Super Scatter</strong>
-									<p>Works like a Scatter, but when combined with 3+ regular Scatters, triggers the enhanced Super Bonus instead of Free Spins.</p>
+									<strong>Super Bonus</strong>
+									<p>Functions as a Bonus symbol. When 1 or more Super Bonus symbols appear alongside 3 or more Bonus symbols, the Super Bonus round is triggered instead of the standard Bonus round.</p>
 								</div>
 							</div>
 						</div>
 					</div>
-
 				{/if}
 
 				<!-- ═══════════════════════════════════════════ -->
 				<!-- FEATURES                                   -->
 				<!-- ═══════════════════════════════════════════ -->
-				{#if isMobile || activeTab === 'features'}
+				{#if (!isMobile && activeTab === 'features') || (isMobile && currentTab === 'features')}
 					<div class="section">
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
 							<div class="feature-steps">
-								<div class="step"><span class="step-num">1</span> All winning clusters are evaluated and paid.</div>
+								<div class="step"><span class="step-num">1</span> Winning clusters are evaluated and paid out.</div>
 								<div class="step"><span class="step-num">2</span> Winning symbols are removed from the grid.</div>
-								<div class="step"><span class="step-num">3</span> Remaining symbols fall down to fill gaps.</div>
-								<div class="step"><span class="step-num">4</span> New symbols drop in from the top.</div>
-								<div class="step"><span class="step-num">5</span> Process repeats until no new wins form.</div>
+								<div class="step"><span class="step-num">3</span> Remaining symbols drop down to fill empty spaces.</div>
+								<div class="step"><span class="step-num">4</span> New symbols appear from the top of each column.</div>
+								<div class="step"><span class="step-num">5</span> This repeats until no new winning clusters are formed.</div>
 							</div>
 						</div>
 					</div>
@@ -196,16 +194,17 @@
 					<div class="section">
 						<h2>Cell Multipliers</h2>
 						<div class="feature-block">
-							<p>Every cell on the grid has a positional multiplier starting at <strong>1x</strong>.</p>
+							<p>Every cell on the grid has its own multiplier.</p>
 							<ul>
-								<li>When a cell is part of a winning cluster, its multiplier <strong>doubles</strong> after the win is paid (1x → 2x → 4x → 8x … up to 1024x).</li>
-								<li>Multipliers are <strong>positional</strong> — they stay at the cell, not with the symbol.</li>
-								<li>If a cell is part of multiple winning clusters in the same tumble, its multiplier only doubles <strong>once</strong>.</li>
-								<li>For each cluster, the win is calculated using the sum of all cell multipliers ≥ 2x within the cluster. If all cells are 1x, the base pay applies.</li>
+								<li>When a cell is part of a winning cluster, it receives a <strong>2x</strong> multiplier after the win is paid.</li>
+								<li>On subsequent tumbles, if the same cell is part of another win, its multiplier doubles (<strong>2x → 4x → 8x → 16x</strong>, and so on up to <strong>1024x</strong>).</li>
+								<li>Multipliers are <strong>positional</strong> — they stay with the cell on the grid, not with the symbol. When symbols are removed and new ones fall in, the cell keeps its multiplier.</li>
+								<li>If a cell is part of multiple winning clusters in the same tumble, it still only doubles <strong>once</strong> for that tumble.</li>
+								<li>When calculating a cluster's payout, the multipliers of all cells in that cluster are summed.</li>
 							</ul>
 							<div class="highlight-box">
-								<strong>Base Game:</strong> Multipliers reset to 1x each spin.<br />
-								<strong>Free Spins & Super Bonus:</strong> Multipliers persist across all spins.
+								<strong>Base Game:</strong> All multipliers reset at the start of each new spin.<br />
+								<strong>Bonus &amp; Super Bonus:</strong> Multipliers carry over and continue building across every spin in the round.
 							</div>
 						</div>
 					</div>
@@ -213,34 +212,46 @@
 					<div class="section">
 						<h2>Aurora Feature</h2>
 						<div class="feature-block">
-							<p>At the start of each spin, <strong>0–5 Aurora cells</strong> are randomly placed as invisible overlays on the grid.</p>
+							<p>At the start of each spin, <strong>0–5 Aurora cells</strong> are randomly placed on the grid.</p>
 							<ul>
-								<li>When a winning cluster lands on an Aurora cell, the Aurora <strong>activates</strong>.</li>
-								<li>Each activation generates <strong>1–3 Wild symbols</strong>.</li>
-								<li>Wilds are held in reserve until no more wins remain, then placed on the board to create new opportunities.</li>
-								<li>Aurora cells are single-use — once activated, they are removed.</li>
+								<li>When a winning cluster lands on an Aurora cell, the cell <strong>activates</strong> and produces <strong>1–3 Wild symbols</strong>.</li>
+								<li>Wilds are held until no more wins remain, then placed on the board.</li>
+								<li>Aurora cells are consumed on activation and removed from the grid.</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class="section">
+						<h2>Aurora Collection</h2>
+						<div class="feature-block">
+							<p>During Bonus or Super Bonus rounds, an <strong>Aurora collection</strong> tracker is shown on screen.</p>
+							<ul>
+								<li>When an Aurora cell activates, it places <strong>1–3 Wild symbols</strong> on the grid as usual.</li>
+								<li>After the Wilds are placed, any Wild that is part of a <strong>winning cluster</strong> is collected into the Aurora collection.</li>
+								<li>Wilds that are <strong>not</strong> part of any winning cluster are <strong>not collected</strong> and are removed normally.</li>
+								<li>After all Bonus spins are finished, every collected Wild is placed <strong>randomly</strong> on the grid for one <strong>final Aurora Spin</strong>.</li>
 							</ul>
 							<div class="highlight-box">
-								<strong>Super Bonus:</strong> Enhanced Aurora generates 2–7 cells per spin.
+								<strong>Super Bonus:</strong> Enhanced Aurora places 2–7 cells per spin, increasing the number of Wilds that can be collected.
 							</div>
 						</div>
 					</div>
 
 					<div class="section">
-						<h2>Free Spins</h2>
+						<h2>Bonus Round</h2>
 						<div class="feature-block">
-							<p>Land <strong>3 or more Scatter</strong> symbols anywhere on the grid to trigger Free Spins.</p>
+							<p>Land <strong>3 or more Bonus symbols</strong> anywhere on the grid to trigger the Bonus round.</p>
 							<table class="info-table">
-								<thead><tr><th>Scatters</th><th>Free Spins</th></tr></thead>
+								<thead><tr><th>Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
 									<tr><td>3</td><td>8</td></tr>
 									<tr><td>4</td><td>12</td></tr>
 									<tr><td>5+</td><td>15</td></tr>
 								</tbody>
 							</table>
-							<p>Free Spins can be <strong>retriggered</strong> by landing additional Scatters:</p>
+							<p>Additional Bonus symbols during the round award extra spins:</p>
 							<table class="info-table compact">
-								<thead><tr><th>Scatters</th><th>+Spins</th></tr></thead>
+								<thead><tr><th>Bonus Symbols</th><th>Extra Spins</th></tr></thead>
 								<tbody>
 									<tr><td>3</td><td>+5</td></tr>
 									<tr><td>4</td><td>+8</td></tr>
@@ -256,9 +267,9 @@
 					<div class="section">
 						<h2>Super Bonus</h2>
 						<div class="feature-block">
-							<p>Land <strong>3+ Scatters</strong> and at least <strong>1 Super Scatter</strong> to trigger the Super Bonus.</p>
+							<p>Land <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> to trigger the Super Bonus.</p>
 							<table class="info-table">
-								<thead><tr><th>Scatters + Super</th><th>Spins</th></tr></thead>
+								<thead><tr><th>Bonus + Super</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
 									<tr><td>3 + Super</td><td>10</td></tr>
 									<tr><td>4 + Super</td><td>12</td></tr>
@@ -268,16 +279,106 @@
 							<ul>
 								<li>Enhanced Aurora: 2–7 cells per spin.</li>
 								<li>Cell multipliers persist throughout all Super Bonus spins.</li>
+								<li>Aurora Collection is active — collected Wilds are placed in a final Aurora Spin.</li>
 							</ul>
 						</div>
 					</div>
+				{/if}
 
+				<!-- ═══════════════════════════════════════════ -->
+				<!-- CONTROLS                                   -->
+				<!-- ═══════════════════════════════════════════ -->
+				{#if (!isMobile && activeTab === 'controls') || (isMobile && currentTab === 'controls')}
+					<div class="section">
+						<h2>Game Controls</h2>
+
+						<div class="controls-list">
+							<div class="control-item">
+								<img src="/assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
+								<div class="control-info">
+									<strong>Spin</strong>
+									<p>Starts a spin using the current bet amount. Press again during a spin to skip animations.</p>
+								</div>
+							</div>
+
+							<div class="control-item">
+								<div class="control-bet-arrows">
+									<img src="/assets/sprites/buttons_new/increase_base.png" alt="Increase" class="control-btn-img-sm" />
+									<img src="/assets/sprites/buttons_new/decrease_base.png" alt="Decrease" class="control-btn-img-sm" />
+								</div>
+								<div class="control-info">
+									<strong>Bet Adjust</strong>
+									<p>Increase or decrease the bet amount per spin. The total cost is shown in the bet display.</p>
+								</div>
+							</div>
+
+							<div class="control-item">
+								<img src="/assets/sprites/buttons_new/autoplay_base.png" alt="Autoplay" class="control-btn-img" />
+								<div class="control-info">
+									<strong>Autoplay</strong>
+									<p>Automatically plays a set number of spins. Configure the number of rounds and optional stop conditions (e.g., on bonus trigger, on balance change).</p>
+								</div>
+							</div>
+
+							<div class="control-item">
+								<div class="turbo-speeds">
+									<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Normal" class="turbo-speed-img" />
+									<img src="/assets/sprites/buttons_new/turbo_turbo.png" alt="Turbo" class="turbo-speed-img" />
+									<img src="/assets/sprites/buttons_new/turbo_super.png" alt="Super Turbo" class="turbo-speed-img" />
+								</div>
+								<div class="control-info">
+									<strong>Spin Speed</strong>
+									<p>Cycles through three speeds: Normal, Turbo, and Super Turbo. Each press advances to the next speed.</p>
+								</div>
+							</div>
+
+							<div class="control-item">
+								<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="Buy Feature" class="control-btn-img" />
+								<div class="control-info">
+									<strong>Buy Feature</strong>
+									<p>Opens the feature purchase menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.</p>
+								</div>
+							</div>
+
+							<div class="control-item">
+								<img src="/assets/sprites/buttons_new/menu_base.png" alt="Menu" class="control-btn-img" />
+								<div class="control-info">
+									<strong>Menu</strong>
+									<p>Opens the settings menu with options for sound control, game info, and game rules.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="section">
+						<h2>Display Information</h2>
+						<div class="controls-list">
+							<div class="control-item">
+								<div class="control-label">BALANCE</div>
+								<div class="control-info">
+									<p>Shows your current account balance.</p>
+								</div>
+							</div>
+							<div class="control-item">
+								<div class="control-label">BET</div>
+								<div class="control-info">
+									<p>Displays the total cost of the current spin, including any active bet mode modifiers.</p>
+								</div>
+							</div>
+							<div class="control-item">
+								<div class="control-label">WIN</div>
+								<div class="control-info">
+									<p>Shows the total win amount for the current spin, including all tumble payouts.</p>
+								</div>
+							</div>
+						</div>
+					</div>
 				{/if}
 
 				<!-- ═══════════════════════════════════════════ -->
 				<!-- RULES                                     -->
 				<!-- ═══════════════════════════════════════════ -->
-				{#if isMobile || activeTab === 'rules'}
+				{#if (!isMobile && activeTab === 'rules') || (isMobile && currentTab === 'rules')}
 					<div class="section">
 						<h2>Game Overview</h2>
 						<div class="stats-grid">
@@ -294,47 +395,46 @@
 						<h2>General Rules</h2>
 						<div class="feature-block">
 							<ul>
-								<li>A winning cluster consists of 5 or more matching symbols connected horizontally or vertically (not diagonally).</li>
-								<li>Wild symbols substitute for all paying symbols (not Scatters).</li>
-								<li>Wild symbols can participate in multiple winning clusters simultaneously, but their cell multiplier only increases once per tumble.</li>
-								<li>Scatter symbols are counted before tumbles begin.</li>
-								<li>All wins from a single spin (including all tumbles) are accumulated into one total win.</li>
-							<li>Maximum win per spin is capped at <strong>25,000x</strong> the {t('BET').toLowerCase()}. If the cap is reached, remaining tumbles are stopped.</li>
-								<li>Cluster payouts are capped at cluster size 20 — clusters larger than 20 pay the same as 20.</li>
+								<li>A winning cluster requires 5 or more matching symbols connected horizontally or vertically (not diagonally).</li>
+								<li>Wild symbols substitute for all paying symbols but cannot replace Bonus symbols.</li>
+								<li>Wild symbols may contribute to multiple clusters at once, but their cell multiplier only increases once per tumble.</li>
+								<li>Bonus symbols are evaluated before tumbles begin.</li>
+								<li>All wins from a single spin, including tumbles, are combined into one total payout.</li>
+								<li>The maximum win per spin is capped at <strong>25,000x</strong> the bet. If the cap is reached, remaining tumbles are skipped.</li>
+								<li>Cluster payouts are capped at a cluster size of 20. Clusters larger than 20 pay the same as 20.</li>
 							</ul>
 						</div>
 					</div>
-
 				{/if}
 
 				<!-- ═══════════════════════════════════════════ -->
 				<!-- BET MODES                                  -->
 				<!-- ═══════════════════════════════════════════ -->
-				{#if isMobile || activeTab === 'modes'}
+				{#if (!isMobile && activeTab === 'modes') || (isMobile && currentTab === 'modes')}
 					<div class="section">
-						<h2>{t('BET MODES')}</h2>
+						<h2>Bet Modes</h2>
 
-						<h3>Standard Mode</h3>
+						<h3>Standard</h3>
 						<div class="feature-block">
-							<p>{@html t('Normal gameplay at 1x bet cost. All cell multipliers start at 1x.')}</p>
+							<p>Default gameplay at standard bet cost.</p>
 						</div>
 
-						<h3>{t('ANTE BET')}</h3>
+						<h3>Extra Chance</h3>
 						<div class="feature-block">
-							<p>{@html t('Costs <strong>2.5x</strong> the standard bet. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.')}</p>
+							<p>Costs <strong>1.2x</strong> the standard bet. One Bonus symbol is guaranteed on the last reel each spin.</p>
 						</div>
 
-						<h3>{t('BUY BONUS')}</h3>
+						<h3>Buy Bonus</h3>
 						<div class="feature-block">
-							<p>{@html t('Costs <strong>100x</strong> the standard bet. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.')}</p>
+							<p>Costs <strong>100x</strong> the standard bet. Immediately starts a Bonus round with <strong>8 spins</strong>.</p>
 						</div>
 
-						<h3>Multiplier Base Modes</h3>
+						<h3>Grid Multiplier Modes</h3>
 						<div class="feature-block">
-							<p>{@html t('Start every cell at a higher multiplier for an increased bet cost. All wins benefit from amplified multipliers from the very first tumble.')}</p>
+							<p>Set every cell on the grid to a selected multiplier for an increased bet cost. The selected multiplier applies to all cells from the first tumble.</p>
 							<table class="info-table">
 								<thead>
-									<tr><th>Start Mult</th><th>{t('BET COST')}</th></tr>
+									<tr><th>Starting Multiplier</th><th>Bet Cost</th></tr>
 								</thead>
 								<tbody>
 									<tr><td>2x</td><td>2.9x</td></tr>
@@ -352,7 +452,35 @@
 						</div>
 					</div>
 				{/if}
+
+				<!-- ═══════════════════════════════════════════ -->
+				<!-- DISCLAIMER                                 -->
+				<!-- ═══════════════════════════════════════════ -->
+				{#if (!isMobile && activeTab === 'disclaimer') || (isMobile && currentTab === 'disclaimer')}
+					<div class="section disclaimer-section">
+						<h2 class="disclaimer-title">General Disclaimer</h2>
+						<div class="disclaimer-block">
+							<p>Malfunction voids all wins and plays. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds.</p>
+							<p>The expected return is calculated over many plays. The game display is not representative of any physical device and is for illustrative purposes only.</p>
+							<p>Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser.</p>
+							<p class="disclaimer-copyright">TM and &copy; {new Date().getFullYear()} Stake Engine.</p>
+						</div>
+					</div>
+				{/if}
 			</div>
+
+			<!-- Mobile page dots -->
+			{#if isMobile}
+				<div class="page-dots">
+					{#each tabs as _, i}
+						<button
+							class="dot"
+							class:active={currentPage === i}
+							onclick={() => (currentPage = i)}
+						></button>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	</PopupLight>
 {/if}
@@ -377,7 +505,7 @@
 		max-height: none;
 	}
 
-	/* ── Tab navigation ── */
+	/* ── Tab navigation (desktop) ── */
 	.tabs {
 		display: flex;
 		border-bottom: 1px solid rgba(100, 180, 255, 0.15);
@@ -386,12 +514,12 @@
 
 		button {
 			flex: 1;
-			padding: 12px 8px;
+			padding: 12px 6px;
 			border: none;
 			background: transparent;
 			color: rgba(136, 204, 255, 0.6);
 			font-family: 'proxima-nova', Arial, sans-serif;
-			font-size: 13px;
+			font-size: 12px;
 			font-weight: 600;
 			letter-spacing: 0.5px;
 			text-transform: uppercase;
@@ -409,6 +537,74 @@
 				border-bottom-color: #88ccff;
 				background: rgba(100, 180, 255, 0.08);
 			}
+		}
+	}
+
+	/* ── Mobile navigation ── */
+	.mobile-nav {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 10px 16px;
+		background: rgba(0, 0, 0, 0.3);
+		border-bottom: 1px solid rgba(100, 180, 255, 0.15);
+		flex-shrink: 0;
+	}
+
+	.nav-arrow {
+		width: 36px;
+		height: 36px;
+		border: 1px solid rgba(136, 204, 255, 0.3);
+		border-radius: 50%;
+		background: rgba(136, 204, 255, 0.08);
+		color: #88ccff;
+		font-size: 14px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: background 0.15s;
+
+		&:hover:not(:disabled) {
+			background: rgba(136, 204, 255, 0.15);
+		}
+
+		&:disabled {
+			opacity: 0.25;
+			cursor: not-allowed;
+		}
+	}
+
+	.page-title {
+		font-family: 'proxima-nova', Arial, sans-serif;
+		font-size: 14px;
+		font-weight: 700;
+		color: #88ccff;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.page-dots {
+		display: flex;
+		justify-content: center;
+		gap: 6px;
+		padding: 10px 0 14px;
+		flex-shrink: 0;
+	}
+
+	.dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		border: 1px solid rgba(136, 204, 255, 0.3);
+		background: transparent;
+		cursor: pointer;
+		padding: 0;
+		transition: background 0.15s;
+
+		&.active {
+			background: #88ccff;
+			border-color: #88ccff;
 		}
 	}
 
@@ -459,7 +655,7 @@
 		margin: -8px 0 16px;
 	}
 
-	/* ── Paytable: symbol block + scrollable table ── */
+	/* ── Paytable: vertical layout ── */
 	.pay-symbol-block {
 		margin-bottom: 14px;
 		padding: 10px 12px;
@@ -467,67 +663,48 @@
 		background: rgba(255, 255, 255, 0.03);
 	}
 
-	.symbol-cell {
+	.pay-vertical-layout {
 		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 8px;
+		gap: 14px;
+		align-items: flex-start;
 	}
 
 	.symbol-icon {
-		width: clamp(28px, 8vw, 48px);
-		height: clamp(28px, 8vw, 48px);
+		width: clamp(72px, 18vw, 100px);
+		height: clamp(72px, 18vw, 100px);
 		flex-shrink: 0;
 		border-radius: 6px;
 		image-rendering: auto;
-		/* Sprite sheet is 3x3 grid (768px / 256px). Position via CSS custom props */
 		background-size: 300% 300%;
 		background-position: calc(var(--sprite-col) * -100%) calc(var(--sprite-row) * -100%);
 	}
 
-	.symbol-name {
-		font-size: 13px;
+	.pay-rows {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 3px 8px;
+		flex: 1;
+	}
+
+	.pay-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 2px 6px;
+		border-radius: 3px;
+		background: rgba(100, 180, 255, 0.04);
+	}
+
+	.cluster-size {
+		font-size: 10px;
 		font-weight: 600;
-		color: rgba(255, 255, 255, 0.85);
+		color: rgba(136, 204, 255, 0.5);
 	}
 
-	.pay-table-scroll {
-		overflow-x: auto;
-		scrollbar-width: thin;
-		scrollbar-color: rgba(136, 204, 255, 0.3) transparent;
-
-		&::-webkit-scrollbar { height: 4px; }
-		&::-webkit-scrollbar-track { background: transparent; }
-		&::-webkit-scrollbar-thumb {
-			background: rgba(136, 204, 255, 0.3);
-			border-radius: 2px;
-		}
-	}
-
-	.pay-table {
-		border-collapse: collapse;
-		width: 100%;
-		min-width: 500px;
-
-		th {
-			font-size: 10px;
-			font-weight: 600;
-			color: rgba(136, 204, 255, 0.5);
-			padding: 3px 6px;
-			text-align: center;
-			white-space: nowrap;
-		}
-
-		td {
-			font-size: 12px;
-			font-weight: 700;
-			color: #ffffff;
-			padding: 4px 6px;
-			text-align: center;
-			white-space: nowrap;
-			background: rgba(100, 180, 255, 0.04);
-			border-radius: 3px;
-		}
+	.pay-value {
+		font-size: 11px;
+		font-weight: 700;
+		color: #ffffff;
 	}
 
 	/* ── Special symbols ── */
@@ -547,8 +724,8 @@
 	}
 
 	.special-icon {
-		width: 52px;
-		height: 52px;
+		width: 64px;
+		height: 64px;
 		flex-shrink: 0;
 		border-radius: 8px;
 		object-fit: contain;
@@ -645,6 +822,109 @@
 		strong { color: #88ccff; }
 	}
 
+	/* ── Controls page ── */
+	.controls-list {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.control-item {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 10px 14px;
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(100, 180, 255, 0.06);
+	}
+
+	.control-btn-img {
+		width: 42px;
+		height: 42px;
+		flex-shrink: 0;
+		object-fit: contain;
+		border-radius: 8px;
+		filter: drop-shadow(0 0 4px rgba(100, 180, 255, 0.2));
+	}
+
+	.control-bet-arrows {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		flex-shrink: 0;
+	}
+
+	.control-btn-img-sm {
+		width: 42px;
+		height: 20px;
+		object-fit: contain;
+		filter: drop-shadow(0 0 4px rgba(100, 180, 255, 0.2));
+	}
+
+	.turbo-speeds {
+		display: flex;
+		gap: 4px;
+		flex-shrink: 0;
+	}
+
+	.turbo-speed-img {
+		width: 32px;
+		height: 32px;
+		object-fit: contain;
+		border-radius: 6px;
+		filter: drop-shadow(0 0 4px rgba(100, 180, 255, 0.2));
+	}
+
+	.control-icon {
+		width: 40px;
+		height: 40px;
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		background: rgba(136, 204, 255, 0.1);
+		border: 1px solid rgba(136, 204, 255, 0.2);
+		color: #88ccff;
+		font-size: 16px;
+	}
+
+	.control-label {
+		min-width: 60px;
+		flex-shrink: 0;
+		font-family: 'proxima-nova', Arial, sans-serif;
+		font-size: 11px;
+		font-weight: 700;
+		color: #88ccff;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+		text-align: center;
+		padding: 6px 8px;
+		border-radius: 6px;
+		background: rgba(136, 204, 255, 0.08);
+		border: 1px solid rgba(136, 204, 255, 0.15);
+	}
+
+	.control-info {
+		flex: 1;
+
+		strong {
+			font-size: 13px;
+			font-weight: 700;
+			color: #88ccff;
+			display: block;
+			margin-bottom: 2px;
+		}
+
+		p {
+			font-size: 12px;
+			color: rgba(255, 255, 255, 0.7);
+			line-height: 1.5;
+			margin: 0;
+		}
+	}
+
 	/* ── Stats grid ── */
 	.stats-grid {
 		display: grid;
@@ -708,6 +988,45 @@
 		}
 	}
 
+	/* ── Disclaimer ── */
+	.disclaimer-section {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding-top: 20px;
+	}
+
+	.disclaimer-title {
+		color: #e6c54a;
+		font-size: 20px;
+		margin-bottom: 16px;
+	}
+
+	.disclaimer-block {
+		padding: 16px 20px;
+		border-radius: 10px;
+		background: linear-gradient(180deg, rgba(60, 20, 20, 0.4) 0%, rgba(40, 15, 15, 0.6) 100%);
+		border: 1px solid rgba(150, 80, 50, 0.2);
+		max-width: 560px;
+
+		p {
+			font-size: 12.5px;
+			color: rgba(255, 255, 255, 0.75);
+			line-height: 1.7;
+			margin: 0 0 8px;
+			text-align: center;
+
+			&:last-child { margin-bottom: 0; }
+		}
+	}
+
+	.disclaimer-copyright {
+		margin-top: 12px !important;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.6) !important;
+	}
+
 	/* ── Responsive ── */
 	@media screen and (max-width: 500px) {
 		.info-modal {
@@ -717,11 +1036,9 @@
 
 		.content { padding: 14px 16px 20px; }
 
-		.symbol-cell { min-width: unset; }
-		.symbol-name { font-size: 11px; }
-		.pay-table th { font-size: 9px; padding: 2px 4px; }
-		.pay-table td { font-size: 10px; padding: 3px 4px; }
-		.pay-table { min-width: 420px; }
+		.pay-rows {
+			grid-template-columns: repeat(2, 1fr);
+		}
 
 		.stats-grid { grid-template-columns: repeat(2, 1fr); }
 	}

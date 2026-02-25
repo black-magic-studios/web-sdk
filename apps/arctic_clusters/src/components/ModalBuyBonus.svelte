@@ -17,16 +17,16 @@
 
 	// ── Multiplier mode definitions ──
 	const MULT_MODES = [
-		{ key: 'M2X', label: '2x', cost: 2.9 },
-		{ key: 'M4X', label: '4x', cost: 5.8 },
-		{ key: 'M8X', label: '8x', cost: 11.2 },
-		{ key: 'M16X', label: '16x', cost: 23.0 },
-		{ key: 'M32X', label: '32x', cost: 46.2 },
-		{ key: 'M64X', label: '64x', cost: 90.6 },
-		{ key: 'M128X', label: '128x', cost: 181.8 },
-		{ key: 'M256X', label: '256x', cost: 354.5 },
-		{ key: 'M512X', label: '512x', cost: 665.1 },
-		{ key: 'M1024X', label: '1024x', cost: 1110.8 },
+		{ key: 'M2X', label: '2x', cost: 2.9, color: '#ff88bb' },
+		{ key: 'M4X', label: '4x', cost: 5.8, color: '#ff99aa' },
+		{ key: 'M8X', label: '8x', cost: 11.2, color: '#ffcc66' },
+		{ key: 'M16X', label: '16x', cost: 23.0, color: '#55ddbb' },
+		{ key: 'M32X', label: '32x', cost: 46.2, color: '#ffcc55' },
+		{ key: 'M64X', label: '64x', cost: 90.6, color: '#88aaff' },
+		{ key: 'M128X', label: '128x', cost: 181.8, color: '#ff8877' },
+		{ key: 'M256X', label: '256x', cost: 354.5, color: '#66ddee' },
+		{ key: 'M512X', label: '512x', cost: 665.1, color: '#ffaa66' },
+		{ key: 'M1024X', label: '1024x', cost: 1110.8, color: '#ff88cc' },
 	] as const;
 
 	let multIndex = $state(0);
@@ -56,232 +56,309 @@
 	};
 
 	// ── Computed costs ──
+	// ── Symbol / multiplier images for cards ──
+	const BONUS_IMG = '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png';
+
+	// Map each multiplier to its grid image (512x and 1024x fall back to 256+)
+	const MULT_IMG_MAP: Record<string, string> = {
+		M2X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
+		M4X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
+		M8X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
+		M16X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
+		M32X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
+		M64X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
+		M128X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
+		M256X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
+		M512X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
+		M1024X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
+	};
+	const currentMultImg = $derived(MULT_IMG_MAP[currentMult.key]);
+
 	const anteCost = $derived(stateBet.betAmount * 1.2);
 	const multCost = $derived(stateBet.betAmount * currentMult.cost);
 	const bonusCost = $derived(stateBet.betAmount * 100);
-	const superCost = $derived(stateBet.betAmount * 200);
 
 	const canAfford = (cost: number) => stateBet.betAmount > 0 && stateBet.balanceAmount >= cost;
 </script>
 
 {#if props.show}
 	<PopupLight zIndex={zIndex.modal} onclose={props.onclose}>
-		<div class="modal-content">
-			<div class="cards-row">
-				<!-- Card 1: Extra Chance -->
-				<button
-					class="card"
-					class:disabled={!canAfford(anteCost)}
-					disabled={!canAfford(anteCost)}
-					onclick={() => activateMode('ANTE')}
-				>
-					<span class="card-title">EXTRA CHANCE</span>
-					<span class="card-desc">{stateI18nDerived.translate('Extra chance to trigger the bonus each spin.')}</span>
-					<span class="card-price">{numberToCurrencyString(anteCost)}</span>
-					<span class="card-btn">ACTIVATE</span>
-				</button>
+		<div class="buy-modal">
+			<!-- Card 1: Extra Chance -->
+			<button
+				class="card"
+				class:disabled={!canAfford(anteCost)}
+				disabled={!canAfford(anteCost)}
+				onclick={() => activateMode('ANTE')}
+			>
+				<div class="card-bg" style="background-position: 20% 30%;"></div>
+				<div class="card-body">
+					<div class="card-title">EXTRA CHANCE</div>
+					<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
+					<div class="card-desc">1 Bonus symbol guaranteed on the last reel each spin.</div>
+					<div class="card-price">{numberToCurrencyString(anteCost)}</div>
+					<div class="card-action">ACTIVATE</div>
+				</div>
+			</button>
 
-				<!-- Card 2: xN Spins (multiplier selector) -->
-				<div class="card mult-card">
-					<span class="card-title">{currentMult.label} Grid</span>
-					<span class="card-desc">Every Cell on the Grid starts with a {currentMult.label} multiplier.</span>
-
-					<div class="mult-selector">
-						<button class="arrow-btn" onclick={multDown} disabled={multIndex === 0}>&#9660;</button>
-						<span class="mult-value">{currentMult.label}</span>
-						<button class="arrow-btn" onclick={multUp} disabled={multIndex === MULT_MODES.length - 1}>&#9650;</button>
+			<!-- Card 2: Multiplier Grid -->
+			<div class="card featured">
+				<div class="card-bg" style="background-position: 50% 40%;"></div>
+				<div class="card-body">
+					<div class="card-title">{currentMult.label} Grid</div>
+					<div class="cell-preview">
+						<img src={currentMultImg} alt="Grid cell" class="cell-img" />
+						<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
 					</div>
-
-					<span class="card-price">{numberToCurrencyString(multCost)}</span>
+					<div class="card-desc">All cells set to {currentMult.label} multiplier.</div>
+					<div class="mult-picker">
+						<button class="pick-btn" onclick={multDown} disabled={multIndex === 0}>&#9660;</button>
+						<span class="pick-label">{currentMult.label}</span>
+						<button class="pick-btn" onclick={multUp} disabled={multIndex === MULT_MODES.length - 1}>&#9650;</button>
+					</div>
+					<div class="card-price">{numberToCurrencyString(multCost)}</div>
 					<button
-						class="card-btn activate-btn"
+						class="card-action"
 						class:disabled={!canAfford(multCost)}
 						disabled={!canAfford(multCost)}
 						onclick={() => activateMode(currentMult.key)}
 					>ACTIVATE</button>
 				</div>
-
-				<!-- Card 3: Buy Bonus -->
-				<button
-					class="card"
-					class:disabled={!canAfford(bonusCost)}
-					disabled={!canAfford(bonusCost)}
-					onclick={() => buyMode('BONUS')}
-				>
-					<span class="card-title">{stateI18nDerived.translate('BUY BONUS')}</span>
-					<span class="card-desc">{stateI18nDerived.translate('Instantly trigger the free spins bonus round.')}</span>
-					<span class="card-price">{numberToCurrencyString(bonusCost)}</span>
-					<span class="card-btn">{stateI18nDerived.translate('BUY')}</span>
-				</button>
-
-				<!-- Card 4: Buy Super Bonus -->
-				<button
-					class="card"
-					class:disabled={!canAfford(superCost)}
-					disabled={!canAfford(superCost)}
-					onclick={() => buyMode('SUPER')}
-				>
-					<span class="card-title">{stateI18nDerived.translate('BUY SUPER BONUS')}</span>
-					<span class="card-desc">{stateI18nDerived.translate('Trigger the enhanced free spins with higher multipliers.')}</span>
-					<span class="card-price">{numberToCurrencyString(superCost)}</span>
-					<span class="card-btn">{stateI18nDerived.translate('BUY')}</span>
-				</button>
 			</div>
+
+			<!-- Card 3: Buy Bonus -->
+			<button
+				class="card"
+				class:disabled={!canAfford(bonusCost)}
+				disabled={!canAfford(bonusCost)}
+				onclick={() => buyMode('BONUS')}
+			>
+				<div class="card-bg" style="background-position: 80% 50%;"></div>
+				<div class="card-body">
+					<div class="card-title">{stateI18nDerived.translate('BUY BONUS')}</div>
+					<div class="bonus-row">
+						<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
+						<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
+						<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
+					</div>
+					<div class="card-desc">Starts a Bonus round with 8 spins.</div>
+					<div class="card-price">{numberToCurrencyString(bonusCost)}</div>
+					<div class="card-action">{stateI18nDerived.translate('BUY')}</div>
+				</div>
+			</button>
 		</div>
 	</PopupLight>
 {/if}
 
-<style lang="scss">
-	.modal-content {
+<style>
+	/* ── Modal wrapper: 3 cards in a row, scales with viewport ── */
+	.buy-modal {
+		--card-w: min(28vw, 180px);
+		--card-featured-w: min(32vw, 200px);
+		--gap: min(1.5vw, 10px);
+
 		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
+		gap: var(--gap);
 		padding: 1rem;
-		z-index: 100;
-		position: relative;
-	}
-
-	.cards-row {
-		display: flex;
-		flex-direction: row;
-		gap: 0.75rem;
-		flex-wrap: wrap;
 		justify-content: center;
-		max-width: 90vw;
+		align-items: stretch;
 	}
 
+	/* ── Card shell ── */
 	.card {
+		position: relative;
+		width: var(--card-w);
+		border-radius: 10px;
+		background: rgba(0, 20, 40, 0.65);
+		border: 1px solid rgba(100, 200, 255, 0.25);
+		color: white;
+		padding: 0;
+		cursor: pointer;
+		font-family: 'proxima-nova', sans-serif;
+		text-align: center;
+		transition: border-color 0.15s, transform 0.2s, box-shadow 0.2s;
+		overflow: hidden;
+	}
+
+	.card:hover:not(.disabled) {
+		border-color: rgba(100, 200, 255, 0.5);
+		transform: scale(1.03);
+		box-shadow: 0 0 20px rgba(80, 180, 255, 0.2);
+	}
+
+	.card:active:not(.disabled) {
+		transform: scale(0.97);
+	}
+
+	.card.disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.card.featured {
+		width: var(--card-featured-w);
+		border-color: rgba(100, 220, 255, 0.4);
+		box-shadow: 0 0 24px rgba(60, 180, 255, 0.15);
+		cursor: default;
+	}
+
+	.card.featured:hover {
+		transform: none;
+		box-shadow: 0 0 24px rgba(60, 180, 255, 0.15);
+	}
+
+	/* ── Blurred background layer ── */
+	.card-bg {
+		position: absolute;
+		inset: -12px;
+		background-image: url('/assets/sprites/background/arctic_background_3840x2160.webp');
+		background-size: 600%;
+		filter: blur(6px) brightness(0.5);
+		opacity: 0.7;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	/* ── Card content ── */
+	.card-body {
+		position: relative;
+		z-index: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-		padding: 0.75rem 0.75rem 0.6rem;
-		width: 180px;
-		min-height: 220px;
-		border-radius: 12px;
-		background: rgba(0, 20, 40, 0.7);
-		border: 1px solid rgba(100, 200, 255, 0.2);
-		color: white;
-		cursor: pointer;
-		transition: background 0.15s, border-color 0.15s, transform 0.1s;
-		font-family: 'proxima-nova', sans-serif;
-
-		&:hover:not(.disabled) {
-			background: rgba(20, 60, 100, 0.8);
-			border-color: rgba(100, 200, 255, 0.5);
-			transform: scale(1.03);
-		}
-
-		&:active:not(.disabled) {
-			transform: scale(0.97);
-		}
-
-		&.disabled {
-			opacity: 0.4;
-			cursor: not-allowed;
-		}
+		justify-content: center;
+		gap: 0.4em;
+		padding: 0.8em 0.6em;
+		min-height: 100%;
+		box-sizing: border-box;
+		background: linear-gradient(180deg, rgba(0,15,35,0.3) 0%, rgba(0,15,35,0.55) 100%);
+		font-size: min(1.8vw, 12px);
 	}
 
-	.mult-card {
-		cursor: default;
-
-		&:hover {
-			background: rgba(0, 20, 40, 0.7);
-			border-color: rgba(100, 200, 255, 0.2);
-			transform: none;
-		}
-	}
-
+	/* ── Typography ── */
 	.card-title {
-		font-size: 1rem;
+		font-size: 1.3em;
 		font-weight: 700;
-		text-align: center;
 		line-height: 1.2;
 		letter-spacing: 0.04em;
+		text-shadow: 0 1px 6px rgba(0,0,0,0.5);
 	}
 
 	.card-desc {
-		font-size: 0.72rem;
-		text-align: center;
+		font-size: 0.9em;
 		opacity: 0.7;
 		line-height: 1.35;
-		flex: 1;
-		display: flex;
-		align-items: center;
+		padding: 0 0.3em;
+		text-shadow: 0 1px 4px rgba(0,0,0,0.4);
 	}
 
 	.card-price {
-		font-size: 1rem;
+		font-size: 1.2em;
 		font-weight: 600;
 		color: #66ddaa;
-		text-align: center;
+		text-shadow: 0 0 8px rgba(102,221,170,0.3);
 	}
 
-	.card-btn {
-		font-size: 0.8rem;
+	.card-action {
+		font-size: 0.9em;
 		font-weight: 600;
 		letter-spacing: 0.06em;
-		padding: 0.35rem 1.2rem;
-		border-radius: 6px;
-		border: 1px solid rgba(255, 255, 255, 0.3);
+		padding: 0.3em 1em;
+		border-radius: 5px;
+		border: 1px solid rgba(255,255,255,0.3);
 		background: transparent;
 		color: white;
 		cursor: pointer;
 		transition: background 0.12s;
-
-		&:hover {
-			background: rgba(255, 255, 255, 0.1);
-		}
 	}
 
-	// ── Multiplier selector ──
-	.mult-selector {
+	.card-action:hover {
+		background: rgba(255,255,255,0.1);
+	}
+
+	.card-action.disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	/* ── Images ── */
+	.feature-img {
+		width: 2.8em;
+		height: 2.8em;
+		object-fit: contain;
+		filter: drop-shadow(0 0 8px rgba(136,238,255,0.35));
+	}
+
+	.bonus-row {
+		display: flex;
+		gap: 0.3em;
+		justify-content: center;
+	}
+
+	/* ── Multiplier cell preview ── */
+	.cell-preview {
+		width: 4.5em;
+		height: 4.5em;
+		border-radius: 5px;
+		position: relative;
 		display: flex;
 		align-items: center;
-		gap: 0.6rem;
+		justify-content: center;
 	}
 
-	.mult-value {
-		font-size: 1.6rem;
+	.cell-img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 5px;
+	}
+
+	.cell-label {
+		position: relative;
+		z-index: 1;
+		font-size: 1.4em;
+		font-weight: 800;
+	}
+
+	/* ── Multiplier picker ── */
+	.mult-picker {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+
+	.pick-label {
+		font-size: 1.8em;
 		font-weight: 800;
 		color: #88eeff;
-		min-width: 4.5rem;
+		min-width: 3em;
 		text-align: center;
+		text-shadow: 0 0 12px rgba(136,238,255,0.4);
 	}
 
-	.arrow-btn {
-		font-size: 1rem;
-		width: 2rem;
-		height: 2rem;
+	.pick-btn {
+		font-size: 1em;
+		width: 1.8em;
+		height: 1.8em;
 		border-radius: 50%;
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255,255,255,0.3);
+		background: rgba(255,255,255,0.08);
 		color: white;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		transition: background 0.12s;
-
-		&:hover:not(:disabled) {
-			background: rgba(255, 255, 255, 0.2);
-		}
-
-		&:disabled {
-			opacity: 0.25;
-			cursor: not-allowed;
-		}
 	}
 
-	.activate-btn {
-		width: 100%;
-		text-align: center;
+	.pick-btn:hover:not(:disabled) {
+		background: rgba(255,255,255,0.2);
+	}
 
-		&.disabled {
-			opacity: 0.4;
-			cursor: not-allowed;
-		}
+	.pick-btn:disabled {
+		opacity: 0.25;
+		cursor: not-allowed;
 	}
 </style>

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { recordBookEvent, checkIsMultipleRevealEvents, type BookEventHandlerMap } from 'utils-book';
-import { stateBet } from 'state-shared';
+import { stateBet, stateBetDerived } from 'state-shared';
 import { waitForResolve } from 'utils-shared/wait';
 import { BOOK_AMOUNT_MULTIPLIER } from 'constants-shared/bet';
 
@@ -145,6 +145,12 @@ const spinWithMultipliers = async ({
 	eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
 	await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: initialGrid });
 	console.log(`[spinWithMultipliers] ✅ Grid reveal complete at ${Date.now()}`);
+
+	// 3b. During free spins, briefly highlight ≥32× multipliers while board is empty
+	if (stateGame.gameType === 'freegame') {
+		await eventEmitter.broadcastAsync({ type: 'multiplierGridHighlightHigh' });
+		console.log(`[spinWithMultipliers] ✨ High-multiplier highlight complete at ${Date.now()}`);
+	}
 
 	// 4. Drop new symbols (spin() will re-check readyToSpin but the $effect
 	//    fires immediately since reels are still in 'hanging' state)
@@ -463,7 +469,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			console.log(`[bookEventHandlerMap] ✅ Cell reveals complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 		}
 
-		// 2. Remove exploded symbols, slide remaining down
+		// 3. Remove exploded symbols, slide remaining down
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
 		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown t=${(performance.now()-tb0).toFixed(0)}ms`);
 		await eventEmitter.broadcastAsync({ type: 'tumbleBoardSlideDown' });
@@ -595,7 +601,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		// 4. Brief pause to let player see the wild in place + constellation decrement
-		await new Promise((r) => setTimeout(r, 450));
+		await new Promise((r) => setTimeout(r, 450 / stateBetDerived.timeScale()));
 
 		// 5. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';

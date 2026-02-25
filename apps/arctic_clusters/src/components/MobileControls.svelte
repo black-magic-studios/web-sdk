@@ -143,7 +143,7 @@
 			</div>
 
 			<button class="ctrl-btn fast-btn fs-turbo-btn" onclick={handleFastPlay}>
-				<img src="/assets/sprites/buttons/arctic_clusters_fast_play.png" alt="Fast" />
+				<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
 			</button>
 		</div>
 	{:else}
