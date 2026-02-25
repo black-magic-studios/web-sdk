@@ -556,18 +556,21 @@
 			context.stateGame.multiplierGrid = DEFAULT_GRID;
 		},
 		multiplierGridHighlightHigh: async () => {
-			// Briefly brighten all multiplier cells ≥32× so the player can see them
+			// Briefly brighten all multiplier cells ≥32× with explosion-style stagger
 			const currentGrid = context.stateGame.multiplierGrid;
 			const scales = context.stateGame.multiplierCellScales as Map<string, CellAnimState>;
 			if (!scales || scales.size === 0) return;
 
-			const highCells: { key: string; anim: CellAnimState }[] = [];
+			const highCells: { key: string; anim: CellAnimState; dist: number }[] = [];
 			for (let reel = 0; reel < currentGrid.length; reel++) {
 				for (let row = 0; row < currentGrid[reel].length; row++) {
 					if (currentGrid[reel][row] >= 32) {
 						const key = getCellKey(reel, row);
 						const anim = scales.get(key);
-						if (anim) highCells.push({ key, anim });
+						if (anim) {
+							const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
+							highCells.push({ key, anim, dist });
+						}
 					}
 				}
 			}
@@ -575,26 +578,39 @@
 			if (highCells.length === 0) return;
 
 			const ts = stateBetDerived.timeScale();
+			const STAGGER_MS = 60;  // delay per cell, sorted by distance
 
-			// Ramp up vibrance + label scale
-			for (const { anim } of highCells) {
-				anim.vibrance.set(1, { duration: 150 / ts, easing: cubicOut });
-				anim.labelScale.set(1.06, { duration: 150 / ts, easing: cubicOut });
-				anim.highlightBoost.set(0.20, { duration: 150 / ts, easing: cubicOut });
+			// Sort by distance from center so the effect ripples outward
+			highCells.sort((a, b) => a.dist - b.dist);
+
+			// Staggered ramp up — each cell fires slightly after the previous
+			for (let i = 0; i < highCells.length; i++) {
+				const { anim } = highCells[i];
+				const delay = i * (STAGGER_MS / ts);
+				setTimeout(() => {
+					anim.vibrance.set(1, { duration: 150 / ts, easing: cubicOut });
+					anim.labelScale.set(1.08, { duration: 150 / ts, easing: cubicOut });
+					anim.highlightBoost.set(0.25, { duration: 150 / ts, easing: cubicOut });
+				}, delay);
 			}
 
-			// Hold for a moment so the player can see the high multipliers
-			await new Promise((r) => setTimeout(r, 500 / ts));
+			// Wait for all staggers + ramp up + hold time
+			const totalStagger = highCells.length * (STAGGER_MS / ts);
+			await new Promise((r) => setTimeout(r, totalStagger + 150 / ts + 400 / ts));
 
-			// Ramp back down
-			for (const { anim } of highCells) {
-				anim.vibrance.set(0, { duration: 250 / ts, easing: cubicInOut });
-				anim.labelScale.set(LABEL_REST_SCALE, { duration: 250 / ts, easing: cubicInOut });
-				anim.highlightBoost.set(0, { duration: 250 / ts, easing: cubicInOut });
+			// Staggered ramp down — ripple back from center outward
+			for (let i = 0; i < highCells.length; i++) {
+				const { anim } = highCells[i];
+				const delay = i * (STAGGER_MS / ts);
+				setTimeout(() => {
+					anim.vibrance.set(0, { duration: 250 / ts, easing: cubicInOut });
+					anim.labelScale.set(LABEL_REST_SCALE, { duration: 250 / ts, easing: cubicInOut });
+					anim.highlightBoost.set(0, { duration: 250 / ts, easing: cubicInOut });
+				}, delay);
 			}
 
 			// Wait for ramp-down to finish
-			await new Promise((r) => setTimeout(r, 260 / ts));
+			await new Promise((r) => setTimeout(r, totalStagger + 260 / ts));
 		},
 	});
 

@@ -125,7 +125,7 @@
 		color: #d0e8f8;
 		cursor: pointer;
 		transition: background 0.15s;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 
 		&:hover {
 			background: rgba(80, 140, 200, 0.1);

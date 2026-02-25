@@ -172,7 +172,7 @@
 		border: none;
 		background: transparent;
 		color: rgba(144, 200, 232, 0.5);
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 11px;
 		font-weight: 700;
 		letter-spacing: 1.5px;
@@ -192,7 +192,7 @@
 	/* ── Section label ── */
 	.section-label {
 		padding: 8px 14px 4px;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 10px;
 		font-weight: 700;
 		letter-spacing: 1.2px;
@@ -213,7 +213,7 @@
 		border-radius: 8px;
 		background: rgba(40, 50, 70, 0.5);
 		color: #d0e8f8;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 12px;
 		font-weight: 600;
 		cursor: pointer;
@@ -243,7 +243,7 @@
 	}
 
 	.toggle-label {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 11px;
 		font-weight: 700;
 		letter-spacing: 1px;
@@ -291,7 +291,7 @@
 		border-radius: 10px;
 		background: linear-gradient(135deg, rgba(80, 160, 220, 0.6), rgba(60, 130, 200, 0.8));
 		color: #ffffff;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 13px;
 		font-weight: 700;
 		letter-spacing: 1.5px;

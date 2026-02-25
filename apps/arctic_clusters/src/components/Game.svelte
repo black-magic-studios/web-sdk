@@ -36,6 +36,9 @@
 	import MobileControls from './MobileControls.svelte';
 	import GameInfoModal from './GameInfoModal.svelte';
 	import ConstellationWildMeter from './ConstellationWildMeter.svelte';
+	import ReplayOverlay from './ReplayOverlay.svelte';
+
+	import { stateUrlDerived } from 'state-shared';
 
 	const context = getContext();
 
@@ -78,6 +81,20 @@
 	let showBuyBonus = $state(false);
 	let showGameInfo = $state(false);
 
+	// ── Replay mode state ──
+	let replayState = $state<'ready' | 'playing' | 'done'>(
+		stateUrlDerived.replay() ? 'ready' : 'playing'
+	);
+
+	function startReplay() {
+		replayState = 'playing';
+		context.eventEmitter.broadcast({ type: 'resumeBet' });
+	}
+
+	function restartReplay() {
+		window.location.reload();
+	}
+
 	// Portrait/mobile detection — use HTML controls instead of PIXI PlayBar
 	const useMobileControls = $derived(
 		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
@@ -98,6 +115,20 @@
 			shakeClass = `shake-${intensity}`;
 			requestAnimationFrame(() => { shaking = true; });
 		},
+	});
+
+	// Watch xstate transitions — when replay returns to idle, mark as done
+	let replayWasPlaying = false;
+	$effect(() => {
+		const state = context.stateXstate.value;
+		if (stateUrlDerived.replay() && replayState === 'playing') {
+			if (state === 'resumeBet') {
+				replayWasPlaying = true;
+			} else if (state === 'idle' && replayWasPlaying) {
+				replayState = 'done';
+				replayWasPlaying = false;
+			}
+		}
 	});
 </script>
 
@@ -156,6 +187,8 @@
 
 <FreeSpinIntro />
 <FreeSpinOutro />
+
+<ReplayOverlay {replayState} onplay={startReplay} onplayagain={restartReplay} />
 
 <Modals>
 	{#snippet version()}

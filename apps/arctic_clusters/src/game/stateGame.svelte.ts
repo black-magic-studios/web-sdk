@@ -182,10 +182,10 @@ const boardLayout = () => {
 	}
 
 	// Center position (relative to full canvas)
-	// On portrait, center within the area above the controls
+	// On portrait, push board down to leave room for wild meter above
 	const centerX = canvas.width / 2;
 	const centerY = isPortrait
-		? (canvas.height - MOBILE_BOTTOM_RESERVE) / 2
+		? (canvas.height - MOBILE_BOTTOM_RESERVE) / 2 + canvas.height * 0.1
 		: canvas.height / 2;
 
 	return {

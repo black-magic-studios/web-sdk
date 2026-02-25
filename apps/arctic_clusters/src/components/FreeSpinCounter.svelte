@@ -147,7 +147,7 @@
 	}
 
 	.fs-hud-label {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(8px, 2vw, 11px);
 		font-weight: 700;
 		color: rgba(120, 200, 255, 0.75);
@@ -157,7 +157,7 @@
 	}
 
 	.fs-hud-value {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(13px, 3.5vw, 20px);
 		font-weight: 900;
 		color: #ffffff;

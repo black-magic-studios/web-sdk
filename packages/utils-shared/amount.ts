@@ -35,8 +35,6 @@ export const numberToCurrencyString = (value: number) => {
 	}
 
 	return stateI18n.i18n.number(value, {
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
 		style: 'currency',
 		currency: stateBet.currency,
 		// numberingSystem: 'latn',

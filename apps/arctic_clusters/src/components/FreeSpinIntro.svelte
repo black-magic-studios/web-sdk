@@ -79,7 +79,7 @@
 	}
 
 	.fs-intro-title {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(24px, 6vw, 56px);
 		font-weight: 900;
 		text-transform: uppercase;
@@ -92,7 +92,7 @@
 	}
 
 	.fs-intro-count {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(60px, 18vw, 160px);
 		font-weight: 900;
 		color: #ffffff;
@@ -106,7 +106,7 @@
 	}
 
 	.fs-intro-subtitle {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(14px, 3.5vw, 28px);
 		font-weight: 700;
 		letter-spacing: 0.2em;
@@ -116,7 +116,7 @@
 
 	.fs-intro-hint {
 		margin-top: clamp(10px, 3vh, 30px);
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(10px, 2.5vw, 16px);
 		font-weight: 600;
 		color: rgba(255, 255, 255, 0.45);

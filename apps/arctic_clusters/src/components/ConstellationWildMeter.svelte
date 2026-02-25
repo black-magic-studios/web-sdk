@@ -39,12 +39,20 @@ stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
 const MAX_NODES = 49;
 const LINE_ANIM_MS = 900;
 
-// ── Positioning — right side of board ──────────────────
-const meterSize = $derived(isStacked ? canvas.width * 0.22 : canvas.width * 0.18);
+// ── Positioning ────────────────────────────────────────
+// Desktop/landscape: right side of board
+// Mobile/portrait:   large, centered above the board filling the gap
+const meterSize = $derived(isStacked ? canvas.width * 0.45 : canvas.width * 0.18);
 const meterX = $derived(
-boardLayout.x + boardLayout.width * 0.5 + (isStacked ? meterSize * 0.05 : meterSize * 0.15),
+isStacked
+	? boardLayout.x - meterSize * 0.5
+	: boardLayout.x + boardLayout.width * 0.5 + meterSize * 0.15,
 );
-const meterY = $derived(boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1);
+const meterY = $derived(
+isStacked
+	? (boardLayout.y - boardLayout.height * 0.5) * 0.5 - meterSize * 0.5
+	: boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1,
+);
 
 // ── Node Map — star geometry builder ───────────────────
 // Builds 49 line segments in 5 phases and collects unique vertices.
@@ -206,7 +214,7 @@ text={`WILDS: ${count}`}
 style={{
 fill: 0xc8e0ff,
 fontSize: Math.max(14, meterSize * 0.11),
-fontFamily: 'proxima-nova, Arial, sans-serif',
+fontFamily: 'Montserrat, Arial, sans-serif',
 fontWeight: '700',
 dropShadow: true,
 dropShadowColor: 0x000022,

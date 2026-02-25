@@ -77,7 +77,7 @@
 		border-radius: 50%;
 		background: linear-gradient(135deg, #00cc88, #00ffaa);
 		color: #0d1b2a;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(12px, 3vw, 16px);
 		font-weight: 900;
 		line-height: 1;
@@ -85,7 +85,7 @@
 	}
 
 	.wild-count {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(14px, 3.5vw, 20px);
 		font-weight: 800;
 		color: #00ffcc;

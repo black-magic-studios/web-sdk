@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateBet, stateI18nDerived } from 'state-shared';
+	import { stateBet, stateI18nDerived, stateConfig, stateBetDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { stateBonus } from 'components-ui-html/src/stateBonus.svelte';
 	import { getContextEventEmitter } from 'utils-event-emitter';
@@ -14,6 +14,23 @@
 
 	const props: Props = $props();
 	const { eventEmitter } = getContextEventEmitter();
+
+	// ── Bet options from config ──
+	const betOptions = $derived(stateConfig.betAmountOptions);
+	const currentBetIndex = $derived(betOptions.indexOf(stateBet.betAmount));
+
+	const betUp = () => {
+		const idx = currentBetIndex;
+		if (idx < betOptions.length - 1) {
+			stateBetDerived.setBetAmount(betOptions[idx + 1]);
+		}
+	};
+	const betDown = () => {
+		const idx = currentBetIndex;
+		if (idx > 0) {
+			stateBetDerived.setBetAmount(betOptions[idx - 1]);
+		}
+	};
 
 	// ── Multiplier mode definitions ──
 	const MULT_MODES = [
@@ -83,13 +100,19 @@
 
 {#if props.show}
 	<PopupLight zIndex={zIndex.modal} onclose={props.onclose}>
+		<!-- Bet size selector -->
+		<div class="bet-bar">
+			<span class="bet-label">BET</span>
+			<button class="pick-btn" onclick={betDown} disabled={currentBetIndex <= 0}>&#9660;</button>
+			<span class="pick-label">{numberToCurrencyString(stateBet.betAmount)}</span>
+			<button class="pick-btn" onclick={betUp} disabled={currentBetIndex >= betOptions.length - 1}>&#9650;</button>
+		</div>
+
 		<div class="buy-modal">
 			<!-- Card 1: Extra Chance -->
-			<button
+			<div
 				class="card"
 				class:disabled={!canAfford(anteCost)}
-				disabled={!canAfford(anteCost)}
-				onclick={() => activateMode('ANTE')}
 			>
 				<div class="card-bg" style="background-position: 20% 30%;"></div>
 				<div class="card-body">
@@ -97,12 +120,17 @@
 					<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
 					<div class="card-desc">1 Bonus symbol guaranteed on the last reel each spin.</div>
 					<div class="card-price">{numberToCurrencyString(anteCost)}</div>
-					<div class="card-action">ACTIVATE</div>
+					<button
+						class="card-action"
+						class:disabled={!canAfford(anteCost)}
+						disabled={!canAfford(anteCost)}
+						onclick={() => activateMode('ANTE')}
+					>ACTIVATE</button>
 				</div>
-			</button>
+			</div>
 
 			<!-- Card 2: Multiplier Grid -->
-			<div class="card featured">
+			<div class="card featured" class:disabled={!canAfford(multCost)}>
 				<div class="card-bg" style="background-position: 50% 40%;"></div>
 				<div class="card-body">
 					<div class="card-title">{currentMult.label} Grid</div>
@@ -111,11 +139,6 @@
 						<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
 					</div>
 					<div class="card-desc">All cells set to {currentMult.label} multiplier.</div>
-					<div class="mult-picker">
-						<button class="pick-btn" onclick={multDown} disabled={multIndex === 0}>&#9660;</button>
-						<span class="pick-label">{currentMult.label}</span>
-						<button class="pick-btn" onclick={multUp} disabled={multIndex === MULT_MODES.length - 1}>&#9650;</button>
-					</div>
 					<div class="card-price">{numberToCurrencyString(multCost)}</div>
 					<button
 						class="card-action"
@@ -127,11 +150,9 @@
 			</div>
 
 			<!-- Card 3: Buy Bonus -->
-			<button
+			<div
 				class="card"
 				class:disabled={!canAfford(bonusCost)}
-				disabled={!canAfford(bonusCost)}
-				onclick={() => buyMode('BONUS')}
 			>
 				<div class="card-bg" style="background-position: 80% 50%;"></div>
 				<div class="card-body">
@@ -143,20 +164,48 @@
 					</div>
 					<div class="card-desc">Starts a Bonus round with 8 spins.</div>
 					<div class="card-price">{numberToCurrencyString(bonusCost)}</div>
-					<div class="card-action">{stateI18nDerived.translate('BUY')}</div>
+					<button
+						class="card-action"
+						class:disabled={!canAfford(bonusCost)}
+						disabled={!canAfford(bonusCost)}
+						onclick={() => buyMode('BONUS')}
+					>{stateI18nDerived.translate('BUY')}</button>
 				</div>
-			</button>
+			</div>
 		</div>
 	</PopupLight>
 {/if}
 
 <style>
+	/* ── Bet size bar ── */
+	.bet-bar {
+		position: relative;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5em;
+		padding: 10px 14px 0;
+		font-size: min(1.8vw, 12px);
+	}
+
+	.bet-label {
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: 10px;
+		font-weight: 700;
+		letter-spacing: 1.5px;
+		color: rgba(144, 200, 232, 0.55);
+		margin-right: 4px;
+	}
+
 	/* ── Modal wrapper: 3 cards in a row, scales with viewport ── */
 	.buy-modal {
 		--card-w: min(28vw, 180px);
 		--card-featured-w: min(32vw, 200px);
 		--gap: min(1.5vw, 10px);
 
+		position: relative;
+		z-index: 100;
 		display: flex;
 		gap: var(--gap);
 		padding: 1rem;
@@ -174,7 +223,7 @@
 		color: white;
 		padding: 0;
 		cursor: pointer;
-		font-family: 'proxima-nova', sans-serif;
+		font-family: 'Montserrat', sans-serif;
 		text-align: center;
 		transition: border-color 0.15s, transform 0.2s, box-shadow 0.2s;
 		overflow: hidden;
@@ -192,7 +241,6 @@
 
 	.card.disabled {
 		opacity: 0.4;
-		cursor: not-allowed;
 	}
 
 	.card.featured {
@@ -322,13 +370,6 @@
 		font-weight: 800;
 	}
 
-	/* ── Multiplier picker ── */
-	.mult-picker {
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-	}
-
 	.pick-label {
 		font-size: 1.8em;
 		font-weight: 800;
@@ -361,4 +402,5 @@
 		opacity: 0.25;
 		cursor: not-allowed;
 	}
+
 </style>

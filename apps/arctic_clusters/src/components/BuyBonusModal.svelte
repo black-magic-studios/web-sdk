@@ -115,7 +115,7 @@
 		color: white;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s, transform 0.1s;
-		font-family: 'proxima-nova', sans-serif;
+		font-family: 'Montserrat', sans-serif;
 
 		&:hover:not(.disabled) {
 			background: rgba(40, 80, 120, 0.7);

@@ -477,6 +477,7 @@
 	// BUTTON HANDLERS
 	// ============================================================
 	const handleSpin = () => {
+		if (stateUrlDerived.replay()) return;
 		context.eventEmitter.broadcast({ type: 'bet' });
 	};
 

@@ -137,7 +137,7 @@
 	}
 
 	.fs-outro-title {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(22px, 5vw, 48px);
 		font-weight: 900;
 		text-transform: uppercase;
@@ -150,7 +150,7 @@
 	}
 
 	.fs-outro-amount {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(40px, 12vw, 120px);
 		font-weight: 900;
 		color: #ffffff;
@@ -168,7 +168,7 @@
 	}
 
 	.fs-outro-label {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(12px, 3vw, 24px);
 		font-weight: 700;
 		letter-spacing: 0.2em;
@@ -178,7 +178,7 @@
 
 	.fs-outro-hint {
 		margin-top: clamp(8px, 2vh, 20px);
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(10px, 2.5vw, 16px);
 		font-weight: 600;
 		color: rgba(255, 255, 255, 0.45);

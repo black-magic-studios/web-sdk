@@ -1,11 +1,12 @@
 <script lang="ts">
 	import PopupLight from './PopupLight.svelte';
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateI18nDerived } from 'state-shared';
+	import { stateI18nDerived, stateUrlDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 
 	const context = getContext();
 	const t = (key: string) => stateI18nDerived.translate(key);
+	const isSocial = $derived(stateUrlDerived.social());
 
 	type Props = {
 		show: boolean;
@@ -54,14 +55,14 @@
 	type Tab = 'paytable' | 'features' | 'controls' | 'rules' | 'modes' | 'disclaimer';
 	let activeTab = $state<Tab>('paytable');
 	const tabs: Tab[] = ['paytable', 'features', 'controls', 'rules', 'modes', 'disclaimer'];
-	const tabLabels: Record<Tab, string> = {
+	const tabLabels: Record<Tab, string> = $derived({
 		paytable: 'Paytable',
 		features: 'Features',
 		controls: 'Controls',
 		rules: 'Rules',
-		modes: 'Bet Modes',
+		modes: isSocial ? 'Play Modes' : 'Bet Modes',
 		disclaimer: 'Disclaimer',
-	};
+	});
 
 	// For mobile, swipe pages
 	let currentPage = $state(0);
@@ -107,7 +108,7 @@
 				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
 						<h2>Paytable</h2>
-						<p class="subtitle">All pays are multiplied by total bet. Minimum cluster size is 5 matching symbols.</p>
+						<p class="subtitle">{isSocial ? 'All wins are multiplied by total play.' : 'All pays are multiplied by total bet.'} Minimum cluster size is 5 matching symbols.</p>
 
 						<h3>High Pay Symbols</h3>
 						{#each highPay as sym}
@@ -182,7 +183,7 @@
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
 							<div class="feature-steps">
-								<div class="step"><span class="step-num">1</span> Winning clusters are evaluated and paid out.</div>
+								<div class="step"><span class="step-num">1</span> Winning clusters are evaluated and {isSocial ? 'won.' : 'paid out.'}</div>
 								<div class="step"><span class="step-num">2</span> Winning symbols are removed from the grid.</div>
 								<div class="step"><span class="step-num">3</span> Remaining symbols drop down to fill empty spaces.</div>
 								<div class="step"><span class="step-num">4</span> New symbols appear from the top of each column.</div>
@@ -297,7 +298,7 @@
 								<img src="/assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Spin</strong>
-									<p>Starts a spin using the current bet amount. Press again during a spin to skip animations.</p>
+									<p>Starts a spin using the current {isSocial ? 'play' : 'bet'} amount. Press again during a spin to skip animations.</p>
 								</div>
 							</div>
 
@@ -307,8 +308,8 @@
 									<img src="/assets/sprites/buttons_new/decrease_base.png" alt="Decrease" class="control-btn-img-sm" />
 								</div>
 								<div class="control-info">
-									<strong>Bet Adjust</strong>
-									<p>Increase or decrease the bet amount per spin. The total cost is shown in the bet display.</p>
+									<strong>{isSocial ? 'Play' : 'Bet'} Adjust</strong>
+									<p>Increase or decrease the {isSocial ? 'play' : 'bet'} amount per spin. The total {isSocial ? 'amount' : 'cost'} is shown in the {isSocial ? 'play' : 'bet'} display.</p>
 								</div>
 							</div>
 
@@ -322,9 +323,9 @@
 
 							<div class="control-item">
 								<div class="turbo-speeds">
-									<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Normal" class="turbo-speed-img" />
-									<img src="/assets/sprites/buttons_new/turbo_turbo.png" alt="Turbo" class="turbo-speed-img" />
-									<img src="/assets/sprites/buttons_new/turbo_super.png" alt="Super Turbo" class="turbo-speed-img" />
+									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_normal.png" alt="Normal" class="turbo-speed-img" />
+									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_turbo.png" alt="Turbo" class="turbo-speed-img" />
+									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_super_turbo.png" alt="Super Turbo" class="turbo-speed-img" />
 								</div>
 								<div class="control-info">
 									<strong>Spin Speed</strong>
@@ -333,10 +334,10 @@
 							</div>
 
 							<div class="control-item">
-								<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="Buy Feature" class="control-btn-img" />
+								<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{isSocial ? 'Play' : 'Buy'} Feature" class="control-btn-img" />
 								<div class="control-info">
-									<strong>Buy Feature</strong>
-									<p>Opens the feature purchase menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.</p>
+									<strong>{isSocial ? 'Play' : 'Buy'} Feature</strong>
+									<p>Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or {isSocial ? 'play' : 'buy'} directly into a bonus round.</p>
 								</div>
 							</div>
 
@@ -360,9 +361,9 @@
 								</div>
 							</div>
 							<div class="control-item">
-								<div class="control-label">BET</div>
+								<div class="control-label">{isSocial ? 'PLAY' : 'BET'}</div>
 								<div class="control-info">
-									<p>Displays the total cost of the current spin, including any active bet mode modifiers.</p>
+									<p>Displays the total {isSocial ? 'amount' : 'cost'} of the current spin, including any active {isSocial ? 'play' : 'bet'} mode modifiers.</p>
 								</div>
 							</div>
 							<div class="control-item">
@@ -400,7 +401,7 @@
 								<li>Wild symbols may contribute to multiple clusters at once, but their cell multiplier only increases once per tumble.</li>
 								<li>Bonus symbols are evaluated before tumbles begin.</li>
 								<li>All wins from a single spin, including tumbles, are combined into one total payout.</li>
-								<li>The maximum win per spin is capped at <strong>25,000x</strong> the bet. If the cap is reached, remaining tumbles are skipped.</li>
+								<li>The maximum win per spin is capped at <strong>25,000x</strong> the {isSocial ? 'play' : 'bet'}. If the cap is reached, remaining tumbles are skipped.</li>
 								<li>Cluster payouts are capped at a cluster size of 20. Clusters larger than 20 pay the same as 20.</li>
 							</ul>
 						</div>
@@ -412,29 +413,29 @@
 				<!-- ═══════════════════════════════════════════ -->
 				{#if (!isMobile && activeTab === 'modes') || (isMobile && currentTab === 'modes')}
 					<div class="section">
-						<h2>Bet Modes</h2>
+						<h2>{isSocial ? 'Play' : 'Bet'} Modes</h2>
 
 						<h3>Standard</h3>
 						<div class="feature-block">
-							<p>Default gameplay at standard bet cost.</p>
+							<p>Default gameplay at standard {isSocial ? 'play' : 'bet'} cost.</p>
 						</div>
 
 						<h3>Extra Chance</h3>
 						<div class="feature-block">
-							<p>Costs <strong>1.2x</strong> the standard bet. One Bonus symbol is guaranteed on the last reel each spin.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>1.2x</strong> the standard {isSocial ? 'play' : 'bet'}. One Bonus symbol is guaranteed on the last reel each spin.</p>
 						</div>
 
-						<h3>Buy Bonus</h3>
+						<h3>{isSocial ? 'Get' : 'Buy'} Bonus</h3>
 						<div class="feature-block">
-							<p>Costs <strong>100x</strong> the standard bet. Immediately starts a Bonus round with <strong>8 spins</strong>.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>100x</strong> the standard {isSocial ? 'play' : 'bet'}. Immediately starts a Bonus round with <strong>8 spins</strong>.</p>
 						</div>
 
 						<h3>Grid Multiplier Modes</h3>
 						<div class="feature-block">
-							<p>Set every cell on the grid to a selected multiplier for an increased bet cost. The selected multiplier applies to all cells from the first tumble.</p>
+							<p>Set every cell on the grid to a selected multiplier for an increased {isSocial ? 'play' : 'bet'} cost. The selected multiplier applies to all cells from the first tumble.</p>
 							<table class="info-table">
 								<thead>
-									<tr><th>Starting Multiplier</th><th>Bet Cost</th></tr>
+									<tr><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} Cost</th></tr>
 								</thead>
 								<tbody>
 									<tr><td>2x</td><td>2.9x</td></tr>
@@ -518,7 +519,7 @@
 			border: none;
 			background: transparent;
 			color: rgba(136, 204, 255, 0.6);
-			font-family: 'proxima-nova', Arial, sans-serif;
+			font-family: 'Montserrat', Arial, sans-serif;
 			font-size: 12px;
 			font-weight: 600;
 			letter-spacing: 0.5px;
@@ -576,7 +577,7 @@
 	}
 
 	.page-title {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 14px;
 		font-weight: 700;
 		color: #88ccff;
@@ -631,7 +632,7 @@
 	}
 
 	h2 {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 18px;
 		font-weight: 700;
 		color: #88ccff;
@@ -640,7 +641,7 @@
 	}
 
 	h3 {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 14px;
 		font-weight: 600;
 		color: rgba(136, 204, 255, 0.8);
@@ -670,8 +671,8 @@
 	}
 
 	.symbol-icon {
-		width: clamp(72px, 18vw, 100px);
-		height: clamp(72px, 18vw, 100px);
+		width: clamp(90px, 22vw, 130px);
+		height: clamp(90px, 22vw, 130px);
 		flex-shrink: 0;
 		border-radius: 6px;
 		image-rendering: auto;
@@ -690,19 +691,19 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 2px 6px;
+		padding: 4px 8px;
 		border-radius: 3px;
 		background: rgba(100, 180, 255, 0.04);
 	}
 
 	.cluster-size {
-		font-size: 10px;
+		font-size: 13px;
 		font-weight: 600;
 		color: rgba(136, 204, 255, 0.5);
 	}
 
 	.pay-value {
-		font-size: 11px;
+		font-size: 14px;
 		font-weight: 700;
 		color: #ffffff;
 	}
@@ -893,7 +894,7 @@
 	.control-label {
 		min-width: 60px;
 		flex-shrink: 0;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: 11px;
 		font-weight: 700;
 		color: #88ccff;

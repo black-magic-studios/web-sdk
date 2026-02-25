@@ -176,7 +176,7 @@
 	}
 
 	.win-level-text {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(28px, 8vw, 72px);
 		font-weight: 900;
 		text-transform: uppercase;
@@ -190,7 +190,7 @@
 	}
 
 	.win-amount {
-		font-family: 'proxima-nova', 'Arial Black', Arial, sans-serif;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
 		font-size: clamp(40px, 12vw, 120px);
 		font-weight: 900;
 		color: #ffffff;
@@ -208,7 +208,7 @@
 	}
 
 	.win-tap-hint {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(10px, 2.5vw, 16px);
 		font-weight: 600;
 		color: rgba(255, 255, 255, 0.5);

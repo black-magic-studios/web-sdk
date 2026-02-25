@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateModal, stateConfig, stateI18nDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateModal, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -66,7 +66,7 @@
 
 	// ── Handlers ──
 	const handleSpin = () => {
-		if (!disabled) context.eventEmitter.broadcast({ type: 'bet' });
+		if (!disabled && !stateUrlDerived.replay()) context.eventEmitter.broadcast({ type: 'bet' });
 	};
 
 	const handleAutoPlay = () => {
@@ -329,7 +329,7 @@
 	}
 
 	.label {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(8px, 2.2vw, 11px);
 		font-weight: 700;
 		color: #88ccff;
@@ -339,7 +339,7 @@
 	}
 
 	.value {
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(11px, 3vw, 15px);
 		font-weight: 700;
 		color: #ffffff;
@@ -388,7 +388,7 @@
 		border: none;
 		background: transparent;
 		font: inherit;
-		font-family: 'proxima-nova', Arial, sans-serif;
+		font-family: 'Montserrat', Arial, sans-serif;
 		font-size: clamp(11px, 3vw, 15px);
 		font-weight: 700;
 		color: #ffffff;
