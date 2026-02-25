@@ -33,6 +33,18 @@
 		L4: { x: 512, y: 256 },
 	};
 
+	// Match the sizeRatios from game constants so symbols look proportionate
+	const symbolScale: Record<string, number> = {
+		H1: 1.1,
+		H2: 1.5,
+		H3: 1.6,
+		H4: 1.2,
+		L1: 1.0,
+		L2: 1.0,
+		L3: 1.0,
+		L4: 1.0,
+	};
+
 	// Paytable data — pays are multiplied by total bet
 	const highPay = [
 		{ key: 'H1', pays: [1.0, 1.2, 1.4, 1.6, 1.9, 2.3, 2.8, 3.4, 4.2, 5.2, 6.5, 8.0, 9.8, 11.8, 14.0, 16.5] },
@@ -115,7 +127,7 @@
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
 									<div class="symbol-icon"
-										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256};"
+										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256}; --scale: {symbolScale[sym.key] ?? 1};"
 									></div>
 									<div class="pay-rows">
 										{#each sym.pays as pay, i}
@@ -134,7 +146,7 @@
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
 									<div class="symbol-icon"
-										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256};"
+										style="background-image: url({SYMBOL_SHEET}); --sprite-col: {symbolPos[sym.key].x / 256}; --sprite-row: {symbolPos[sym.key].y / 256}; --scale: {symbolScale[sym.key] ?? 1};"
 									></div>
 									<div class="pay-rows">
 										{#each sym.pays as pay, i}
@@ -678,6 +690,8 @@
 		image-rendering: auto;
 		background-size: 300% 300%;
 		background-position: calc(var(--sprite-col) * -100%) calc(var(--sprite-row) * -100%);
+		transform: scale(var(--scale, 1));
+		transform-origin: center center;
 	}
 
 	.pay-rows {

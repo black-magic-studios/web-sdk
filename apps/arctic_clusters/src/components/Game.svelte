@@ -18,7 +18,6 @@
 	import Background from './Background.svelte';
 	import Snowflakes from './Snowflakes.svelte';
 	import AuroraParticles from './AuroraParticles.svelte';
-	import Constellations from './Constellations.svelte';
 	import LoadingScreen from './LoadingScreen.svelte';
 	import BoardFrame from './BoardFrame.svelte';
 	import Board from './Board.svelte';
@@ -154,7 +153,6 @@
 
 		<Snowflakes />
 		<AuroraParticles layer="background" />
-		<Constellations />
 		<BoardFrame />
 		<Board />
 		<Anticipations />
