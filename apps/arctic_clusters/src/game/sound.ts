@@ -1,8 +1,11 @@
 import { createSound } from 'utils-sound';
 
 export type MusicName =
+	| 'bgm_intro'
 	| 'bgm_main'
+	| 'bgm_bonus_intro'
 	| 'bgm_freespin'
+	| 'bgm_bonus_exit'
 	| 'bgm_winlevel_big'
 	| 'bgm_winlevel_epic'
 	| 'bgm_winlevel_max'

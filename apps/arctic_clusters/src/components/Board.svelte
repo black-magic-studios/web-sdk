@@ -48,7 +48,7 @@
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
 			const skipWin = stateBetDerived.skipWinAnimation();
 			const WIN_SCALE_DURATION_MS = skipWin ? 150 : 600;
-			const SAFETY_TIMEOUT_MS = skipWin ? 500 : 3000;
+			const SAFETY_TIMEOUT_MS = skipWin ? 500 : 5000;
 			const getPromises = () =>
 				symbolPositions.map(async (position) => {
 					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];

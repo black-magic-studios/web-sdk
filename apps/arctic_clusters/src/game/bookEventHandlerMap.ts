@@ -52,12 +52,8 @@ const winLevelSoundsPlay = ({ winLevelData }: { winLevelData: WinLevelData }) =>
 
 const winLevelSoundsStop = () => {
 	eventEmitter.broadcast({ type: 'soundStop', name: 'sfx_bigwin_coinloop' });
-	if (stateBet.activeBetModeKey === 'SUPERSPIN' || stateGame.gameType === 'freegame') {
-		// check if SUPERSPIN, when finishing a bet.
-		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_freespin' });
-	} else {
-		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_main' });
-	}
+	// Don't change music here — the caller (setWin, freeSpinEnd, etc.)
+	// is responsible for setting the correct music after the win presentation.
 	eventEmitter.broadcastAsync({ type: 'uiShow' });
 };
 
@@ -334,19 +330,21 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Animate scatters at their final post-tumble positions (backend now sends correct coords)
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
-		// show free spin intro
+		// show free spin intro — crossfade base music → bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
-		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_freespin' });
 		await eventEmitter.broadcastAsync({
 			type: 'freeSpinIntroUpdate',
 			totalFreeSpins: bookEvent.totalFs,
 		});
 		stateGame.gameType = 'freegame';
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
+		// Crossfade bonus intro → freespin gameplay music
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
 		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		await eventEmitter.broadcastAsync({
@@ -370,19 +368,21 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Animate scatters at their final post-tumble positions
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
-		// show free spin intro
+		// show free spin retrigger intro — crossfade to bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
-		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_freespin' });
 		await eventEmitter.broadcastAsync({
 			type: 'freeSpinIntroUpdate',
 			totalFreeSpins: bookEvent.totalFs,
 		});
 		stateGame.gameType = 'freegame';
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
+		// Crossfade bonus intro → freespin gameplay music
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
 		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		await eventEmitter.broadcastAsync({
@@ -425,6 +425,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		stateGame.gameType = 'basegame';
+		// Play bonus exit music as we leave free spins
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_exit', duration: 500 });
 		eventEmitter.broadcast({ type: 'boardFrameGlowHide' });
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'freeSpinOutroShow' });
@@ -441,6 +443,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
+		// Crossfade bonus exit → base game music
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_main', duration: 500 });
 		await eventEmitter.broadcastAsync({ type: 'uiShow' });
 		await eventEmitter.broadcastAsync({ type: 'drawerUnfold' });
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
@@ -500,6 +504,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			winLevelData,
 		});
 		winLevelSoundsStop();
+		// Restore the appropriate music after win presentation
+		if (stateBet.activeBetModeKey === 'SUPERSPIN' || stateGame.gameType !== 'basegame') {
+			eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
+		} else {
+			eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_main', duration: 500 });
+		}
 		eventEmitter.broadcast({ type: 'winHide' });
 	},
 	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
@@ -625,18 +635,21 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Animate scatters at their final post-tumble positions
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
 		await animateSymbols({ positions: bookEvent.positions });
+		// Crossfade base music → bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		await eventEmitter.broadcastAsync({ type: 'transition' });
 		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
-		eventEmitter.broadcast({ type: 'soundMusic', name: 'bgm_freespin' });
 		await eventEmitter.broadcastAsync({
 			type: 'freeSpinIntroUpdate',
 			totalFreeSpins: bookEvent.totalFs,
 		});
 		stateGame.gameType = 'freegame';
 		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
+		// Crossfade bonus intro → freespin gameplay music
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
 		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
 		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
 		await eventEmitter.broadcastAsync({
