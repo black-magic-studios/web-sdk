@@ -19,6 +19,7 @@ import { FadeContainer } from 'components-pixi';
 
 import { getContext } from '../game/context';
 import { stateGame } from '../game/stateGame.svelte';
+import { isFreegameType } from '../game/types';
 
 const context = getContext();
 const canvas = $derived(context.stateLayoutDerived.canvasSizes());
@@ -32,7 +33,7 @@ const totalPlaced = $derived(stateGame.auroraWildPositions.length);
 const count = $derived(sessionTotal);
 
 const visible = $derived(
-stateGame.gameType !== 'basegame' && stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
+isFreegameType(stateGame.gameType) && stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
 );
 
 // ── Constants ──────────────────────────────────────────

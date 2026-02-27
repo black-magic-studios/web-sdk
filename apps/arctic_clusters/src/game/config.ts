@@ -837,7 +837,10 @@ export default {
 	},
 	paddingReels: {
 		basegame: '',
+		ante: '',
 		freegame: '',
 		freegame_wild_release: '',
+		super: '',
+		super_wild_release: '',
 	},
 };

@@ -6,6 +6,7 @@
 
 	import { getContext } from '../game/context';
 	import { SYMBOL_HEIGHT } from '../game/constants';
+	import { isFreegameType } from '../game/types';
 	import BoardContainer from './BoardContainer.svelte';
 
 	type Props = {
@@ -24,7 +25,7 @@
 	const portraitPosition = $derived({
 		x:
 			context.stateGameDerived.boardLayout().width *
-			(context.stateGame.gameType === 'basegame' ? 0.5 : 0.37),
+			(!isFreegameType(context.stateGame.gameType) ? 0.5 : 0.37),
 		y: -SYMBOL_HEIGHT * 0.8 * 0.68,
 	});
 

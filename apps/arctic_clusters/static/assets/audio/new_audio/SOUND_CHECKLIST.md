@@ -175,4 +175,16 @@ audiosprite -o ../sounds -f howler --export ogg,mp3,m4a,ac3 \
 
 This overwrites `../sounds.json`, `../sounds.mp3`, `../sounds.ogg`, `../sounds.m4a`, `../sounds.ac3`.
 
-No code changes needed after regeneration — the sprite names stay the same.
+Then **immediately** run the fix script to convert `audiosprite`'s output to the correct Howler format:
+
+```bash
+node fix_sounds_json.mjs
+```
+
+This fixes three things the raw `audiosprite` output gets wrong:
+1. Renames `"urls"` → `"src"` (Howler uses `src`, not `urls`)
+2. Corrects paths from `"../sounds.ogg"` → `"./assets/audio/sounds.ogg"`
+3. Adds `true` loop flags to BGM/loop sprite entries
+4. Adds the `"config"` volume block
+
+No other code changes needed after regeneration — the sprite names stay the same.

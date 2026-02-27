@@ -10,6 +10,7 @@ import { playBookEvent } from './utils';
 import { winLevelMap, type WinLevel, type WinLevelData } from './winLevelMap';
 import { stateGame, stateGameDerived } from './stateGame.svelte';
 import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEvent';
+import { isFreegameType } from './types';
 import type { RawSymbol, Position } from './types';
 
 /**
@@ -143,7 +144,7 @@ const spinWithMultipliers = async ({
 	console.log(`[spinWithMultipliers] ✅ Grid reveal complete at ${Date.now()}`);
 
 	// 3b. During free spins, briefly highlight ≥32× multipliers while board is empty
-	if (stateGame.gameType === 'freegame') {
+		if (isFreegameType(stateGame.gameType)) {
 		await eventEmitter.broadcastAsync({ type: 'multiplierGridHighlightHigh' });
 		console.log(`[spinWithMultipliers] ✨ High-multiplier highlight complete at ${Date.now()}`);
 	}
@@ -319,6 +320,41 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	setTotalWin: async (bookEvent: BookEventOfType<'setTotalWin'>) => {
 		stateBet.winBookEventAmount = bookEvent.amount;
+	},
+	buyBonusTrigger: async (bookEvent: BookEventOfType<'buyBonusTrigger'>) => {
+		// Player purchased direct entry to free spins — same intro flow as freeSpinTrigger
+		// but without scatter animation (no scatters on the board).
+		stateGame.auroraWildsSessionTotal = 0;
+		stateGame.isWildRelease = false;
+		stateGame.wildReleaseRemaining = 0;
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
+		await eventEmitter.broadcastAsync({ type: 'uiHide' });
+		await eventEmitter.broadcastAsync({ type: 'transition' });
+		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
+		await eventEmitter.broadcastAsync({
+			type: 'freeSpinIntroUpdate',
+			totalFreeSpins: bookEvent.totalFs,
+		});
+		stateGame.gameType = 'freegame';
+		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
+		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
+		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
+		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
+		await eventEmitter.broadcastAsync({
+			type: 'globalMultiplierUpdate',
+			multiplier: 1,
+		});
+		eventEmitter.broadcast({ type: 'freeSpinCounterShow' });
+		eventEmitter.broadcast({
+			type: 'freeSpinCounterUpdate',
+			current: undefined,
+			total: bookEvent.totalFs,
+		});
+		await eventEmitter.broadcastAsync({ type: 'uiShow' });
+		await eventEmitter.broadcastAsync({ type: 'drawerButtonShow' });
+		eventEmitter.broadcast({ type: 'drawerFold' });
 	},
 	freeSpinTrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
 		// Reset session-wide wild tracking for new bonus
@@ -505,7 +541,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		});
 		winLevelSoundsStop();
 		// Restore the appropriate music after win presentation
-		if (stateBet.activeBetModeKey === 'SUPERSPIN' || stateGame.gameType !== 'basegame') {
+		if (stateBet.activeBetModeKey === 'SUPERSPIN' || isFreegameType(stateGame.gameType)) {
 			eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
 		} else {
 			eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_main', duration: 500 });
@@ -624,6 +660,24 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.isWildRelease = true;
 		stateGame.wildReleaseRemaining = bookEvent.wildsToPlace;
 		stateGame.spinActive = true;
+	},
+	wildMeterUpdate: async (bookEvent: BookEventOfType<'wildMeterUpdate'>) => {
+		console.log(`[bookEventHandlerMap] 💰 WILD_METER_UPDATE at ${Date.now()}`, {
+			delta: bookEvent.delta,
+			meterBefore: bookEvent.meterBefore,
+			meterAfter: bookEvent.meterAfter,
+			consumedPositions: bookEvent.consumedPositions,
+		});
+		// Aurora wilds were consumed by wins and banked into the wild meter.
+		// Play a sound to acknowledge the bank increase.
+		if (bookEvent.delta > 0) {
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_win' });
+		}
+	},
+	winCapReached: async (bookEvent: BookEventOfType<'winCapReached'>) => {
+		console.log(`[bookEventHandlerMap] 🏆 WIN_CAP_REACHED at ${Date.now()}`, { cappedAmount: bookEvent.cappedAmount });
+		// Win cap hit (25,000× bet) — tumbles stop. No special presentation needed beyond
+		// the normal setWin / freeSpinEnd flow that follows.
 	},
 	superBonusTrigger: async (bookEvent: BookEventOfType<'superBonusTrigger'>) => {
 		// Reset session-wide wild tracking for new bonus

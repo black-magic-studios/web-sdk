@@ -52,9 +52,16 @@
 		sound.fade({ name: 'bgm_bonus_exit' as any, from: 1, to: 0, duration });
 		sound.fade({ name: 'bgm_intro' as any, from: 1, to: 0, duration });
 
-		// After the fade-out completes, start the new track at full volume
+		// After the fade-out completes, stop all other tracks then start the new one.
+		// Stopping is critical — fade only sets volume to 0 but the loop keeps running
+		// silently. Without stop(), multiple instances accumulate across bonus entries/exits
+		// and double up when a track is "restarted" (new play + old silent loop = audible doubling).
 		crossfadeTimerId = setTimeout(() => {
 			crossfadeTimerId = null;
+			const allBgm: MusicName[] = ['bgm_main', 'bgm_freespin', 'bgm_bonus_intro', 'bgm_bonus_exit', 'bgm_intro'];
+			for (const track of allBgm) {
+				if (track !== name) sound.stop({ name: track });
+			}
 			console.log(`[🎵 MUSIC] crossfade fade done → playing ${name}`);
 			currentMusic = name;
 			sound.players.music.play({ name });
@@ -65,6 +72,12 @@
 		// ui
 		soundBetMode: async ({ betModeKey }) => {
 			console.log(`[🎵 MUSIC] soundBetMode: ${betModeKey}`);
+			cancelIntroTimer();
+			sound.stop({ name: 'bgm_main' });
+			sound.stop({ name: 'bgm_freespin' });
+			sound.stop({ name: 'bgm_bonus_intro' });
+			sound.stop({ name: 'bgm_bonus_exit' });
+			sound.stop({ name: 'bgm_intro' });
 			if (betModeKey === 'SUPERSPIN') {
 				// check if SUPERSPIN, when changing the bet mode.
 				sound.players.once.play({ name: 'sfx_winlevel_end' });
@@ -86,6 +99,11 @@
 		// game
 		soundMusic: ({ name }) => {
 			console.log(`[🎵 MUSIC] soundMusic → ${name}`);
+			cancelIntroTimer();
+			const allBgm: MusicName[] = ['bgm_main', 'bgm_freespin', 'bgm_bonus_intro', 'bgm_bonus_exit', 'bgm_intro'];
+			for (const track of allBgm) {
+				if (track !== name) sound.stop({ name: track });
+			}
 			currentMusic = name;
 			sound.players.music.play({ name });
 		},
@@ -101,12 +119,18 @@
 
 	/** Whether the intro→loop handoff is still active (can be cancelled on bonus trigger) */
 	let introEndActive = false;
+	/** The Howler soundId of the playing bgm_intro instance, used to scope the end listener */
+	let introSoundId: number | null = null;
 
 	/** Cancel the intro→loop handoff (e.g. when bonus triggers before intro finishes) */
 	const cancelIntroTimer = () => {
 		if (introEndActive) {
 			introEndActive = false;
 			console.log('[🎵 MUSIC] intro→loop CANCELLED');
+			if (introSoundId !== null) {
+				sound.players.once.howl.stop(introSoundId);
+				introSoundId = null;
+			}
 		}
 	};
 
@@ -120,18 +144,19 @@
 			console.log(`[🎵 MUSIC] onMount → playing bgm_intro, waiting for onend to start bgm_main`);
 			currentMusic = 'bgm_intro';
 			introEndActive = true;
-			sound.players.once.play({ name: 'bgm_intro' });
-			// Listen for Howler's 'end' event — fires exactly when the sprite finishes
-			sound.players.once.howl.on('end', function onIntroEnd(soundId: number) {
-				// Only react if this is our intro sound and we haven't been cancelled
+			// Play bgm_intro directly via the howl to capture its soundId.
+			// Using the soundId scopes the 'end' listener to ONLY this specific
+			// instance — without it, every sfx_reel_stop / scatter / etc. that
+			// ends on the shared once howl would also fire the callback.
+			introSoundId = sound.players.once.howl.play('bgm_intro');
+			sound.players.once.howl.once('end', function onIntroEnd() {
 				if (!introEndActive) return;
 				introEndActive = false;
-				// Remove this one-shot listener
-				sound.players.once.howl.off('end', onIntroEnd, soundId);
+				introSoundId = null;
 				console.log(`[🎵 MUSIC] bgm_intro ended (event-driven) → playing bgm_main`);
 				currentMusic = 'bgm_main';
 				sound.players.music.play({ name: 'bgm_main' });
-			});
+			}, introSoundId);
 		}
 	});
 </script>

@@ -1,4 +1,10 @@
 {
+	"src": [
+		"./assets/audio/sounds.ogg",
+		"./assets/audio/sounds.mp3",
+		"./assets/audio/sounds.m4a",
+		"./assets/audio/sounds.ac3"
+	],
 	"sprite": {
 		"bgm_intro": [
 			0,
@@ -226,12 +232,6 @@
 			100.00000000002274
 		]
 	},
-	"src": [
-		"./assets/audio/sounds.ogg",
-		"./assets/audio/sounds.m4a",
-		"./assets/audio/sounds.mp3",
-		"./assets/audio/sounds.ac3"
-	],
 	"config": {
 		"bgm_intro": {
 			"volume": 1

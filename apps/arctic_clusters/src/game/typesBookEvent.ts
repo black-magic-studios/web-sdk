@@ -149,6 +149,28 @@ type BookEventWildRelease = {
 	wildsToPlace: number;
 };
 
+type BookEventBuyBonusTrigger = {
+	index: number;
+	type: 'buyBonusTrigger';
+	cost: number;
+	totalFs: number;
+};
+
+type BookEventWildMeterUpdate = {
+	index: number;
+	type: 'wildMeterUpdate';
+	delta: number;
+	meterBefore: number;
+	meterAfter: number;
+	consumedPositions: Position[];
+};
+
+type BookEventWinCapReached = {
+	index: number;
+	type: 'winCapReached';
+	cappedAmount: number;
+};
+
 // customised
 type BookEventCreateBonusSnapshot = {
 	index: number;
@@ -180,6 +202,10 @@ export type BookEvent =
 	| BookEventWildRelease
 	// super bonus
 	| BookEventSuperBonusTrigger
+	// buy bonus / wild meter / win cap
+	| BookEventBuyBonusTrigger
+	| BookEventWildMeterUpdate
+	| BookEventWinCapReached
 	// customised
 	| BookEventCreateBonusSnapshot;
 

@@ -6,6 +6,13 @@ export type RawSymbol = { name: SymbolName; multiplier?: number; scatter?: boole
 export type BetMode = keyof typeof config.betModes;
 export type GameType = keyof typeof config.paddingReels;
 
+/** True for any game type that is a free-spin/bonus round (music stays on bgm_freespin). */
+export const isFreegameType = (gameType: GameType | string): boolean =>
+	gameType === 'freegame' ||
+	gameType === 'freegame_wild_release' ||
+	gameType === 'super' ||
+	gameType === 'super_wild_release';
+
 export const SYMBOL_STATES = [
 	'static',
 	'spin',
