@@ -44,13 +44,9 @@ for (const [name, entry] of Object.entries(raw.sprite)) {
 		: [entry[0], entry[1]];        // [start, duration]
 }
 
-// 3. Build config block — per-sound volume overrides; all others default to 1
-const SOUND_VOLUMES = {
-	win_explosion: 0.2,
-	multi_pop_sound: 0.15,
-};
+// 3. Build config block — all sounds at volume 1 (levels set in source WAVs)
 const config = Object.fromEntries(
-	Object.keys(sprite).map((k) => [k, { volume: SOUND_VOLUMES[k] ?? 1 }]),
+	Object.keys(sprite).map((k) => [k, { volume: 1 }]),
 );
 
 // 4. Write corrected JSON (drop "urls", keep only "src"/"sprite"/"config")

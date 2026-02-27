@@ -233,14 +233,14 @@
 		],
 		"win_explosion": [
 			375000,
-			699.9999999999886
+			2000
 		],
 		"bonus_symbol_land": [
-			377000,
+			378000,
 			1000
 		],
 		"multi_pop_sound": [
-			379000,
+			380000,
 			2000
 		]
 	},
@@ -408,13 +408,13 @@
 			"volume": 1
 		},
 		"win_explosion": {
-			"volume": 0.2
+			"volume": 1
 		},
 		"bonus_symbol_land": {
 			"volume": 1
 		},
 		"multi_pop_sound": {
-			"volume": 0.15
+			"volume": 1
 		}
 	}
 }
