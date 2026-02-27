@@ -22,6 +22,17 @@
 	const currentScale = $derived(props.tumbleSymbol.symbolScale);
 	// Map internal states to valid SymbolState for rendering
 	const isHidden = $derived(props.tumbleSymbol.symbolState === 'vanished');
+
+	// Fire the onvanish callback when this symbol transitions to 'vanished'.
+	// $effect runs after Svelte commits DOM changes, so the visual disappear
+	// has already happened by the time the callback executes — making it
+	// truly event-driven rather than timer-based.
+	$effect(() => {
+		if (isHidden) {
+			props.tumbleSymbol.onvanish?.();
+		}
+	});
+
 	const symbolInfo = $derived(
 		isHidden
 			? null

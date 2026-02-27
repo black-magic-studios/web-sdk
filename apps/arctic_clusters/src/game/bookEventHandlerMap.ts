@@ -493,7 +493,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
 		console.log(`[bookEventHandlerMap] 🕐 init done t=${(performance.now()-tb0).toFixed(0)}ms — starting vanish`);
 
-		// 1. Play glow → vanish + explosion per cell (all staggered inside TumbleBoard)
+		// 1. Play glow → vanish + explosion per cell — sound fires per-cell inside TumbleBoard
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardVanish',
 			explodingPositions: bookEvent.explodingSymbols,

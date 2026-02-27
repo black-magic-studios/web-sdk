@@ -235,7 +235,15 @@
 				// Wait for full glow animation (symbol stays visible)
 				await new Promise((r) => setTimeout(r, POOF_DURATION_MS / ts));
 
-				// Hide symbol + start explosion at the SAME moment
+				// Register per-cell vanish callback — fires from TumbleSymbol's $effect
+				// after Svelte commits the DOM change, so it's fully event-driven.
+				tumbleSymbol.onvanish = () => {
+					console.log(`[TumbleBoard] 💥 win_explosion cell ${key} (sortedIndex=${sortedIndex})`);
+					context.eventEmitter.broadcast({ type: 'soundOnce', name: 'win_explosion', forcePlay: true });
+					tumbleSymbol.onvanish = undefined;
+				};
+
+				// Hide symbol + start explosion sprite
 				tumbleSymbol.symbolState = 'vanished';
 				explodingCells = new Set([...explodingCells, key]);
 

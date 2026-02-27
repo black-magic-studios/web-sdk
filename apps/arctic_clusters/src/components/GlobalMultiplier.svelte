@@ -59,7 +59,6 @@
 			}
 
 			if (emitterEvent.multiplier > multiplier) {
-				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_update' });
 				animationName = 'increment';
 			}
 

@@ -24,12 +24,20 @@ import {
 	GRID_GAP_Y,
 } from './constants';
 
+// Major-scale pitch rates (do-re-mi-fa-sol) for scatter landing sounds
+// Each step is a major-scale interval: 0, 2, 4, 5, 7 semitones above root
+const SCATTER_PITCH_RATES = [1.0, 1.122, 1.260, 1.335, 1.498] as const;
+
 const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
 	if (rawSymbol.name === 'S' || rawSymbol.name === 'SS') {
 		eventEmitter.broadcast({ type: 'soundScatterCounterIncrease' });
+		// scatterLandIndex() returns 1-5 (post-increment); map to 0-based pitch index
+		const rate = SCATTER_PITCH_RATES[scatterLandIndex() - 1];
 		eventEmitter.broadcast({
-			type: 'soundOnce',
-			name: SCATTER_LAND_SOUND_MAP[scatterLandIndex()],
+			type: 'soundOnceWithRate',
+			name: 'bonus_symbol_land',
+			rate,
+			volume: 0.4,
 		});
 		// Progressive shake: light for 1st scatter, medium for 2nd, heavy for 3+
 		const count = stateGame.scatterCounter;
@@ -76,6 +84,7 @@ export type TumbleSymbol = {
 	rawSymbol: RawSymbol;
 	symbolState: SymbolState;
 	oncomplete: () => void;
+	onvanish?: () => void;
 };
 
 export type MultiplierSymbol = {

@@ -8,6 +8,7 @@
 		| { type: 'soundLoop'; name: SoundEffectName }
 		| { type: 'soundStop'; name: SoundName }
 		| { type: 'soundFade'; name: SoundName; from: number; to: number; duration: number }
+		| { type: 'soundOnceWithRate'; name: SoundEffectName; rate: number; volume?: number }
 		| { type: 'soundScatterCounterIncrease' }
 		| { type: 'soundScatterCounterClear' };
 </script>
@@ -17,7 +18,7 @@
 
 	import { waitForTimeout } from 'utils-shared/wait';
 	import { SECOND } from 'constants-shared/time';
-	import { stateBet } from 'state-shared';
+	import { stateBet, stateSoundDerived } from 'state-shared';
 
 	import { getContext } from '../game/context';
 
@@ -109,7 +110,18 @@
 		},
 		soundMusicCrossfade: ({ name, duration }) => crossfadeMusic(name, duration),
 		soundLoop: ({ name }) => sound.players.loop.play({ name }),
-		soundOnce: ({ name, forcePlay }) => sound.players.once.play({ name, forcePlay }),
+		soundOnce: ({ name, forcePlay }) => {
+			console.log(`[🔊 SFX] soundOnce name=${name} forcePlay=${forcePlay}`);
+			sound.players.once.play({ name, forcePlay });
+		},
+		soundOnceWithRate: ({ name, rate, volume }) => {
+			// Bypass the player wrapper to capture soundId for rate + volume control.
+			// Multiply by volumeSoundEffect() so the SFX slider is respected.
+			const id = sound.players.once.howl.play(name);
+			sound.players.once.howl.rate(rate, id);
+			const sfxVol = stateSoundDerived.volumeSoundEffect();
+			sound.players.once.howl.volume((volume ?? 1) * sfxVol, id);
+		},
 		soundStop: ({ name }) => {
 			console.log(`[🎵 MUSIC] soundStop → ${name}`);
 			sound.stop({ name });

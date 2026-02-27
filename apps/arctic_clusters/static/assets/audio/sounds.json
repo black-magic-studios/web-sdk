@@ -230,6 +230,18 @@
 		"tumble_win_4": [
 			373000,
 			100.00000000002274
+		],
+		"win_explosion": [
+			375000,
+			699.9999999999886
+		],
+		"bonus_symbol_land": [
+			377000,
+			1000
+		],
+		"multi_pop_sound": [
+			379000,
+			2000
 		]
 	},
 	"config": {
@@ -394,6 +406,15 @@
 		},
 		"tumble_win_4": {
 			"volume": 1
+		},
+		"win_explosion": {
+			"volume": 0.2
+		},
+		"bonus_symbol_land": {
+			"volume": 1
+		},
+		"multi_pop_sound": {
+			"volume": 0.15
 		}
 	}
 }

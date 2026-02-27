@@ -56,7 +56,10 @@ export type SoundEffectName =
 	| 'tumble_win_1'
 	| 'tumble_win_2'
 	| 'tumble_win_3'
-	| 'tumble_win_4';
+	| 'tumble_win_4'
+	| 'win_explosion'
+	| 'bonus_symbol_land'
+	| 'multi_pop_sound';
 
 export type SoundName = MusicName | SoundEffectName;
 
