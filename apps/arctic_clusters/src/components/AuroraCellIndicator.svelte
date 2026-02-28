@@ -34,11 +34,11 @@
 	const cr = $derived(Math.round(cellWidth * CR_RATIO));
 
 	// ── Aurora colours ──
-	const GLOW_COLOR = 0x55ffcc;
-	const GLOW_COLOR_OUTER = 0x22cc88;
-	const BORDER_COLOR_AURORA = 0x66ffdd;
-	const INNER_FILL_COLOR = 0x33eebb;
-	const CENTER_DOT_COLOR = 0xaaffee;
+	const GLOW_COLOR = 0xffee00;
+	const GLOW_COLOR_OUTER = 0xffcc00;
+	const BORDER_COLOR_AURORA = 0xffdd00;
+	const INNER_FILL_COLOR = 0xffee00;
+	const CENTER_DOT_COLOR = 0xffff88;
 	const EXPLODE_COLOR = 0xffffff;
 
 	// ── State ──
@@ -275,28 +275,37 @@
 				alpha={baseAlpha}
 				zIndex={-1}
 			>
-					<!-- Outer glow pulse -->
+					<!-- Outer star glow -->
 					<Graphics
-						draw={(g) => drawGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-						alpha={cell.glowAlpha.current * (cell.exploding ? 0.6 : pulseValue * 0.3)}
+						draw={(g) => {
+							g.clear();
+							drawGlow(g, cellWidth, cellHeight, cr, cell.exploding);
+						}}
+						alpha={cell.exploding ? 0.9 : cell.glowAlpha.current * pulseValue}
 					/>
-
-					<!-- Inner fill -->
+					<!-- Inner star fill (semi-transparent) -->
 					<Graphics
-						draw={(g) => drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding)}
-						alpha={cell.glowAlpha.current * (cell.exploding ? 0.4 : 0.1)}
+						draw={(g) => {
+							g.clear();
+							drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding);
+						}}
+						alpha={cell.exploding ? 0.85 : 0.28 * pulseValue}
 					/>
-
-					<!-- Pulsing aurora border -->
+					<!-- Star border -->
 					<Graphics
-						draw={(g) => drawBorder(g, cellWidth, cellHeight, cr, cell.exploding)}
-						alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse)}
+						draw={(g) => {
+							g.clear();
+							drawBorder(g, cellWidth, cellHeight, cr, cell.exploding);
+						}}
+						alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse * 0.8)}
 					/>
-
-					<!-- Center diamond sparkle -->
+					<!-- Center diamond accent -->
 					<Graphics
-						draw={(g) => drawCenterAccent(g, cellWidth, cellHeight, cell.exploding)}
-						alpha={cell.borderAlpha.current * (cell.exploding ? 0.9 : sparklePulse * 0.5)}
+						draw={(g) => {
+							g.clear();
+							drawCenterAccent(g, cellWidth, cellHeight, cell.exploding);
+						}}
+						alpha={cell.exploding ? 1.0 : sparklePulse * 0.7}
 					/>
 			</Container>
 		{/if}

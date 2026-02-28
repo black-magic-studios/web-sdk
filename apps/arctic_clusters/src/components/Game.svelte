@@ -28,6 +28,7 @@
 	import MultiplierFlyOut from './MultiplierFlyOut.svelte';
 	import WinOverlay from './WinOverlay.svelte';
 	import FreeSpinIntro from './FreeSpinIntro.svelte';
+	import AuroraSpinAnnounce from './AuroraSpinAnnounce.svelte';
 	import FreeSpinOutro from './FreeSpinOutro.svelte';
 	import Transition from './Transition.svelte';
 	// import I18nTest from './I18nTest.svelte';
@@ -177,6 +178,8 @@
 			width={REM * 2.5}
 		/>
 		<WinOverlay />
+		<TumbleWinAmount />
+		<AuroraSpinAnnounce />
 		<Transition />
 
 		<!-- <I18nTest /> -->

@@ -561,61 +561,91 @@
 			context.stateGame.multiplierGrid = DEFAULT_GRID;
 		},
 		multiplierGridHighlightHigh: async () => {
-			// Briefly brighten all multiplier cells ≥32× with explosion-style stagger
+			// Directional light-glint sweep across all ≥32× cells while the board
+			// is empty.  Cycles through 4 distinct variants so consecutive dead
+			// spins each look different.
 			const currentGrid = context.stateGame.multiplierGrid;
 			const scales = context.stateGame.multiplierCellScales as Map<string, CellAnimState>;
 			if (!scales || scales.size === 0) return;
 
-			const highCells: { key: string; anim: CellAnimState; dist: number }[] = [];
+			// Collect all eligible cells
+			type SweepCell = { anim: CellAnimState; reel: number; row: number };
+			const cells: SweepCell[] = [];
 			for (let reel = 0; reel < currentGrid.length; reel++) {
 				for (let row = 0; row < currentGrid[reel].length; row++) {
 					if (currentGrid[reel][row] >= 32) {
-						const key = getCellKey(reel, row);
-						const anim = scales.get(key);
-						if (anim) {
-							const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
-							highCells.push({ key, anim, dist });
-						}
+						const anim = scales.get(getCellKey(reel, row));
+						if (anim) cells.push({ anim, reel, row });
 					}
 				}
 			}
+			if (cells.length === 0) return;
 
-			if (highCells.length === 0) return;
+			const ts   = stateBetDerived.timeScale();
+			const v    = sweepVariant++ % 4;
 
-			const ts = stateBetDerived.timeScale();
-			const STAGGER_MS = 60;  // delay per cell, sorted by distance
+			// Per-variant config ─────────────────────────────────────────────────
+			// delay(c): ms before this cell starts its rise (pre-ts scaling)
+			// rise/hold/fall: ms durations (pre-ts scaling)
+			// vibrance/highlight: peak values (0–1)
+			let delay:     (c: SweepCell) => number;
+			let rise:      number;
+			let hold:      number;
+			let fall:      number;
+			let vibrance:  number;
+			let highlight: number;
 
-			// Sort by distance from center so the effect ripples outward
-			highCells.sort((a, b) => a.dist - b.dist);
-
-			// Staggered ramp up — each cell fires slightly after the previous
-			for (let i = 0; i < highCells.length; i++) {
-				const { anim } = highCells[i];
-				const delay = i * (STAGGER_MS / ts);
-				setTimeout(() => {
-					anim.vibrance.set(1, { duration: 150 / ts, easing: cubicOut });
-					anim.labelScale.set(1.08, { duration: 150 / ts, easing: cubicOut });
-					anim.highlightBoost.set(0.25, { duration: 150 / ts, easing: cubicOut });
-				}, delay);
+			switch (v) {
+				case 0: {
+					// Slow L→R glint, slight downward diagonal
+					delay = (c) => c.reel * 160 + c.row * 16;
+					rise = 120; hold = 240; fall = 420;
+					vibrance = 0.58; highlight = 0.26;
+					break;
+				}
+				case 1: {
+					// R→L glint, upward diagonal (mirror of case 0)
+					delay = (c) => (6 - c.reel) * 150 + (6 - c.row) * 14;
+					rise = 110; hold = 260; fall = 440;
+					vibrance = 0.65; highlight = 0.30;
+					break;
+				}
+				case 2: {
+					// Top-left → bottom-right diagonal ripple
+					delay = (c) => (c.reel + c.row) * 50;
+					rise = 130; hold = 220; fall = 460;
+					vibrance = 0.62; highlight = 0.32;
+					break;
+				}
+				case 3:
+				default: {
+					// Center-outward slow pulse (most dramatic for large grids)
+					delay = (c) => Math.sqrt((c.reel - CENTER_REEL) ** 2 + (c.row - CENTER_ROW) ** 2) * 100;
+					rise = 160; hold = 320; fall = 500;
+					vibrance = 0.52; highlight = 0.22;
+					break;
+				}
 			}
 
-			// Wait for all staggers + ramp up + hold time
-			const totalStagger = highCells.length * (STAGGER_MS / ts);
-			await new Promise((r) => setTimeout(r, totalStagger + 150 / ts + 400 / ts));
-
-			// Staggered ramp down — ripple back from center outward
-			for (let i = 0; i < highCells.length; i++) {
-				const { anim } = highCells[i];
-				const delay = i * (STAGGER_MS / ts);
+			// Fire all cells with their computed delays
+			let maxDelay = 0;
+			for (const cell of cells) {
+				const d = delay(cell) / ts;
+				if (d > maxDelay) maxDelay = d;
 				setTimeout(() => {
-					anim.vibrance.set(0, { duration: 250 / ts, easing: cubicInOut });
-					anim.labelScale.set(LABEL_REST_SCALE, { duration: 250 / ts, easing: cubicInOut });
-					anim.highlightBoost.set(0, { duration: 250 / ts, easing: cubicInOut });
-				}, delay);
+					cell.anim.vibrance.set(vibrance, { duration: rise / ts, easing: cubicOut });
+					cell.anim.highlightBoost.set(highlight, { duration: rise / ts, easing: cubicOut });
+					setTimeout(() => {
+						cell.anim.vibrance.set(0, { duration: fall / ts, easing: cubicInOut });
+						cell.anim.highlightBoost.set(0, { duration: fall / ts, easing: cubicInOut });
+					}, (rise + hold) / ts);
+				}, d);
 			}
 
-			// Wait for ramp-down to finish
-			await new Promise((r) => setTimeout(r, totalStagger + 260 / ts));
+			// Hold the spin until every cell has fully faded out
+			await new Promise((r) =>
+				setTimeout(r, maxDelay + (rise + hold + fall) / ts),
+			);
 		},
 	});
 
@@ -633,64 +663,9 @@
 		}
 	});
 
-	// ── Idle shimmer for high-tier multiplier cells (>32x) ──────
-	// Periodically pulses vibrance so these cells glow brighter,
-	// giving them a magical "breathing" effect between tumbles.
-	const SHIMMER_THRESHOLD = 32;
-	const SHIMMER_CYCLE_MS = 2200;   // full breathe cycle
-	const SHIMMER_PEAK = 0.55;       // how bright the vibrance peaks (0–1)
-	const SHIMMER_STAGGER_MS = 120;  // offset between cells so they don't all pulse together
-
-	let shimmerInterval: ReturnType<typeof setInterval> | null = null;
-
-	/** Run one shimmer breathe across all high-tier cells. */
-	async function shimmerBreatheCycle() {
-		const currentGrid = context.stateGame.multiplierGrid;
-		const scales = context.stateGame.multiplierCellScales as Map<string, CellAnimState>;
-		if (!scales || scales.size === 0) return;
-
-		const highCells: { key: string; anim: CellAnimState; dist: number }[] = [];
-		for (let reel = 0; reel < currentGrid.length; reel++) {
-			for (let row = 0; row < currentGrid[reel].length; row++) {
-				if (currentGrid[reel][row] > SHIMMER_THRESHOLD) {
-					const key = getCellKey(reel, row);
-					const anim = scales.get(key);
-					if (anim && anim.alpha.current > 0) {
-						const dist = Math.sqrt((reel - CENTER_REEL) ** 2 + (row - CENTER_ROW) ** 2);
-						highCells.push({ key, anim, dist });
-					}
-				}
-			}
-		}
-
-		if (highCells.length === 0) return;
-
-		// Sort by distance so shimmer ripples outward from center
-		highCells.sort((a, b) => a.dist - b.dist);
-
-		for (let i = 0; i < highCells.length; i++) {
-			const { anim } = highCells[i];
-			const delay = i * SHIMMER_STAGGER_MS;
-			setTimeout(() => {
-				// Ramp up
-				anim.vibrance.set(SHIMMER_PEAK, { duration: SHIMMER_CYCLE_MS * 0.35, easing: cubicOut });
-				anim.labelScale.set(LABEL_REST_SCALE + 0.06, { duration: SHIMMER_CYCLE_MS * 0.35, easing: cubicOut });
-				// Ramp back down
-				setTimeout(() => {
-					anim.vibrance.set(0, { duration: SHIMMER_CYCLE_MS * 0.55, easing: cubicInOut });
-					anim.labelScale.set(LABEL_REST_SCALE, { duration: SHIMMER_CYCLE_MS * 0.55, easing: cubicInOut });
-				}, SHIMMER_CYCLE_MS * 0.4);
-			}, delay);
-		}
-	}
-
-	onMount(() => {
-		shimmerInterval = setInterval(shimmerBreatheCycle, SHIMMER_CYCLE_MS + 800);
-	});
-
-	onDestroy(() => {
-		if (shimmerInterval) clearInterval(shimmerInterval);
-	});
+	// ── Light-sweep variant counter — cycles through 4 distinct lighting passes ──
+	// Stored outside the handler so each spin gets a different look.
+	let sweepVariant = 0;
 </script>
 
 {#snippet content()}

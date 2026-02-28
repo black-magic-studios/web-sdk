@@ -30,23 +30,38 @@ const LOOP_SOUNDS = new Set([
 
 const raw = JSON.parse(readFileSync(jsonPath, 'utf8'));
 
-// 1. Rename "urls" → "src" and fix relative paths to absolute web paths
-const urls = raw.urls ?? raw.src;
+// 1. Support both audiosprite output formats:
+//    Old: { urls: [...], sprite: { name: [start, duration] } }
+//    New: { resources: [...], spritemap: { name: { start, end, loop } } }
+const urls = raw.urls ?? raw.src ?? raw.resources;
 const src = (Array.isArray(urls) ? urls : [urls]).map((u) =>
 	u.replace(/^\.\.\/sounds/, './assets/audio/sounds'),
 );
 
-// 2. Add loop flags (true) for looping sounds in the sprite map
+// 2. Normalize spritemap → sprite array format, add loop flags
+const rawSprite = raw.sprite ?? raw.spritemap ?? {};
 const sprite = {};
-for (const [name, entry] of Object.entries(raw.sprite)) {
+for (const [name, entry] of Object.entries(rawSprite)) {
+	// New format: { start, end, loop } — duration = end - start (in ms)
+	// Old format: [start, duration] or [start, duration, loop]
+	let start, duration;
+	if (Array.isArray(entry)) {
+		[start, duration] = entry;
+	} else {
+		start = entry.start * 1000;
+		duration = (entry.end - entry.start) * 1000;
+	}
 	sprite[name] = LOOP_SOUNDS.has(name)
-		? [entry[0], entry[1], true]   // [start, duration, loop]
-		: [entry[0], entry[1]];        // [start, duration]
+		? [start, duration, true]   // [start, duration, loop]
+		: [start, duration];        // [start, duration]
 }
 
-// 3. Build config block — all sounds at volume 1 (levels set in source WAVs)
+// 3. Build config block — per-sound volume overrides (all others at 1)
+const VOLUME_OVERRIDES = {
+	wild_placement: 0.65,
+};
 const config = Object.fromEntries(
-	Object.keys(sprite).map((k) => [k, { volume: 1 }]),
+	Object.keys(sprite).map((k) => [k, { volume: VOLUME_OVERRIDES[k] ?? 1 }]),
 );
 
 // 4. Write corrected JSON (drop "urls", keep only "src"/"sprite"/"config")

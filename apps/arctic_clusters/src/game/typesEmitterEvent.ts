@@ -13,6 +13,7 @@ import type { EmitterEventMultiplierGrid } from '../components/MultiplierGrid.sv
 import type { EmitterEventTransition } from '../components/Transition.svelte';
 import type { EmitterEventAuroraCellIndicator } from '../components/AuroraCellIndicator.svelte';
 import type { EmitterEventWildPlacement } from '../components/WildPlacementEffect.svelte';
+import type { EmitterEventAuroraSpinAnnounce } from '../components/AuroraSpinAnnounce.svelte';
 
 export type EmitterEventGame =
 	| EmitterEventBoard
@@ -30,4 +31,5 @@ export type EmitterEventGame =
 	| EmitterEventTransition
 	| EmitterEventAuroraCellIndicator
 	| EmitterEventWildPlacement
+	| EmitterEventAuroraSpinAnnounce
 	| { type: 'screenShake'; intensity: 'light' | 'medium' | 'heavy' };

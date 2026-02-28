@@ -567,6 +567,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		console.log(`[bookEventHandlerMap] 🏁 FINAL_WIN at ${Date.now()} - cascade sequence ended`);
 		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
+		// Keep the tumble total visible for 1s so the player can read it
+		await new Promise((r) => setTimeout(r, 1000 / stateBetDerived.timeScale()));
 		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 		// Clear any remaining aurora overlays at end of cascade
 		eventEmitter.broadcast({ type: 'auroraCellsClear' });
@@ -622,7 +624,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.auroraWildPositions = [...stateGame.auroraWildPositions, { reel, row }];
 
 		// 1. Play border-trace + flash animation on the target cell (async — waits for full anim)
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_landing' });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'wild_placement' });
 		await eventEmitter.broadcastAsync({ type: 'wildPlacementAnimate', position: { reel, row } });
 
 		// 2. Swap to wild symbol (the flash has already happened, so the swap feels like a reveal)
@@ -660,6 +662,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.isWildRelease = true;
 		stateGame.wildReleaseRemaining = bookEvent.wildsToPlace;
 		stateGame.spinActive = true;
+
+		// Show aurora spin announcement — player taps to continue before wilds are placed
+		await eventEmitter.broadcastAsync({
+			type: 'auroraSpinShow',
+			wildsToPlace: bookEvent.wildsToPlace,
+		});
+		eventEmitter.broadcast({ type: 'auroraSpinHide' });
 	},
 	wildMeterUpdate: async (bookEvent: BookEventOfType<'wildMeterUpdate'>) => {
 		console.log(`[bookEventHandlerMap] 💰 WILD_METER_UPDATE at ${Date.now()}`, {
