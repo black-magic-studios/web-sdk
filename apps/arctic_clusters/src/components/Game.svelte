@@ -95,6 +95,11 @@
 		window.location.reload();
 	}
 
+	// Scale UI elements (game name + logo) relative to canvas width.
+	// Reference width 1280px → scale 1.0.  Clamped so it never gets tiny or huge.
+	const canvasWidth = $derived(context.stateLayoutDerived.canvasSizes().width);
+	const uiScale = $derived(Math.max(0.45, Math.min(1.5, canvasWidth / 1280)));
+
 	// Portrait/mobile detection — use HTML controls instead of PIXI PlayBar
 	const useMobileControls = $derived(
 		['portrait', 'tablet'].includes(context.stateLayoutDerived.layoutType())
@@ -166,7 +171,7 @@
 			<PlayBar />
 		{/if}
 
-		<Container x={20}>
+		<Container x={20} scale={uiScale} y={4}>
 			<UiGameName name="ARCTIC CLUSTERS" />
 		</Container>
 		<Sprite
@@ -174,8 +179,8 @@
 			anchor={{ x: 1, y: 0 }}
 			x={context.stateLayoutDerived.canvasSizes().width - 20}
 			y={6}
-			height={REM * 2.5}
-			width={REM * 2.5}
+			height={Math.round(REM * 2 * uiScale)}
+			width={Math.round(REM * 2 * (2808 / 589) * uiScale)}
 		/>
 		<WinOverlay />
 		<TumbleWinAmount />

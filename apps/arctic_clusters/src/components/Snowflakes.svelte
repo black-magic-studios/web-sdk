@@ -97,32 +97,36 @@
 	let nextStarIn = $state(Math.floor(rand(STAR_MIN_INTERVAL, STAR_MAX_INTERVAL)));
 
 	function spawnShootingStar(w: number, h: number) {
-		// Pick a random side: 0=top-right→bottom-left, 1=top-left→bottom-right,
-		// 2=top→lower-left, 3=top→lower-right
+		// All variants start in the top 10% of the screen.
+		// Angles are kept shallow enough that no star crosses the bottom 50%:
+		// max vy = sin(angle) * STAR_SPEED * 1.2.  With life=100 frames and
+		// start y ≤ h*0.10, we need vy*life ≤ h*0.40  →  vy ≤ h*0.004.
+		// At h=800: vy ≤ 3.2.  sin⁻¹(3.2/5.4) ≈ 36° → cap sine component to 0.35.
+		// Angles measured from +X axis: ~15-20° below horizontal gives sin≈0.26-0.34.
 		const variant = Math.floor(Math.random() * 4);
 		const speed = rand(STAR_SPEED * 0.85, STAR_SPEED * 1.2);
 		let x: number, y: number, angle: number;
 
 		switch (variant) {
-			case 0: // top-right → bottom-left (like reference image)
-				x = rand(w * 0.4, w + 40);
-				y = rand(-20, h * 0.15);
-				angle = rand(Math.PI * 0.55, Math.PI * 0.7); // ~100-126°
+			case 0: // top-right → bottom-left, shallow
+				x = rand(w * 0.5, w + 40);
+				y = rand(-20, h * 0.10);
+				angle = rand(Math.PI * 0.58, Math.PI * 0.64); // ~104-115° (sin≤0.31)
 				break;
-			case 1: // top-left → bottom-right
+			case 1: // top-left → bottom-right, shallow
 				x = rand(-40, w * 0.4);
-				y = rand(-20, h * 0.15);
-				angle = rand(Math.PI * 0.3, Math.PI * 0.45); // ~54-81°
+				y = rand(-20, h * 0.10);
+				angle = rand(Math.PI * 0.36, Math.PI * 0.42); // ~65-76° (sin≤0.31)
 				break;
-			case 2: // right side → lower-left
+			case 2: // right → left, nearly horizontal
 				x = rand(w * 0.6, w + 30);
-				y = rand(0, h * 0.3);
-				angle = rand(Math.PI * 0.6, Math.PI * 0.75);
+				y = rand(-20, h * 0.10);
+				angle = rand(Math.PI * 0.55, Math.PI * 0.60); // ~99-108° (sin≤0.28)
 				break;
-			default: // left side → lower-right
+			default: // left → right, nearly horizontal
 				x = rand(-30, w * 0.35);
-				y = rand(0, h * 0.3);
-				angle = rand(Math.PI * 0.25, Math.PI * 0.4);
+				y = rand(-20, h * 0.10);
+				angle = rand(Math.PI * 0.40, Math.PI * 0.45); // ~72-81° (sin≤0.28)
 				break;
 		}
 

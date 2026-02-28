@@ -46,25 +46,25 @@
 
 	let showMultiplier = $state(props.win.mult > 1);
 
-	// update showMultiplier
+	// Phase 1: hold combined text (e.g. "€1.00 X 3") for 1.5s, then switch to result
 	onMount(async () => {
-		await waitForTimeout(SECOND / stateBetDerived.timeScale());
+		await waitForTimeout((SECOND * 1.5) / stateBetDerived.timeScale());
 		showMultiplier = false;
 	});
 
-	// update scale
+	// Scale pop on the switch to result
 	onMount(async () => {
 		if (showMultiplier) {
-			await waitForTimeout(SECOND);
+			await waitForTimeout((SECOND * 1.5) / stateBetDerived.timeScale());
 			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_combine_a' });
 			await scale.set(0.1, { duration: 200 / stateBetDerived.timeScale() });
 			await scale.set(1, { duration: 200 / stateBetDerived.timeScale() });
 		}
 	});
 
-	// Float outward along spread direction
+	// Float outward: 3s total — combined text visible for first 1.5s, result for remaining 1.5s
 	onMount(async () => {
-		const dur = (SECOND * 0.8) / stateBetDerived.timeScale();
+		const dur = (SECOND * 3) / stateBetDerived.timeScale();
 		await Promise.all([
 			offsetX.set(dirX * spreadDistance, { duration: dur }),
 			offsetY.set(dirY * spreadDistance, { duration: dur }),

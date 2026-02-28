@@ -6,7 +6,7 @@ export default {
 	},
 	studioLogo: {
 		type: 'sprite',
-		src: '/assets/sprites/studio_logo.png',
+		src: '/assets/sprites/black_magic_studios_horizontal_logo_transparent.png',
 	},
 	loader: {
 		type: 'spine',
