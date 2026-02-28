@@ -10,7 +10,8 @@
 		| { type: 'soundFade'; name: SoundName; from: number; to: number; duration: number }
 		| { type: 'soundOnceWithRate'; name: SoundEffectName; rate: number; volume?: number }
 		| { type: 'soundScatterCounterIncrease' }
-		| { type: 'soundScatterCounterClear' };
+		| { type: 'soundScatterCounterClear' }
+		| { type: 'soundBoostMusicOnWin' };
 </script>
 
 <script lang="ts">
@@ -21,6 +22,7 @@
 	import { stateBet, stateSoundDerived } from 'state-shared';
 
 	import { getContext } from '../game/context';
+	import { isFreegameType } from '../game/types';
 
 	const context = getContext();
 
@@ -31,6 +33,44 @@
 	 */
 	let crossfadeTimerId: ReturnType<typeof setTimeout> | null = null;
 	let currentMusic: MusicName | null = null;
+
+	// ── Dynamic music volume ──────────────────────────────────────────────────
+	// Music plays quietly by default; briefly boosts when the player wins.
+	const BASE_MUSIC_VOL = 0.5;   // normal playback level (50% of slider value)
+	const WIN_BOOST_VOL  = 0.72;  // boosted level on a win (~72% of slider)
+	let musicBoostTimer: ReturnType<typeof setTimeout> | null = null;
+
+	/** Fade any currently-playing BGM track to the base (quiet) volume. */
+	const fadeMusicToBase = () => {
+		if (!currentMusic) return;
+		sound.fade({ name: currentMusic, from: WIN_BOOST_VOL, to: BASE_MUSIC_VOL, duration: 1500 });
+	};
+
+	/**
+	 * After a new music track starts, fade it down from full volume to BASE_MUSIC_VOL.
+	 * A small initial delay lets Howler register the play before we adjust its volume.
+	 */
+	const initMusicVolume = (name: MusicName) => {
+		setTimeout(() => {
+			sound.fade({ name, from: 1, to: BASE_MUSIC_VOL, duration: 700 });
+		}, 80);
+	};
+
+	/**
+	 * Temporarily boost music volume on a win, then fade back to base after 2.5 s
+	 * (timer resets if another win arrives first).
+	 */
+	const boostMusicForWin = () => {
+		if (!currentMusic) return;
+		// Only boost in base game modes — bonus/free spins music stays at its own level
+		if (isFreegameType(context.stateGame.gameType)) return;
+		if (musicBoostTimer) { clearTimeout(musicBoostTimer); musicBoostTimer = null; }
+		sound.fade({ name: currentMusic, from: BASE_MUSIC_VOL, to: WIN_BOOST_VOL, duration: 500 });
+		musicBoostTimer = setTimeout(() => {
+			musicBoostTimer = null;
+			fadeMusicToBase();
+		}, 12000);
+	};
 
 	const crossfadeMusic = (name: MusicName, duration: number) => {
 		// Skip if the target music is already playing
@@ -66,6 +106,7 @@
 			console.log(`[🎵 MUSIC] crossfade fade done → playing ${name}`);
 			currentMusic = name;
 			sound.players.music.play({ name });
+			initMusicVolume(name);
 		}, duration);
 	};
 
@@ -86,12 +127,15 @@
 				console.log(`[🎵 MUSIC] betMode → playing bgm_freespin`);
 				currentMusic = 'bgm_freespin';
 				sound.players.music.play({ name: 'bgm_freespin' });
+				initMusicVolume('bgm_freespin');
 			} else {
 				console.log(`[🎵 MUSIC] betMode → playing bgm_main`);
 				currentMusic = 'bgm_main';
 				sound.players.music.play({ name: 'bgm_main' });
+				initMusicVolume('bgm_main');
 			}
 		},
+		soundBoostMusicOnWin: () => boostMusicForWin(),
 		soundPressGeneral: () => sound.players.once.play({ name: 'sfx_btn_general' }),
 		soundPressBet: () => sound.players.once.play({ name: 'sfx_btn_spin' }),
 		// scatterCounter
@@ -107,6 +151,7 @@
 			}
 			currentMusic = name;
 			sound.players.music.play({ name });
+			initMusicVolume(name);
 		},
 		soundMusicCrossfade: ({ name, duration }) => crossfadeMusic(name, duration),
 		soundLoop: ({ name }) => sound.players.loop.play({ name }),
@@ -152,6 +197,7 @@
 			console.log(`[🎵 MUSIC] onMount → playing bgm_freespin`);
 			currentMusic = 'bgm_freespin';
 			sound.players.music.play({ name: 'bgm_freespin' });
+			initMusicVolume('bgm_freespin');
 		} else {
 			console.log(`[🎵 MUSIC] onMount → playing bgm_intro, waiting for onend to start bgm_main`);
 			currentMusic = 'bgm_intro';

@@ -514,7 +514,7 @@
 						console.log(`[MultiplierGrid:${instanceId}] 🔊 multi_pop_sound cell [${cell.reel},${cell.row}] sortedIndex=${sortedIndex}`);
 						// Delay ~200ms so the sound lands on the visual scale peak (animateCellAppear peaks at ~250ms)
 						setTimeout(() => {
-							context.eventEmitter.broadcast({ type: 'soundOnce', name: 'multi_pop_sound', forcePlay: true });
+							context.eventEmitter.broadcast({ type: 'soundOnceWithRate', name: 'multi_pop_sound', rate: 1.0, volume: 0.35 });
 						}, 200 / stateBetDerived.timeScale());
 						if (cell.isNew) {
 							const anim = makeCellAnim(0, 0, idle);

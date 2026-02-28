@@ -138,16 +138,16 @@
 	let menuHoverTexture = $state<Texture>(Texture.EMPTY);
 	let menuPressedTexture = $state<Texture>(Texture.EMPTY);
 
-	// ── Bonus play bar assets (used during free spins / super bonus) ──
+	// Bonus play bar assets (free spins)
 	let bonusBarTexture = $state<Texture>(Texture.EMPTY);
-	let bonusTurboTexture = $state<Texture>(Texture.EMPTY);
 	let bonusMenuTexture = $state<Texture>(Texture.EMPTY);
-	let bonusBalanceSectionTexture = $state<Texture>(Texture.EMPTY);
-	let bonusSpinSectionTexture = $state<Texture>(Texture.EMPTY);
-	let bonusTotalWinSectionTexture = $state<Texture>(Texture.EMPTY);
-	let bonusFreeSpinsSectionTexture = $state<Texture>(Texture.EMPTY);
+	let bonusTurboTexture = $state<Texture>(Texture.EMPTY);
+	let bonusSpinTexture = $state<Texture>(Texture.EMPTY);
+	let bonusTotalWinTexture = $state<Texture>(Texture.EMPTY);
+	let bonusFreeSpinsTexture = $state<Texture>(Texture.EMPTY);
 
 	let assetsLoaded = $state(false);
+	let bonusAssetsLoaded = $state(false);
 
 	// Hover/pressed state tracking
 	let spinHovered = $state(false);
@@ -229,14 +229,14 @@
 	// DERIVED LAYOUT
 	// ============================================================
 	const BAR_WIDTH_MULTIPLIER = 1.25; // Bar is 25% wider than the reel frame
-	const barWidth = $derived(boardLayout.width * BAR_WIDTH_MULTIPLIER);
-	const barHeight = $derived(boardLayout.height * BAR_HEIGHT_RATIO);
-	const barRadius = $derived(barHeight * 0.18);
+	const barWidth = $derived(Math.round(boardLayout.width * BAR_WIDTH_MULTIPLIER));
+	const barHeight = $derived(Math.round(boardLayout.height * BAR_HEIGHT_RATIO));
+	const barRadius = $derived(Math.round(barHeight * 0.18));
 
-	// Position below board (centered on board)
-	const containerX = $derived(boardLayout.width / 2);
+	// Position below board (centered on board) — rounded to integer pixels to prevent sub-pixel blur
+	const containerX = $derived(Math.round(boardLayout.width / 2));
 	const margin = $derived(boardLayout.height * PLAYBAR_MARGIN_RATIO);
-	const containerY = $derived(boardLayout.height + (barHeight / 2) + margin);
+	const containerY = $derived(Math.round(boardLayout.height + (barHeight / 2) + margin));
 
 	// Button sizes
 	const spinButtonSize = $derived(barHeight * SPIN_BUTTON_SCALE);
@@ -301,46 +301,42 @@
 	const winSectionX = $derived(infoLeftEdge + sectionWidth + sectionWidth / 2);
 	const spinSectionX = $derived(infoLeftEdge + sectionWidth * 2 + sectionWidth / 2);
 
-	// ── Free spins mode: 3 info sections (BALANCE | SPIN | TOTAL WIN + FREE SPINS) ──
+	// ── Free spins mode: 4 info sections (BALANCE | WIN | SPIN | FREE SPINS + TOTAL WIN) ──
 	const fsInfoRightEdge = $derived(fsTurboX - smallButtonSize / 2 - buttonGap);
 	const fsInfoZoneWidth = $derived(fsInfoRightEdge - infoLeftEdge);
-	const fsSectionWidth = $derived(fsInfoZoneWidth / 3);
+	const fsSectionWidth = $derived(fsInfoZoneWidth / 4);
 	const fsBalanceSectionX = $derived(infoLeftEdge + fsSectionWidth / 2);
-	const fsSpinSectionX = $derived(infoLeftEdge + fsSectionWidth + fsSectionWidth / 2);
-	const fsCombinedSectionX = $derived(infoLeftEdge + fsSectionWidth * 2 + fsSectionWidth / 2);
-
-	// Vertical positions for combined TOTAL WIN + FREE SPINS section
-	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(9, barHeight * 0.13)));
-	const fsCombinedValueFontSize = $derived(Math.round(Math.max(10, barHeight * 0.16)));
-	// Top box: TOTAL WIN  (upper half of bar)
-	const fsTopBoxTop = $derived(-barHeight * 0.46);
-	const fsTopBoxH = $derived(barHeight * 0.42);
-	const fsTopLabelY = $derived(fsTopBoxTop + fsTopBoxH * 0.28);
-	const fsTopValueY = $derived(fsTopBoxTop + fsTopBoxH * 0.72);
-	// Bottom box: FREE SPINS (lower half of bar)
-	const fsBotBoxTop = $derived(barHeight * 0.04);
-	const fsBotBoxH = $derived(barHeight * 0.42);
-	const fsBottomLabelY = $derived(fsBotBoxTop + fsBotBoxH * 0.28);
-	const fsBottomValueY = $derived(fsBotBoxTop + fsBotBoxH * 0.72);
+	const fsWinSectionX = $derived(infoLeftEdge + fsSectionWidth + fsSectionWidth / 2);
+	const fsSpinSectionX = $derived(infoLeftEdge + fsSectionWidth * 2 + fsSectionWidth / 2);
+	const fsCombinedSectionX = $derived(infoLeftEdge + fsSectionWidth * 3 + fsSectionWidth / 2);
 
 	// Free spins remaining (countdown)
 	const fsRemaining = $derived(Math.max(0, fsTotal - fsCurrent));
 
-	// Border around TOTAL WIN box
-	const drawTotalWinBorder = $derived((g: PIXI.Graphics) => {
-		const bw = fsSectionWidth * 0.88;
-		const br = 4;
-		g.roundRect(-bw / 2, fsTopBoxTop, bw, fsTopBoxH, br);
-		g.stroke({ color: 0x88ccff, width: 1.5, alpha: 0.4 });
-	});
+	// Scale factors — horizontal from bar width (1750px source), vertical from bar height (140px source)
+	const bonusSF  = $derived(barWidth  / 1750); // horizontal scale for widths
+	const bonusVSF = $derived(barHeight / 140);  // vertical scale for heights — ensures boxes always extend
 
-	// Border around FREE SPINS box
-	const drawFreeSpinsBorder = $derived((g: PIXI.Graphics) => {
-		const bw = fsSectionWidth * 0.88;
-		const br = 4;
-		g.roundRect(-bw / 2, fsBotBoxTop, bw, fsBotBoxH, br);
-		g.stroke({ color: 0x88ccff, width: 1.5, alpha: 0.4 });
-	});
+	// Combined section: Total Win (257×87) stacked on Free Spins (257×66), centered on bar.
+	// Using barHeight/140 for heights so the stack (153px source) always exceeds barHeight (140px source)
+	// → extends ~9px scaled outside on each side, exactly matching the reference image.
+	const fsTWH = $derived(87 * bonusVSF);   // Total Win box height on screen
+	const fsFSH = $derived(66 * bonusVSF);   // Free Spins box height on screen
+	const fsTWW = $derived(257 * bonusVSF);  // box width — scale uniformly by bonusVSF to maintain aspect ratio
+	const fsFSW = $derived(257 * bonusVSF);
+	// Stack: FREE SPINS (66px) on TOP, TOTAL WIN (87px) on BOTTOM
+	const fsStackTop = $derived(-(fsFSH + fsTWH) / 2); // top of stack, bar-centered at y=0
+	// Sprite center Y for each box (Free Spins on top, Total Win on bottom)
+	const fsTopBoxCenterY  = $derived(Math.round(fsStackTop + fsFSH / 2));           // Free Spins center
+	const fsBotBoxCenterY  = $derived(Math.round(fsStackTop + fsFSH + fsTWH / 2));  // Total Win center
+	// Text Y positions inside each box
+	const fsTopLabelY    = $derived(Math.round(fsStackTop + fsFSH * 0.28));          // Free Spins label
+	const fsTopValueY    = $derived(Math.round(fsStackTop + fsFSH * 0.70));          // Free Spins value
+	const fsBottomLabelY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.28)); // Total Win label
+	const fsBottomValueY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.70)); // Total Win value
+	// Font sizes relative to box heights
+	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(9,  fsFSH * 0.28)));
+	const fsCombinedValueFontSize = $derived(Math.round(Math.max(10, fsFSH * 0.40)));
 
 	// Bet disabled state
 	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
@@ -355,20 +351,22 @@
 	// ============================================================
 	// DRAW FUNCTIONS
 	// ============================================================
+
+		// Normal bar background (same in both modes)
 	const drawBar = $derived((g: PIXI.Graphics) => {
 		g.roundRect(-barWidth / 2, -barHeight / 2, barWidth, barHeight, barRadius);
 		g.fill({ color: 0x000000, alpha: 0.65 });
 	});
 
-	// Divider lines between sections (normal mode)
+	// Divider lines between sections
 	const drawDividers = $derived((g: PIXI.Graphics) => {
 		const dividerH = barHeight * 0.5;
 		const y1 = -dividerH / 2;
 		const y2 = dividerH / 2;
 
 		if (inFreeSpins) {
-			// 3-section free spins mode: 2 dividers between sections + 1 before turbo
-			for (let i = 1; i <= 2; i++) {
+			// 4-section free spins mode: 3 dividers between sections + 1 before turbo
+			for (let i = 1; i <= 3; i++) {
 				const dx = infoLeftEdge + fsSectionWidth * i;
 				g.moveTo(dx, y1);
 				g.lineTo(dx, y2);
@@ -476,29 +474,25 @@
 			menuHoverTexture = menuHov;
 			menuPressedTexture = menuPrs;
 
-			// Load bonus play bar assets
+			assetsLoaded = true;
+
+			// Load bonus play bar assets independently so main bar is never blocked
 			const BB = '/assets/sprites/buttons_new/bonus_play_bar';
-			const [
-				bonusBar, bonusTurbo, bonusMenu,
-				bonusBalance, bonusSpin, bonusTotalWin, bonusFs,
-			] = await Promise.all([
+			const [bBar, bMenu, bTurbo, bSpin, bTotalWin, bFreeSpins] = await Promise.all([
 				Assets.load(`${BB}/play_bar_bonus_0011_Play_Bar.png`),
-				Assets.load(`${BB}/play_bar_bonus_0002_turbo.png`),
 				Assets.load(`${BB}/play_bar_bonus_0005_Menu.png`),
-				Assets.load(`${BB}/play_bar_bonus_0004_BALANCE.png`),
-				Assets.load(`${BB}/play_bar_bonus_0003_SPIN.png`),
+				Assets.load(`${BB}/play_bar_bonus_0002_turbo.png`),
+				Assets.load(`${BB}/play_bar_bonus_0005_Spin.png`),
 				Assets.load(`${BB}/play_bar_bonus_0007_Total-Win.png`),
 				Assets.load(`${BB}/play_bar_bonus_0008_Free-Spins.png`),
 			]);
-			bonusBarTexture = bonusBar;
-			bonusTurboTexture = bonusTurbo;
-			bonusMenuTexture = bonusMenu;
-			bonusBalanceSectionTexture = bonusBalance;
-			bonusSpinSectionTexture = bonusSpin;
-			bonusTotalWinSectionTexture = bonusTotalWin;
-			bonusFreeSpinsSectionTexture = bonusFs;
-
-			assetsLoaded = true;
+			bonusBarTexture = bBar;
+			bonusMenuTexture = bMenu;
+			bonusTurboTexture = bTurbo;
+			bonusSpinTexture = bSpin;
+			bonusTotalWinTexture = bTotalWin;
+			bonusFreeSpinsTexture = bFreeSpins;
+			bonusAssetsLoaded = true;
 		} catch (error) {
 			console.error('Failed to load PlayBar assets:', error);
 		}
@@ -565,23 +559,11 @@
 <BoardContainer zIndex={20}>
 	<Container x={containerX} y={containerY}>
 
-		<!-- BAR BACKGROUND: bonus sprite in free spins, drawn rect otherwise -->
-		{#if inFreeSpins && assetsLoaded}
-			<BaseSprite
-				texture={bonusBarTexture}
-				width={barWidth}
-				height={barHeight}
-				anchor={0.5}
-				zIndex={0}
-			/>
-		{:else}
-			<Graphics draw={drawBar} zIndex={0} />
-		{/if}
+		<!-- BAR BACKGROUND (same appearance in both modes) -->
+		<Graphics draw={drawBar} zIndex={0} />
 
-		<!-- DIVIDER LINES (normal mode only — bonus bar sprite provides its own styling) -->
-		{#if !inFreeSpins}
-			<Graphics draw={drawDividers} zIndex={1} />
-		{/if}
+		<!-- DIVIDER LINES -->
+		<Graphics draw={drawDividers} zIndex={1} />
 
 		<!-- MENU BUTTON (inside bar, far left) -->
 		{#if assetsLoaded}
@@ -599,7 +581,7 @@
 				onpointerup={() => { menuPressed = false; hamburgerOpen = !hamburgerOpen; }}
 			/>
 			<BaseSprite
-				texture={inFreeSpins ? bonusMenuTexture : activeMenuTexture}
+				texture={inFreeSpins && bonusAssetsLoaded ? bonusMenuTexture : activeMenuTexture}
 				width={leftBtnSize}
 				height={leftBtnSize * (90 / 100)}
 				anchor={0.5}
@@ -614,22 +596,12 @@
 
 			<!-- BALANCE SECTION -->
 			<Container x={fsBalanceSectionX} y={0} zIndex={2}>
-				{#if assetsLoaded}
-					<BaseSprite
-						texture={bonusBalanceSectionTexture}
-						width={fsSectionWidth * 0.92}
-						height={barHeight * 0.9}
-						anchor={0.5}
-						zIndex={0}
-					/>
-				{/if}
 				<Text
 					anchor={{ x: 0.5, y: 1 }}
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text="BALANCE"
 					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
-					zIndex={1}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
@@ -637,17 +609,36 @@
 					resolution={TEXT_RESOLUTION}
 					text={balanceText}
 					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
-					zIndex={1}
 				/>
 			</Container>
 
-			<!-- SPIN (BET) SECTION — no arrows during free spins -->
+			<!-- WIN SECTION (per-spin win, between balance and bet) -->
+			<Container x={fsWinSectionX} y={0} zIndex={2}>
+				{#if showSpinWin}
+					<Text
+						anchor={{ x: 0.5, y: 1 }}
+						y={labelY}
+						resolution={TEXT_RESOLUTION}
+						text="WIN"
+						style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					/>
+					<Text
+						anchor={{ x: 0.5, y: 0 }}
+						y={valueY}
+						resolution={TEXT_RESOLUTION}
+						text={spinWinText}
+						style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+					/>
+				{/if}
+			</Container>
+
+			<!-- SPIN (BET) SECTION — PNG background (298×101 at 1750×140 source) -->
 			<Container x={fsSpinSectionX} y={0} zIndex={2}>
-				{#if assetsLoaded}
+				{#if bonusAssetsLoaded}
 					<BaseSprite
-						texture={bonusSpinSectionTexture}
-						width={fsSectionWidth * 0.92}
-						height={barHeight * 0.9}
+						texture={bonusSpinTexture}
+						width={Math.round(298 * bonusVSF)}
+						height={Math.round(101 * bonusVSF)}
 						anchor={0.5}
 						zIndex={0}
 					/>
@@ -670,53 +661,33 @@
 				/>
 			</Container>
 
-			<!-- COMBINED: TOTAL WIN (top) + FREE SPINS (bottom) -->
+			<!-- COMBINED: FREE SPINS (top) + TOTAL WIN (bottom) -->
 			<Container x={fsCombinedSectionX} y={0} zIndex={2}>
-				{#if assetsLoaded}
-					<!-- TOTAL WIN section sprite (top half) -->
+				<!-- PNG section panels as backgrounds -->
+				{#if bonusAssetsLoaded}
+					<!-- FREE SPINS box on top -->
 					<BaseSprite
-						texture={bonusTotalWinSectionTexture}
-						width={fsSectionWidth * 0.92}
-						height={barHeight * 0.44}
-						anchor={{ x: 0.5, y: 1 }}
-						y={0}
+						texture={bonusFreeSpinsTexture}
+						width={Math.round(fsFSW)}
+						height={Math.round(fsFSH)}
+						anchor={0.5}
+						y={fsTopBoxCenterY}
 						zIndex={0}
 					/>
-					<!-- FREE SPINS section sprite (bottom half) -->
+					<!-- TOTAL WIN box on bottom -->
 					<BaseSprite
-						texture={bonusFreeSpinsSectionTexture}
-						width={fsSectionWidth * 0.92}
-						height={barHeight * 0.44}
-						anchor={{ x: 0.5, y: 0 }}
-						y={0}
+						texture={bonusTotalWinTexture}
+						width={Math.round(fsTWW)}
+						height={Math.round(fsTWH)}
+						anchor={0.5}
+						y={fsBotBoxCenterY}
 						zIndex={0}
 					/>
-				{:else}
-					<!-- Fallback borders when sprites not yet loaded -->
-					<Graphics draw={drawTotalWinBorder} />
-					<Graphics draw={drawFreeSpinsBorder} />
 				{/if}
-				<!-- TOTAL WIN row -->
+				<!-- FREE SPINS row (top box) -->
 				<Text
 					anchor={{ x: 0.5, y: 0.5 }}
 					y={fsTopLabelY}
-					resolution={TEXT_RESOLUTION}
-					text="TOTAL WIN"
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
-					zIndex={1}
-				/>
-				<Text
-					anchor={{ x: 0.5, y: 0.5 }}
-					y={fsTopValueY}
-					resolution={TEXT_RESOLUTION}
-					text={totalWinText}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
-					zIndex={1}
-				/>
-				<!-- FREE SPINS row -->
-				<Text
-					anchor={{ x: 0.5, y: 0.5 }}
-					y={fsBottomLabelY}
 					resolution={TEXT_RESOLUTION}
 					text="FREE SPINS"
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
@@ -724,10 +695,27 @@
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0.5 }}
-					y={fsBottomValueY}
+					y={fsTopValueY}
 					resolution={TEXT_RESOLUTION}
 					text={`${fsRemaining}`}
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
+				/>
+				<!-- TOTAL WIN row (bottom box) -->
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsBottomLabelY}
+					resolution={TEXT_RESOLUTION}
+					text="TOTAL WIN"
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					zIndex={1}
+				/>
+				<Text
+					anchor={{ x: 0.5, y: 0.5 }}
+					y={fsBottomValueY}
+					resolution={TEXT_RESOLUTION}
+					text={totalWinText}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 			</Container>
@@ -748,7 +736,7 @@
 						onpointerup={() => { fastPressed = false; handleSpeedToggle(); }}
 					/>
 					<BaseSprite
-						texture={bonusTurboTexture}
+						texture={bonusAssetsLoaded ? bonusTurboTexture : activeTurboTexture}
 						width={smallButtonSize}
 						height={smallButtonSize}
 						anchor={0.5}

@@ -275,6 +275,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			}
 		}
 
+		// Signal Sound.svelte to briefly boost music volume on this win
+		eventEmitter.broadcast({ type: 'soundBoostMusicOnWin' });
+
 		const promise1 = async () => {
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_winlevel_small' });
 			// Deduplicate positions — multiple wins can share symbols, and processing
@@ -624,7 +627,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.auroraWildPositions = [...stateGame.auroraWildPositions, { reel, row }];
 
 		// 1. Play border-trace + flash animation on the target cell (async — waits for full anim)
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'wild_placement' });
+		eventEmitter.broadcast({ type: 'soundOnceWithRate', name: 'wild_placement', rate: 1.0, volume: 0.4 });
 		await eventEmitter.broadcastAsync({ type: 'wildPlacementAnimate', position: { reel, row } });
 
 		// 2. Swap to wild symbol (the flash has already happened, so the swap feels like a reveal)

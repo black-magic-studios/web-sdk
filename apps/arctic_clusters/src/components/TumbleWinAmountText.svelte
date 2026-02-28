@@ -26,6 +26,9 @@
 	};
 
 	$effect(() => {
+		// Track props.amount explicitly so this effect re-runs whenever the
+		// amount changes — not only when animationName changes.
+		const _target = props.amount;
 		if (animationName === 'idle') normalUpdate();
 	});
 </script>
