@@ -54,18 +54,40 @@
 
 	let cells: CellIndicator[] = $state([]);
 
-	// ── Pulse animation loop ──
+	// ── Pulse animation loop (only runs when cells are visible) ──
 	let raf = 0;
 	let pulsePhase = $state(0);
+	let pulseT0 = 0;
+	let pulseRunning = false;
 
-	onMount(() => {
-		const t0 = performance.now();
+	function startPulse() {
+		if (pulseRunning) return;
+		pulseRunning = true;
+		if (!pulseT0) pulseT0 = performance.now();
 		function tick() {
-			pulsePhase = ((performance.now() - t0) * 0.001) % (Math.PI * 2);
+			if (!pulseRunning) return;
+			pulsePhase = ((performance.now() - pulseT0) * 0.001) % (Math.PI * 2);
 			raf = requestAnimationFrame(tick);
 		}
 		raf = requestAnimationFrame(tick);
+	}
 
+	function stopPulse() {
+		pulseRunning = false;
+		cancelAnimationFrame(raf);
+		raf = 0;
+	}
+
+	// Start/stop pulse based on whether cells exist
+	$effect(() => {
+		if (cells.length > 0) {
+			startPulse();
+		} else {
+			stopPulse();
+		}
+	});
+
+	onMount(() => {
 		// Restore aurora cells from global state on remount (survives show/hide toggles)
 		const existing = context.stateGame.auroraPositions;
 		if (existing.length > 0 && cells.length === 0) {
@@ -81,7 +103,7 @@
 		}
 	});
 
-	onDestroy(() => cancelAnimationFrame(raf));
+	onDestroy(() => stopPulse());
 
 	// Sine pulse for breathing effect (0.65 – 1.0 range)
 	const pulseValue = $derived(0.65 + 0.35 * Math.sin(pulsePhase * 1.8));
@@ -275,37 +297,42 @@
 				alpha={baseAlpha}
 				zIndex={-1}
 			>
-					<!-- Outer star glow -->
+					<!-- All cell shapes batched into one Graphics -->
 					<Graphics
 						draw={(g) => {
-							g.clear();
-							drawGlow(g, cellWidth, cellHeight, cr, cell.exploding);
+							const _pulse = pulsePhase;
+							const cw = cellWidth;
+							const ch = cellHeight;
+							const cornerR = cr;
+
+							// Outer star glow
+							const glowA = cell.exploding ? 0.9 : cell.glowAlpha.current * pulseValue;
+							if (glowA > 0.01) {
+								drawGlow(g, cw, ch, cornerR, cell.exploding);
+								g.fill({ color: cell.exploding ? EXPLODE_COLOR : GLOW_COLOR, alpha: glowA });
+							}
+
+							// Inner star fill
+							const innerA = cell.exploding ? 0.85 : 0.28 * pulseValue;
+							if (innerA > 0.01) {
+								drawInnerGlow(g, cw, ch, cornerR, cell.exploding);
+								g.fill({ color: cell.exploding ? EXPLODE_COLOR : INNER_FILL_COLOR, alpha: innerA });
+							}
+
+							// Star border
+							const borderA = cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse * 0.8);
+							if (borderA > 0.01) {
+								drawBorder(g, cw, ch, cornerR, cell.exploding);
+								g.stroke({ color: cell.exploding ? EXPLODE_COLOR : BORDER_COLOR_AURORA, width: 2.5, alignment: 1, alpha: borderA });
+							}
+
+							// Center diamond accent
+							const accentA = cell.exploding ? 1.0 : sparklePulse * 0.7;
+							if (accentA > 0.01) {
+								drawCenterAccent(g, cw, ch, cell.exploding);
+								g.fill({ color: cell.exploding ? EXPLODE_COLOR : CENTER_DOT_COLOR, alpha: accentA });
+							}
 						}}
-						alpha={cell.exploding ? 0.9 : cell.glowAlpha.current * pulseValue}
-					/>
-					<!-- Inner star fill (semi-transparent) -->
-					<Graphics
-						draw={(g) => {
-							g.clear();
-							drawInnerGlow(g, cellWidth, cellHeight, cr, cell.exploding);
-						}}
-						alpha={cell.exploding ? 0.85 : 0.28 * pulseValue}
-					/>
-					<!-- Star border -->
-					<Graphics
-						draw={(g) => {
-							g.clear();
-							drawBorder(g, cellWidth, cellHeight, cr, cell.exploding);
-						}}
-						alpha={cell.borderAlpha.current * (cell.exploding ? 1.0 : borderPulse * 0.8)}
-					/>
-					<!-- Center diamond accent -->
-					<Graphics
-						draw={(g) => {
-							g.clear();
-							drawCenterAccent(g, cellWidth, cellHeight, cell.exploding);
-						}}
-						alpha={cell.exploding ? 1.0 : sparklePulse * 0.7}
 					/>
 			</Container>
 		{/if}

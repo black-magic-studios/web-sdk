@@ -138,12 +138,9 @@
 		if (frameTexture === PIXI.Texture.EMPTY) return;
 		const source = getSource(frameTexture);
 		if (!source) {
-			console.log('[BoardFrame] Could not get texture source, using fallback');
 			return;
 		}
-		console.log('[BoardFrame] Auto-detected texture source:', source.constructor.name, source.width, 'x', source.height);
 		const detected = computeWindowRect(source);
-		console.log('[BoardFrame] Detected inner window:', detected);
 		windowRect = detected;
 	});
 

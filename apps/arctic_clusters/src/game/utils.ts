@@ -27,10 +27,8 @@ const playBookEventsWithLogging = async (bookEvents: Bet['state']) => {
 		const evt = bookEvents[i];
 		if (evt.type === 'reveal') spinCount++;
 		const t0 = performance.now();
-		console.log(`[playBet] ▶ event[${i}] type="${evt.type}" index=${evt.index} spin=${spinCount} t=${Date.now()}`);
 		try {
 			await playBookEvent(evt, { bookEvents });
-			console.log(`[playBet] ✅ event[${i}] type="${evt.type}" done in ${(performance.now() - t0).toFixed(0)}ms`);
 		} catch (err) {
 			console.error(`[playBet] ❌ event[${i}] type="${evt.type}" THREW after ${(performance.now() - t0).toFixed(0)}ms`, err);
 			throw err;
@@ -41,9 +39,7 @@ const playBookEventsWithLogging = async (bookEvents: Bet['state']) => {
 export const playBookEvents = _playBookEvents;
 export const playBet = async (bet: Bet) => {
 	stateBet.winBookEventAmount = 0;
-	console.log(`[playBet] 🎬 Starting bet with ${bet.state.length} events`);
 	await playBookEventsWithLogging(bet.state);
-	console.log(`[playBet] 🏁 Bet complete`);
 	eventEmitter.broadcast({ type: 'stopButtonEnable' });
 };
 

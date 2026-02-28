@@ -29,20 +29,13 @@
 
 	let show = $state(true);
 
-	// Track show state changes
-	$effect(() => {
-		console.log(`[Board] 👁️ show state changed at ${Date.now()}:`, show);
-	});
-
 	context.eventEmitter.subscribeOnMount({
 		stopButtonClick: () => context.stateGameDerived.enhancedBoard.stop(),
 		boardSettle: ({ board }) => context.stateGameDerived.enhancedBoard.settle(board),
 		boardShow: () => {
-			console.log(`[Board] 📥 boardShow event at ${Date.now()}`);
 			show = true;
 		},
 		boardHide: () => {
-			console.log(`[Board] 📥 boardHide event at ${Date.now()}`);
 			show = false;
 		},
 		boardWithAnimateSymbols: async ({ symbolPositions }) => {
@@ -53,11 +46,7 @@
 				symbolPositions.map(async (position) => {
 					const reelSymbol = context.stateGame.board[position.reel].reelState.symbols[position.row];
 					const prevState = reelSymbol.symbolState;
-					if (reelSymbol.rawSymbol.name === 'H4') {
-						console.log(`%c[H4 DEBUG] ❄️ Setting H4 to WIN state at [reel=${position.reel}][row=${position.row}] prevState=${prevState}`, 'color: cyan; font-weight: bold');
-						console.log(`[H4 DEBUG] ❄️ H4 rawSymbol:`, JSON.parse(JSON.stringify(reelSymbol.rawSymbol)));
-						console.trace('[H4 DEBUG] ❄️ Stack trace for H4 win trigger');
-					}
+
 					// In super turbo, skip the spritesheet/spine animation — just flash the glow
 					if (skipWin) {
 						reelSymbol.symbolState = 'win';
@@ -71,16 +60,13 @@
 					await Promise.race([
 						waitForResolve((resolve) => (reelSymbol.oncomplete = resolve)),
 						new Promise<void>((resolve) => setTimeout(() => {
-							console.warn(`[boardWithAnimateSymbols] ⚠️ oncomplete timeout for [${position.reel}][${position.row}] symbol=${reelSymbol.rawSymbol.name} prevState=${prevState}`);
+
 							resolve();
 						}, SAFETY_TIMEOUT_MS)),
 					]);
 					// Ensure minimum win duration so the scale animation can play
 					const remaining = WIN_SCALE_DURATION_MS - (performance.now() - t0);
 					if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
-					if (reelSymbol.rawSymbol.name === 'H4') {
-						console.log(`%c[H4 DEBUG] ❄️ H4 win animation DONE at [reel=${position.reel}][row=${position.row}] elapsed=${(performance.now() - t0).toFixed(0)}ms`, 'color: cyan');
-					}
 					reelSymbol.symbolState = 'postWinStatic';
 				});
 

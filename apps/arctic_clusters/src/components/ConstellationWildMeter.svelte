@@ -13,7 +13,7 @@
  *   • A leading spark travels along the newest connection
  *   • Wild-release mode rapidly pulses all active connections
  */
-import { onMount, onDestroy } from 'svelte';
+import { onDestroy } from 'svelte';
 import { Container, Graphics, Text } from 'pixi-svelte';
 import { FadeContainer } from 'components-pixi';
 
@@ -125,19 +125,42 @@ const GHOST_COLOR = 0x334466;   // dim blue for dormant topology
 const STAR_HALO = 0x88ccff;
 const SPARK_COLOR = 0xeeffff;
 
-// ── Animation loop ─────────────────────────────────────
+// ── Cached geometry (recomputed only when meterSize changes) ──
+const cachedSegs = $derived(buildSegments(meterSize));
+const cachedVerts = $derived(collectVertices(meterSize));
+
+// ── Animation loop (only runs when visible) ────────────
 let time = $state(0);
 let raf: number;
+let animRunning = false;
+let animT0 = 0;
 
-onMount(() => {
-const t0 = performance.now();
+function startAnim() {
+if (animRunning) return;
+animRunning = true;
+if (!animT0) animT0 = performance.now();
 function tick() {
-time = (performance.now() - t0) * 0.001; // seconds
+if (!animRunning) return;
+time = (performance.now() - animT0) * 0.001;
 raf = requestAnimationFrame(tick);
 }
 raf = requestAnimationFrame(tick);
+}
+
+function stopAnim() {
+animRunning = false;
+cancelAnimationFrame(raf);
+}
+
+$effect(() => {
+if (visible) {
+startAnim();
+} else {
+stopAnim();
+}
 });
-onDestroy(() => cancelAnimationFrame(raf));
+
+onDestroy(() => stopAnim());
 
 // ── Segment activation tracking ────────────────────────
 let prevCount = 0;
@@ -188,10 +211,11 @@ return 0.5 + 0.5 * Math.abs(((t * 3.0) % 1.0) * 2 - 1);
 }
 
 // ── Helper: partition segments into completed/animating ─
-function partitionSegs(segs: Seg[]): {
+function partitionSegs(): {
 completed: Seg[];
 animating: { seg: Seg; p: number }[];
 } {
+const segs = cachedSegs;
 const completed: Seg[] = [];
 const animating: { seg: Seg; p: number }[] = [];
 for (let i = 0; i < 48; i++) {
@@ -227,13 +251,19 @@ dropShadowDistance: 0,
 <!-- All graphics use additive blending for true-light compositing -->
 <Container blendMode={'add'}>
 
-<!-- ════════ Ghost topology ════════ -->
+<!-- All meter visuals batched into a single Graphics draw -->
 <Graphics
 draw={(g) => {
 const _t = time;
-const segs = buildSegments(meterSize);
-const verts = collectVertices(meterSize);
+const _c = activeCount;
+const segs = cachedSegs;
+const verts = cachedVerts;
+const { completed, animating } = partitionSegs();
+const pulse = isWildRelease ? releasePulse(_t) : 1.0;
+const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
+const size = meterSize;
 
+// ════════ Ghost topology ════════
 for (const s of segs) {
 g.moveTo(s.from.x, s.from.y);
 g.lineTo(s.to.x, s.to.y);
@@ -244,19 +274,8 @@ for (const v of verts) {
 g.circle(v.x, v.y, 1.0);
 }
 g.fill({ color: GHOST_COLOR, alpha: 0.10 });
-}}
-/>
 
-<!-- ════════ Glow lines (wide icy cyan) ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const _c = activeCount;
-const segs = buildSegments(meterSize);
-const { completed, animating } = partitionSegs(segs);
-const pulse = isWildRelease ? releasePulse(_t) : 1.0;
-const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
-
+// ════════ Glow lines (wide icy cyan) ════════
 if (completed.length > 0) {
 for (const s of completed) {
 g.moveTo(s.from.x, s.from.y);
@@ -272,19 +291,8 @@ g.moveTo(seg.from.x, seg.from.y);
 g.lineTo(tx, ty);
 g.stroke({ color: GLOW_COLOR, width: GLOW_W, alpha: p * pulse * 0.18 });
 }
-}}
-/>
 
-<!-- ════════ Core lines (thin white) ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const _c = activeCount;
-const segs = buildSegments(meterSize);
-const { completed, animating } = partitionSegs(segs);
-const pulse = isWildRelease ? releasePulse(_t) : 1.0;
-const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
-
+// ════════ Core lines (thin white) ════════
 if (completed.length > 0) {
 for (const s of completed) {
 g.moveTo(s.from.x, s.from.y);
@@ -300,19 +308,8 @@ g.moveTo(seg.from.x, seg.from.y);
 g.lineTo(tx, ty);
 g.stroke({ color: CORE_COLOR, width: CORE_W, alpha: p * pulse * 0.7 });
 }
-}}
-/>
 
-<!-- ════════ Star nodes (twinkling) ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const _c = activeCount;
-const segs = buildSegments(meterSize);
-const verts = collectVertices(meterSize);
-const pulse = isWildRelease ? releasePulse(_t) : 1.0;
-
-// Determine lit vertices (touched by an active segment)
+// ════════ Star nodes (twinkling) ════════
 const lit = new Set<string>();
 for (let i = 0; i < 48; i++) {
 const p = segProgress(i);
@@ -330,32 +327,21 @@ const tw = twinkle(vi, _t);
 
 if (isLit) {
 const a = tw * pulse;
-// Outer halo (simulated blur via concentric circles)
 g.circle(v.x, v.y, 6);
 g.fill({ color: STAR_HALO, alpha: a * 0.08 });
 g.circle(v.x, v.y, 4);
 g.fill({ color: STAR_HALO, alpha: a * 0.14 });
-// White-hot center
 g.circle(v.x, v.y, 2.0);
 g.fill({ color: 0xffffff, alpha: a * 0.65 });
 g.circle(v.x, v.y, 1.0);
 g.fill({ color: 0xffffff, alpha: a * 0.9 });
 } else {
-// Dim dormant dot with subtle twinkle
 g.circle(v.x, v.y, 1.2);
 g.fill({ color: GHOST_COLOR, alpha: 0.06 + tw * 0.04 });
 }
 }
-}}
-/>
 
-<!-- ════════ Spark (leading edge of animating segments) ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const _c = activeCount;
-const segs = buildSegments(meterSize);
-
+// ════════ Spark (leading edge of animating segments) ════════
 for (let i = 0; i < 48; i++) {
 const p = segProgress(i);
 if (p <= 0 || p >= 1) continue;
@@ -365,30 +351,19 @@ const sx = seg.from.x + (seg.to.x - seg.from.x) * p;
 const sy = seg.from.y + (seg.to.y - seg.from.y) * p;
 const shimmer = 0.7 + 0.3 * Math.sin(_t * 12 + i);
 
-// Outer bloom
 g.circle(sx, sy, 8);
 g.fill({ color: GLOW_COLOR, alpha: shimmer * 0.12 });
-// Mid glow
 g.circle(sx, sy, 5);
 g.fill({ color: SPARK_COLOR, alpha: shimmer * 0.25 });
-// Hot core
 g.circle(sx, sy, 2.5);
 g.fill({ color: CORE_COLOR, alpha: shimmer * 0.85 });
 }
-}}
-/>
 
-<!-- ════════ Polaris (north tip) ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const size = meterSize;
+// ════════ Polaris (north tip) ════════
+const p0 = segProgress(0);
+if (p0 > 0) {
 const cx = size * 0.5;
 const topY = size * 0.5 - size * 0.46;
-const p0 = segProgress(0);
-if (p0 <= 0) return;
-
-const breathe = 0.85 + 0.15 * Math.sin(_t * 1.8);
 const a = breathe * p0;
 
 g.circle(cx, topY, 10);
@@ -406,26 +381,21 @@ g.lineTo(cx + innerS * Math.cos(ia), topY + innerS * Math.sin(ia));
 }
 g.closePath();
 g.fill({ color: CORE_COLOR, alpha: a * 0.85 });
-}}
-/>
+}
 
-<!-- ════════ Center completion glow ════════ -->
-<Graphics
-draw={(g) => {
-const _t = time;
-const size = meterSize;
-const cx = size * 0.5, cy = size * 0.5;
+// ════════ Center completion glow ════════
 const p48 = segProgress(48);
-if (p48 <= 0) return;
-
-const pulse = 0.7 + 0.3 * Math.sin(_t * 2.5);
+if (p48 > 0) {
+const cx = size * 0.5, cy = size * 0.5;
+const cpulse = 0.7 + 0.3 * Math.sin(_t * 2.5);
 
 g.circle(cx, cy, size * 0.08);
-g.fill({ color: GLOW_COLOR, alpha: p48 * pulse * 0.10 });
+g.fill({ color: GLOW_COLOR, alpha: p48 * cpulse * 0.10 });
 g.circle(cx, cy, size * 0.05);
-g.fill({ color: STAR_HALO, alpha: p48 * pulse * 0.20 });
+g.fill({ color: STAR_HALO, alpha: p48 * cpulse * 0.20 });
 g.circle(cx, cy, size * 0.025);
-g.fill({ color: CORE_COLOR, alpha: p48 * pulse * 0.85 });
+g.fill({ color: CORE_COLOR, alpha: p48 * cpulse * 0.85 });
+}
 }}
 />
 </Container>

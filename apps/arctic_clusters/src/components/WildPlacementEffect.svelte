@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { Container, Graphics } from 'pixi-svelte';
 
 	import { stateBetDerived } from 'state-shared';
@@ -46,15 +46,19 @@
 	let effects: WildEffect[] = $state([]);
 	let raf = 0;
 	let animTime = $state(0);
+	let animRunning = false;
 
 	// ── Timing constants (ms) ── scaled by turbo speed
 	const TRACE_DURATION = $derived(350 / stateBetDerived.timeScale());
 	const FLASH_DURATION = $derived(150 / stateBetDerived.timeScale());
 	const BURST_DURATION = $derived(300 / stateBetDerived.timeScale());
 
-	onMount(() => {
+	function startAnimLoop() {
+		if (animRunning) return;
+		animRunning = true;
 		const t0 = performance.now();
 		function tick() {
+			if (!animRunning) return;
 			animTime = performance.now() - t0;
 			// Update effect states
 			const now = performance.now();
@@ -85,12 +89,23 @@
 			}
 			// Remove completed effects
 			effects = effects.filter((fx) => fx.phase !== 'done');
+			// Stop loop when no effects remain
+			if (effects.length === 0) {
+				animRunning = false;
+				return;
+			}
 			raf = requestAnimationFrame(tick);
 		}
 		raf = requestAnimationFrame(tick);
-	});
+	}
 
-	onDestroy(() => cancelAnimationFrame(raf));
+	function stopAnimLoop() {
+		animRunning = false;
+		cancelAnimationFrame(raf);
+		raf = 0;
+	}
+
+	onDestroy(() => stopAnimLoop());
 
 	// ── Event listener: start wild animation ──
 	context.eventEmitter.subscribeOnMount({
@@ -106,6 +121,7 @@
 					startTime: performance.now(),
 					resolve,
 				}];
+				startAnimLoop();
 			});
 		},
 	});

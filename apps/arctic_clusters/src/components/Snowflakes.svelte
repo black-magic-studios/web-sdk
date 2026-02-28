@@ -230,23 +230,23 @@
 </script>
 
 <Container zIndex={-1}>
-	{#each snowflakes as flake, i (i)}
-		<Graphics
-			x={flake.x}
-			y={flake.y}
-			alpha={flake.alpha}
-			rotation={flake.rotation}
-			scale={{ x: flake.scaleX, y: flake.scaleY }}
-			draw={(g) => {
-				const r = flake.radius;
-				// Soft circle with a lighter core for a gentle glow look
-				g.circle(0, 0, r);
-				g.fill({ color: 0xffffff });
-				g.circle(0, 0, r * 0.5);
-				g.fill({ color: 0xffffff });
-			}}
-		/>
-	{/each}
+	<!-- All snowflakes batched into a single Graphics draw call -->
+	<Graphics
+		draw={(g) => {
+			const _f = frameCount;
+			for (const flake of snowflakes) {
+				if (flake.alpha <= 0) continue;
+				const rx = flake.radius * flake.scaleX;
+				const ry = flake.radius * flake.scaleY;
+				// Outer glow
+				g.ellipse(flake.x, flake.y, rx, ry);
+				g.fill({ color: 0xffffff, alpha: flake.alpha });
+				// Inner bright core
+				g.ellipse(flake.x, flake.y, rx * 0.5, ry * 0.5);
+				g.fill({ color: 0xffffff, alpha: flake.alpha });
+			}
+		}}
+	/>
 
 	<!-- Shooting star streak -->
 	{#if shootingStar && shootingStar.alpha > 0}

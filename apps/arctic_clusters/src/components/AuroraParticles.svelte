@@ -175,28 +175,20 @@
 </script>
 
 <Container zIndex={layer === 'foreground' ? 10 : -1}>
-	{#each particles as p, i (i)}
-		<!-- Soft glow halo -->
-		<Graphics
-			x={p.x}
-			y={p.y}
-			alpha={p.alpha * 0.2}
-			draw={(g) => {
-				g.circle(0, 0, p.glowRadius);
-				g.fill({ color: p.color });
-			}}
-		/>
-		<!-- Bright core -->
-		<Graphics
-			x={p.x}
-			y={p.y}
-			alpha={p.alpha}
-			draw={(g) => {
-				g.circle(0, 0, p.radius);
-				g.fill({ color: p.color });
-				g.circle(0, 0, p.radius * 0.45);
-				g.fill({ color: 0xffffff });
-			}}
-		/>
-	{/each}
+	<Graphics
+		draw={(g) => {
+			const _f = frameCount;
+			for (const p of particles) {
+				if (p.alpha <= 0) continue;
+				// Soft glow halo
+				g.circle(p.x, p.y, p.glowRadius);
+				g.fill({ color: p.color, alpha: p.alpha * 0.2 });
+				// Bright core
+				g.circle(p.x, p.y, p.radius);
+				g.fill({ color: p.color, alpha: p.alpha });
+				g.circle(p.x, p.y, p.radius * 0.45);
+				g.fill({ color: 0xffffff, alpha: p.alpha });
+			}
+		}}
+	/>
 </Container>

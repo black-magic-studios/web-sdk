@@ -75,10 +75,8 @@
 	const crossfadeMusic = (name: MusicName, duration: number) => {
 		// Skip if the target music is already playing
 		if (name === currentMusic) {
-			console.log(`[🎵 MUSIC] crossfade → ${name} SKIPPED (already playing)`);
 			return;
 		}
-		console.log(`[🎵 MUSIC] crossfade → ${name} (fade-out: ${duration}ms)`);
 		// Cancel intro timer if still pending
 		cancelIntroTimer();
 		// Cancel any pending crossfade play from a previous crossfade
@@ -103,7 +101,6 @@
 			for (const track of allBgm) {
 				if (track !== name) sound.stop({ name: track });
 			}
-			console.log(`[🎵 MUSIC] crossfade fade done → playing ${name}`);
 			currentMusic = name;
 			sound.players.music.play({ name });
 			initMusicVolume(name);
@@ -113,7 +110,6 @@
 	context.eventEmitter.subscribeOnMount({
 		// ui
 		soundBetMode: async ({ betModeKey }) => {
-			console.log(`[🎵 MUSIC] soundBetMode: ${betModeKey}`);
 			cancelIntroTimer();
 			sound.stop({ name: 'bgm_main' });
 			sound.stop({ name: 'bgm_freespin' });
@@ -124,12 +120,10 @@
 				// check if SUPERSPIN, when changing the bet mode.
 				sound.players.once.play({ name: 'sfx_winlevel_end' });
 				await waitForTimeout(SECOND);
-				console.log(`[🎵 MUSIC] betMode → playing bgm_freespin`);
 				currentMusic = 'bgm_freespin';
 				sound.players.music.play({ name: 'bgm_freespin' });
 				initMusicVolume('bgm_freespin');
 			} else {
-				console.log(`[🎵 MUSIC] betMode → playing bgm_main`);
 				currentMusic = 'bgm_main';
 				sound.players.music.play({ name: 'bgm_main' });
 				initMusicVolume('bgm_main');
@@ -143,7 +137,6 @@
 		soundScatterCounterClear: () => (context.stateGame.scatterCounter = 0),
 		// game
 		soundMusic: ({ name }) => {
-			console.log(`[🎵 MUSIC] soundMusic → ${name}`);
 			cancelIntroTimer();
 			const allBgm: MusicName[] = ['bgm_main', 'bgm_freespin', 'bgm_bonus_intro', 'bgm_bonus_exit', 'bgm_intro'];
 			for (const track of allBgm) {
@@ -156,7 +149,6 @@
 		soundMusicCrossfade: ({ name, duration }) => crossfadeMusic(name, duration),
 		soundLoop: ({ name }) => sound.players.loop.play({ name }),
 		soundOnce: ({ name, forcePlay }) => {
-			console.log(`[🔊 SFX] soundOnce name=${name} forcePlay=${forcePlay}`);
 			sound.players.once.play({ name, forcePlay });
 		},
 		soundOnceWithRate: ({ name, rate, volume }) => {
@@ -168,7 +160,6 @@
 			sound.players.once.howl.volume((volume ?? 1) * sfxVol, id);
 		},
 		soundStop: ({ name }) => {
-			console.log(`[🎵 MUSIC] soundStop → ${name}`);
 			sound.stop({ name });
 		},
 		soundFade: async ({ name, duration, from, to }) => await sound.fade({ name, duration, from, to }), // prettier-ignore
@@ -183,7 +174,6 @@
 	const cancelIntroTimer = () => {
 		if (introEndActive) {
 			introEndActive = false;
-			console.log('[🎵 MUSIC] intro→loop CANCELLED');
 			if (introSoundId !== null) {
 				sound.players.once.howl.stop(introSoundId);
 				introSoundId = null;
@@ -192,14 +182,11 @@
 	};
 
 	onMount(() => {
-		console.log(`[🎵 MUSIC] onMount — activeBetModeKey=${stateBet.activeBetModeKey}`);
 		if (stateBet.activeBetModeKey === 'SUPERSPIN') {
-			console.log(`[🎵 MUSIC] onMount → playing bgm_freespin`);
 			currentMusic = 'bgm_freespin';
 			sound.players.music.play({ name: 'bgm_freespin' });
 			initMusicVolume('bgm_freespin');
 		} else {
-			console.log(`[🎵 MUSIC] onMount → playing bgm_intro, waiting for onend to start bgm_main`);
 			currentMusic = 'bgm_intro';
 			introEndActive = true;
 			// Play bgm_intro directly via the howl to capture its soundId.
@@ -211,7 +198,6 @@
 				if (!introEndActive) return;
 				introEndActive = false;
 				introSoundId = null;
-				console.log(`[🎵 MUSIC] bgm_intro ended (event-driven) → playing bgm_main`);
 				currentMusic = 'bgm_main';
 				sound.players.music.play({ name: 'bgm_main' });
 			}, introSoundId);

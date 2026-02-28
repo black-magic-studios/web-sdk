@@ -51,19 +51,16 @@
 
 		const app = context.stateApp.pixiApplication;
 		if (!app?.renderer) {
-			console.warn('[MultiplierUpgradeEffect] PixiJS app not ready');
 			return null;
 		}
 
 		// Generate textures once
 		if (!sharedTextures) {
 			sharedTextures = generateUpgradePopTextures(app.renderer);
-			console.log('[MultiplierUpgradeEffect] Generated effect textures');
 		}
 
 		// Create pool
 		sharedPool = new MultiplierUpgradePopPool(sharedTextures);
-		console.log('[MultiplierUpgradeEffect] Effect pool initialized');
 
 		return sharedPool;
 	}

@@ -47,11 +47,9 @@
 
 	// Lifecycle logging
 	onMount(() => {
-		console.log(`[MultiplierGrid:${instanceId}] 🟢 MOUNTED at ${Date.now()}, inBoardSpace=${props.inBoardSpace}, persistent=${props.persistent}`);
 	});
 
 	onDestroy(() => {
-		console.log(`[MultiplierGrid:${instanceId}] 🔴 DESTROYED at ${Date.now()}, inBoardSpace=${props.inBoardSpace}, persistent=${props.persistent}`);
 	});
 
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
@@ -429,8 +427,6 @@
 
 			if (upgradingCells.length === 0) return;
 
-			console.log(`[MultiplierGrid:${instanceId}] 💥 EXPLODE: ${upgradingCells.length} cells`);
-
 			// Sort outermost first
 			upgradingCells.sort((a, b) => b.dist - a.dist);
 			const maxDist = upgradingCells.length > 0 ? upgradingCells[0].dist : 0;
@@ -457,7 +453,6 @@
 			});
 
 			await Promise.all(explosionPromises);
-			console.log(`[MultiplierGrid:${instanceId}] 💥 All explosions complete`);
 		},
 		multiplierGridReveal: async (emitterEvent) => {
 			const newGrid = emitterEvent.grid;
@@ -480,19 +475,12 @@
 				}
 			}
 
-			if (downgradedCells.length > 0) {
-				console.warn(`[MultiplierGrid:${instanceId}] ⚠️ DOWNGRADED cells detected!`, downgradedCells.map(c => `[${c.reel},${c.row}]: ${c.prevVal}→${c.newVal}`).join(', '));
-			}
-			console.log(`[MultiplierGrid:${instanceId}] 🔍 REVEAL: upgrading=${upgradingCells.length}, downgraded=${downgradedCells.length}, previousGrid=${JSON.stringify(previousGrid)}, newGrid=${JSON.stringify(newGrid)}`);
-
 			if (upgradingCells.length === 0) {
 				// No upgrades — just apply grid directly
 				animateNewCells(newGrid);
 				context.stateGame.multiplierGrid = newGrid;
 				return;
 			}
-
-			console.log(`[MultiplierGrid:${instanceId}] ✨ REVEAL: ${upgradingCells.length} cells`);
 
 			// Sort outermost first
 			upgradingCells.sort((a, b) => b.dist - a.dist);
@@ -511,7 +499,6 @@
 						// Create / animate compound cell state
 						const newMult = newGrid[cell.reel][cell.row];
 						const idle = getIdleShadowAlpha(newMult);
-						console.log(`[MultiplierGrid:${instanceId}] 🔊 multi_pop_sound cell [${cell.reel},${cell.row}] sortedIndex=${sortedIndex}`);
 						// Delay ~200ms so the sound lands on the visual scale peak (animateCellAppear peaks at ~250ms)
 						setTimeout(() => {
 							context.eventEmitter.broadcast({ type: 'soundOnceWithRate', name: 'multi_pop_sound', rate: 1.0, volume: 0.35 });
@@ -537,22 +524,14 @@
 			});
 
 			await Promise.all(revealPromises);
-			console.log(`[MultiplierGrid:${instanceId}] ✨ All reveals complete`);
 		},
 		multiplierGridUpdate: (emitterEvent) => {
-			const multiplierCount = emitterEvent.grid.flat().filter(m => m > 1).length;
-			console.log(`[MultiplierGrid:${instanceId}] 📥 UPDATE at ${Date.now()}`, {
-				multiplierCount,
-				grid: JSON.stringify(emitterEvent.grid),
-			});
 			// Kick off per-cell staggered pop-in animations
 			animateNewCells(emitterEvent.grid);
 			// Update GLOBAL state - persists across component remounts
 			context.stateGame.multiplierGrid = emitterEvent.grid;
 		},
 		multiplierGridClear: () => {
-			console.log(`[MultiplierGrid:${instanceId}] 🧹 CLEAR at ${Date.now()}`);
-			console.trace('[MultiplierGrid] Clear call stack:');
 			// Reset animation state
 			context.stateGame.multiplierCellScales = new Map();
 			context.stateGame.multiplierPreviousGrid = DEFAULT_GRID.map((r) => [...r]);
@@ -647,20 +626,6 @@
 				setTimeout(r, maxDelay + (rise + hold + fall) / ts),
 			);
 		},
-	});
-
-	// Track hasMultipliers changes
-	let prevHasMultipliers = false;
-	$effect(() => {
-		if (hasMultipliers !== prevHasMultipliers) {
-			console.log(`[MultiplierGrid:${instanceId}] 👁️ VISIBILITY changed at ${Date.now()}:`, {
-				from: prevHasMultipliers,
-				to: hasMultipliers,
-				cellWidth,
-				cellHeight,
-			});
-			prevHasMultipliers = hasMultipliers;
-		}
 	});
 
 	// ── Light-sweep variant counter — cycles through 4 distinct lighting passes ──

@@ -59,18 +59,6 @@ const winLevelSoundsStop = () => {
 };
 
 const animateSymbols = async ({ positions }: { positions: Position[] }) => {
-	const h4Positions = positions.filter(p => {
-		const sym = stateGame.board[p.reel]?.reelState?.symbols[p.row];
-		return sym?.rawSymbol?.name === 'H4';
-	});
-	if (h4Positions.length > 0) {
-		console.log(`%c[H4 DEBUG] ❄️ animateSymbols called with ${h4Positions.length} H4 position(s):`, 'color: cyan; font-weight: bold',
-			h4Positions.map(p => `[reel=${p.reel}, row=${p.row}]`).join(', '));
-		console.log('[H4 DEBUG] ❄️ All positions in this win:', positions.map(p => {
-			const sym = stateGame.board[p.reel]?.reelState?.symbols[p.row];
-			return `[${p.reel},${p.row}]=${sym?.rawSymbol?.name}`;
-		}).join(' '));
-	}
 	eventEmitter.broadcast({ type: 'boardShow' });
 	await eventEmitter.broadcastAsync({
 		type: 'boardWithAnimateSymbols',
@@ -125,8 +113,6 @@ const spinWithMultipliers = async ({
 	revealEvent: BookEventOfType<'reveal'>;
 	initialGrid: number[][];
 }) => {
-	console.log(`[spinWithMultipliers] 🎰 Starting multiplier spin at ${Date.now()}`);
-
 	// 1. Start clearing old symbols
 	await stateGameDerived.enhancedBoard.preSpin({});
 
@@ -136,35 +122,24 @@ const spinWithMultipliers = async ({
 			await waitForResolve((resolve) => (reel.reelState.readyToSpin = resolve));
 		}),
 	);
-	console.log(`[spinWithMultipliers] ✅ Board empty at ${Date.now()}`);
 
 	// 3. Reveal multiplier grid (only changed cells will pop)
 	eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
 	await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: initialGrid });
-	console.log(`[spinWithMultipliers] ✅ Grid reveal complete at ${Date.now()}`);
 
 	// 3b. During free spins, briefly highlight ≥32× multipliers while board is empty
 		if (isFreegameType(stateGame.gameType)) {
 		await eventEmitter.broadcastAsync({ type: 'multiplierGridHighlightHigh' });
-		console.log(`[spinWithMultipliers] ✨ High-multiplier highlight complete at ${Date.now()}`);
 	}
 
 	// 4. Drop new symbols (spin() will re-check readyToSpin but the $effect
 	//    fires immediately since reels are still in 'hanging' state)
 	await stateGameDerived.enhancedBoard.spin({ revealEvent });
-	console.log(`[spinWithMultipliers] ✅ Symbols landed at ${Date.now()}`);
 };
 
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		const rt0 = performance.now();
-		console.log(`[bookEventHandlerMap] 🎰 REVEAL at ${Date.now()} - new spin starting`, {
-			gameType: bookEvent.gameType,
-			boardReels: bookEvent.board.length,
-			boardRows: bookEvent.board[0]?.length,
-			paddingPositions: bookEvent.paddingPositions,
-			anticipation: bookEvent.anticipation,
-		});
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 		// Reset aurora state for new spin
 		stateGame.auroraPositions = [];
@@ -184,7 +159,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		//   (only pop cells that actually changed).
 		// - Bonus games: multipliers persist across spins and are managed by updateGrid events.
 		if (!isBonusGame && !isMultMode) {
-			console.log(`[bookEventHandlerMap] 🧹 Broadcasting multiplierGridClear at ${Date.now()}`);
 			eventEmitter.broadcast({ type: 'multiplierGridClear' });
 		}
 		if (isBonusGame) {
@@ -213,51 +187,20 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		stateGame.gameType = bookEvent.gameType;
 
-		console.log(`[reveal] 🔍 pre-spin state: isMultMode=${isMultMode}, isBonusGame=${isBonusGame}, gameType=${stateGame.gameType} t=+${(performance.now()-rt0).toFixed(0)}ms`);
-		// Log board reel states before spin
-		stateGame.board.forEach((reel, i) => {
-			console.log(`[reveal] reel[${i}] symbolCount=${reel.reelState.symbols.length} states=[${reel.reelState.symbols.map(s => s.symbolState).join(',')}]`);
-		});
-
 		if (isMultMode) {
 			// Multiplier mode: clear board → show grid (diff) → drop symbols
 			// Works for both base game and bonus game spins — the grid reveal
 			// handler skips cells that already match, so repeated spins are no-ops.
-			console.log(`[reveal] ⚡ spinWithMultipliers path t=+${(performance.now()-rt0).toFixed(0)}ms`);
-			console.log(`[reveal] 📊 initialGrid from board:`, JSON.stringify(initialGrid));
-			console.log(`[reveal] 📊 currentGrid (stateGame):`, JSON.stringify(stateGame.multiplierGrid));
-			console.log(`[reveal] 📊 previousGrid (stateGame):`, JSON.stringify(stateGame.multiplierPreviousGrid));
-			// Log cells that differ between current displayed grid and new reveal grid
-			const diffs: string[] = [];
-			for (let reel = 0; reel < initialGrid.length; reel++) {
-				for (let row = 0; row < initialGrid[reel].length; row++) {
-					const cur = stateGame.multiplierGrid[reel]?.[row] ?? 0;
-					const next = initialGrid[reel][row];
-					if (cur !== next) {
-						diffs.push(`[${reel},${row}]: ${cur}→${next}`);
-					}
-				}
-			}
-			if (diffs.length > 0) {
-				console.log(`[reveal] ⚠️ Grid diffs (current→new): ${diffs.join(', ')}`);
-			} else {
-				console.log(`[reveal] ✅ Grid unchanged — no diffs`);
-			}
 			await spinWithMultipliers({ revealEvent: bookEvent, initialGrid });
 		} else {
 			// Normal spin (no multiplier data in board)
-			console.log(`[reveal] 🔄 enhancedBoard.spin() path t=+${(performance.now()-rt0).toFixed(0)}ms`);
 			await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
 		}
-		console.log(`[reveal] ✅ spin complete t=+${(performance.now()-rt0).toFixed(0)}ms`);
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
-		console.log(`[bookEventHandlerMap] 🏆 WIN_INFO at ${Date.now()}`, { totalWin: bookEvent.totalWin });
-
 		// Count aurora wilds that are part of winning clusters
 		// During wild release, do NOT accumulate — the session total is frozen and only decrements
-		console.log(`[winInfo] aurora check: wildPositions=${stateGame.auroraWildPositions.length}, isWildRelease=${stateGame.isWildRelease}, sessionTotal=${stateGame.auroraWildsSessionTotal}`);
 		if (stateGame.auroraWildPositions.length > 0 && !stateGame.isWildRelease) {
 			const allWinPositions = _.flatten(bookEvent.wins.map((win) => win.positions));
 			const winPosKeys = new Set(allWinPositions.map((p) => `${p.reel}_${p.row}`));
@@ -291,7 +234,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 				return true;
 			});
 			await animateSymbols({ positions: uniquePositions });
-			console.log(`[bookEventHandlerMap] 🏆 WIN_INFO animation complete at ${Date.now()}`);
 		};
 
 		const promise2 = async () => {
@@ -489,19 +431,15 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerButtonHide' });
 	},
 	tumbleBoard: async (bookEvent: BookEventOfType<'tumbleBoard'>) => {
-		const tb0 = performance.now();
-		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD start t=0ms | exploding=${bookEvent.explodingSymbols.length} | pendingGrid=${!!stateGame.pendingMultiplierGrid}`);
 		eventEmitter.broadcast({ type: 'boardHide' });
 		eventEmitter.broadcast({ type: 'tumbleBoardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardInit', addingBoard: bookEvent.newSymbols });
-		console.log(`[bookEventHandlerMap] 🕐 init done t=${(performance.now()-tb0).toFixed(0)}ms — starting vanish`);
 
 		// 1. Play glow → vanish + explosion per cell — sound fires per-cell inside TumbleBoard
 		await eventEmitter.broadcastAsync({
 			type: 'tumbleBoardVanish',
 			explodingPositions: bookEvent.explodingSymbols,
 		});
-		console.log(`[bookEventHandlerMap] ✅ Vanish + explosions complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 
 		// 2. Reveal multiplier grid cells (pop in same stagger order) AFTER all vanish+explosions
 		if (stateGame.pendingMultiplierGrid) {
@@ -509,14 +447,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			stateGame.pendingMultiplierGrid = null;
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_explosion_b' });
 			await eventEmitter.broadcastAsync({ type: 'multiplierGridReveal', grid: gridToApply });
-			console.log(`[bookEventHandlerMap] ✅ Cell reveals complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 		}
 
 		// 3. Remove exploded symbols, slide remaining down
 		eventEmitter.broadcast({ type: 'tumbleBoardRemoveExploded' });
-		console.log(`[bookEventHandlerMap] ⬇️ Starting slideDown t=${(performance.now()-tb0).toFixed(0)}ms`);
 		await eventEmitter.broadcastAsync({ type: 'tumbleBoardSlideDown' });
-		console.log(`[bookEventHandlerMap] ⬇️ SlideDown complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 
 		// 3. Settle board back to static
 		eventEmitter.broadcast({
@@ -528,8 +463,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardHide' });
 		eventEmitter.broadcast({ type: 'boardShow' });
 		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
-
-		console.log(`[bookEventHandlerMap] 🎢 TUMBLE_BOARD complete t=${(performance.now()-tb0).toFixed(0)}ms`);
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
 		// Compute win level client-side from win/bet ratio (ignore RGS winLevel)
@@ -552,14 +485,10 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'winHide' });
 	},
 	updateGrid: async (bookEvent: BookEventOfType<'updateGrid'>) => {
-		const multiplierCount = bookEvent.gridMultipliers.flat().filter(m => m > 1).length;
-		console.log(`[bookEventHandlerMap] 📊 UPDATE_GRID at ${Date.now()}`, { multiplierCount, grid: bookEvent.gridMultipliers });
-
 		// If the incoming grid matches what's already displayed (e.g. the initial
 		// grid that was revealed during spinWithMultipliers), skip it — no need
 		// to re-animate cells that are already at the correct multiplier.
 		if (gridsMatch(stateGame.multiplierGrid, bookEvent.gridMultipliers)) {
-			console.log(`[bookEventHandlerMap] 📊 UPDATE_GRID skipped — grid unchanged`);
 			return;
 		}
 
@@ -567,7 +496,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.pendingMultiplierGrid = bookEvent.gridMultipliers;
 	},
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {
-		console.log(`[bookEventHandlerMap] 🏁 FINAL_WIN at ${Date.now()} - cascade sequence ended`);
 		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
 		// Keep the tumble total visible for 1s so the player can read it
@@ -581,19 +509,16 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	},
 	// aurora
 	auroraReveal: async (bookEvent: BookEventOfType<'auroraReveal'>) => {
-		console.log(`[bookEventHandlerMap] ✨ AURORA_REVEAL at ${Date.now()}`, { positions: bookEvent.positions });
 		// Store aurora positions in state for reference by later auroraExplode events
 		stateGame.auroraPositions = bookEvent.positions;
 		// Show aurora overlays — these are the canonical positions from the math engine
 		eventEmitter.broadcast({ type: 'auroraCellsReveal', positions: bookEvent.positions });
 	},
 	auroraMeterUpdate: async (bookEvent: BookEventOfType<'auroraMeterUpdate'>) => {
-		console.log(`[bookEventHandlerMap] 🌊 AURORA_METER_UPDATE at ${Date.now()}`, { cellsCollected: bookEvent.cellsCollected, meterTotal: bookEvent.meterTotal });
 		// Update meter state — UI component can derive from this
 		stateGame.auroraMeterTotal = bookEvent.meterTotal;
 	},
 	auroraExplode: async (bookEvent: BookEventOfType<'auroraExplode'>) => {
-		console.log(`[bookEventHandlerMap] 💫 AURORA_EXPLODE at ${Date.now()}`, { positions: bookEvent.positions });
 		// Play explosion animation on the consumed aurora cells (async — waits for animation)
 		await eventEmitter.broadcastAsync({ type: 'auroraCellsExplode', positions: bookEvent.positions });
 		// Remove exploded positions from state
@@ -603,15 +528,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		);
 	},
 	auroraWildPlace: async (bookEvent: BookEventOfType<'auroraWildPlace'>) => {
-		console.log(`[bookEventHandlerMap] 🃏 AURORA_WILD_PLACE at ${Date.now()}`, {
-			position: bookEvent.position,
-			meterBefore: bookEvent.meterBefore,
-			meterAfter: bookEvent.meterAfter,
-			boardReelCount: stateGame.board.length,
-			reelSymbolCount: stateGame.board[bookEvent.position.reel]?.reelState.symbols.length,
-			currentSymbol: stateGame.board[bookEvent.position.reel]?.reelState.symbols[bookEvent.position.row]?.rawSymbol,
-			currentState: stateGame.board[bookEvent.position.reel]?.reelState.symbols[bookEvent.position.row]?.symbolState,
-		});
 		const { reel, row } = bookEvent.position;
 		if (!stateGame.board[reel]) {
 			console.error(`[auroraWildPlace] ❌ reel ${reel} does not exist! board has ${stateGame.board.length} reels`);
@@ -640,7 +556,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			if (!stateGame.isWildRelease) {
 				stateGame.isWildRelease = true;
 				stateGame.wildReleaseRemaining = bookEvent.meterBefore;
-				console.log(`[auroraWildPlace] 🌟 Detected wild release start: meterBefore=${bookEvent.meterBefore}`);
 			}
 			if (stateGame.auroraWildsSessionTotal > 0) {
 				stateGame.auroraWildsSessionTotal--;
@@ -648,7 +563,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			if (stateGame.wildReleaseRemaining > 0) {
 				stateGame.wildReleaseRemaining--;
 			}
-			console.log(`[auroraWildPlace] 📉 wildRelease decrement: remaining=${stateGame.wildReleaseRemaining}, sessionTotal=${stateGame.auroraWildsSessionTotal}`);
 		}
 
 		// 4. Brief pause to let player see the wild in place + constellation decrement
@@ -656,10 +570,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		// 5. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';
-		console.log(`[auroraWildPlace] ✅ wild placed at [${reel}][${row}], state now: ${reelSymbol.symbolState}`);
 	},
 	wildRelease: async (bookEvent: BookEventOfType<'wildRelease'>) => {
-		console.log(`[bookEventHandlerMap] 🌟 WILD_RELEASE at ${Date.now()}`, { wildsToPlace: bookEvent.wildsToPlace });
 		// Enter wild release phase — the session total becomes the starting count
 		// and counts down as each wild is placed
 		stateGame.isWildRelease = true;
@@ -674,12 +586,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'auroraSpinHide' });
 	},
 	wildMeterUpdate: async (bookEvent: BookEventOfType<'wildMeterUpdate'>) => {
-		console.log(`[bookEventHandlerMap] 💰 WILD_METER_UPDATE at ${Date.now()}`, {
-			delta: bookEvent.delta,
-			meterBefore: bookEvent.meterBefore,
-			meterAfter: bookEvent.meterAfter,
-			consumedPositions: bookEvent.consumedPositions,
-		});
 		// Aurora wilds were consumed by wins and banked into the wild meter.
 		// Play a sound to acknowledge the bank increase.
 		if (bookEvent.delta > 0) {
@@ -687,7 +593,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 	},
 	winCapReached: async (bookEvent: BookEventOfType<'winCapReached'>) => {
-		console.log(`[bookEventHandlerMap] 🏆 WIN_CAP_REACHED at ${Date.now()}`, { cappedAmount: bookEvent.cappedAmount });
 		// Win cap hit (25,000× bet) — tumbles stop. No special presentation needed beyond
 		// the normal setWin / freeSpinEnd flow that follows.
 	},

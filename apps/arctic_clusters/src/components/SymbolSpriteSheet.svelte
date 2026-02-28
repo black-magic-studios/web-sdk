@@ -41,53 +41,14 @@
 	// Reset play when animation changes (e.g., H1 win spriteSheet -> explosion spriteSheet)
 	$effect(() => {
 		if (props.symbolInfo.assetKey !== lastAssetKey) {
-			console.log('[SymbolSpriteSheet] Asset changed, resetting play:', lastAssetKey, '->', props.symbolInfo.assetKey);
 			lastAssetKey = props.symbolInfo.assetKey;
 			play = true;
 		}
 	});
 
-	// Debug logging
-	$effect(() => {
-		const isH4 = props.symbolInfo.assetKey?.includes('h4') || props.symbolInfo.animationName?.includes('h4');
-		if (isH4) {
-			console.log(`%c[H4 DEBUG] ❄️ SymbolSpriteSheet RENDER`, 'color: cyan; font-weight: bold', {
-				assetKey: props.symbolInfo.assetKey,
-				animationName: props.symbolInfo.animationName,
-				frameCount,
-				animationSpeed,
-				animationDurationMs,
-				play,
-				width,
-				height,
-				x: props.x,
-				y: props.y,
-			});
-		} else {
-			console.log('[SymbolSpriteSheet] Rendering:', {
-				assetKey: props.symbolInfo.assetKey,
-				animationName: props.symbolInfo.animationName,
-				frameCount,
-				animationSpeed,
-				animationDurationMs,
-				play,
-				width,
-				height,
-				x: props.x,
-				y: props.y,
-			});
-		}
-	});
-
 	$effect(() => {
 		if (play && props.oncomplete) {
-			const isH4 = props.symbolInfo.assetKey?.includes('h4') || props.symbolInfo.animationName?.includes('h4');
 			const timeout = setTimeout(() => {
-				if (isH4) {
-					console.log(`%c[H4 DEBUG] ❄️ SymbolSpriteSheet animation COMPLETE: ${props.symbolInfo.assetKey}`, 'color: cyan; font-weight: bold');
-				} else {
-					console.log('[SymbolSpriteSheet] Animation complete:', props.symbolInfo.assetKey);
-				}
 				play = false;
 				props.oncomplete?.();
 			}, animationDurationMs);
