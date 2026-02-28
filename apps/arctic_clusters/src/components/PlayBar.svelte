@@ -138,6 +138,15 @@
 	let menuHoverTexture = $state<Texture>(Texture.EMPTY);
 	let menuPressedTexture = $state<Texture>(Texture.EMPTY);
 
+	// ── Bonus play bar assets (used during free spins / super bonus) ──
+	let bonusBarTexture = $state<Texture>(Texture.EMPTY);
+	let bonusTurboTexture = $state<Texture>(Texture.EMPTY);
+	let bonusMenuTexture = $state<Texture>(Texture.EMPTY);
+	let bonusBalanceSectionTexture = $state<Texture>(Texture.EMPTY);
+	let bonusSpinSectionTexture = $state<Texture>(Texture.EMPTY);
+	let bonusTotalWinSectionTexture = $state<Texture>(Texture.EMPTY);
+	let bonusFreeSpinsSectionTexture = $state<Texture>(Texture.EMPTY);
+
 	let assetsLoaded = $state(false);
 
 	// Hover/pressed state tracking
@@ -467,6 +476,28 @@
 			menuHoverTexture = menuHov;
 			menuPressedTexture = menuPrs;
 
+			// Load bonus play bar assets
+			const BB = '/assets/sprites/buttons_new/bonus_play_bar';
+			const [
+				bonusBar, bonusTurbo, bonusMenu,
+				bonusBalance, bonusSpin, bonusTotalWin, bonusFs,
+			] = await Promise.all([
+				Assets.load(`${BB}/play_bar_bonus_0011_Play_Bar.png`),
+				Assets.load(`${BB}/play_bar_bonus_0002_turbo.png`),
+				Assets.load(`${BB}/play_bar_bonus_0005_Menu.png`),
+				Assets.load(`${BB}/play_bar_bonus_0004_BALANCE.png`),
+				Assets.load(`${BB}/play_bar_bonus_0003_SPIN.png`),
+				Assets.load(`${BB}/play_bar_bonus_0007_Total-Win.png`),
+				Assets.load(`${BB}/play_bar_bonus_0008_Free-Spins.png`),
+			]);
+			bonusBarTexture = bonusBar;
+			bonusTurboTexture = bonusTurbo;
+			bonusMenuTexture = bonusMenu;
+			bonusBalanceSectionTexture = bonusBalance;
+			bonusSpinSectionTexture = bonusSpin;
+			bonusTotalWinSectionTexture = bonusTotalWin;
+			bonusFreeSpinsSectionTexture = bonusFs;
+
 			assetsLoaded = true;
 		} catch (error) {
 			console.error('Failed to load PlayBar assets:', error);
@@ -534,11 +565,23 @@
 <BoardContainer zIndex={20}>
 	<Container x={containerX} y={containerY}>
 
-		<!-- DARK BAR BACKGROUND -->
-		<Graphics draw={drawBar} zIndex={0} />
+		<!-- BAR BACKGROUND: bonus sprite in free spins, drawn rect otherwise -->
+		{#if inFreeSpins && assetsLoaded}
+			<BaseSprite
+				texture={bonusBarTexture}
+				width={barWidth}
+				height={barHeight}
+				anchor={0.5}
+				zIndex={0}
+			/>
+		{:else}
+			<Graphics draw={drawBar} zIndex={0} />
+		{/if}
 
-		<!-- DIVIDER LINES -->
-		<Graphics draw={drawDividers} zIndex={1} />
+		<!-- DIVIDER LINES (normal mode only — bonus bar sprite provides its own styling) -->
+		{#if !inFreeSpins}
+			<Graphics draw={drawDividers} zIndex={1} />
+		{/if}
 
 		<!-- MENU BUTTON (inside bar, far left) -->
 		{#if assetsLoaded}
@@ -556,7 +599,7 @@
 				onpointerup={() => { menuPressed = false; hamburgerOpen = !hamburgerOpen; }}
 			/>
 			<BaseSprite
-				texture={activeMenuTexture}
+				texture={inFreeSpins ? bonusMenuTexture : activeMenuTexture}
 				width={leftBtnSize}
 				height={leftBtnSize * (90 / 100)}
 				anchor={0.5}
@@ -571,12 +614,22 @@
 
 			<!-- BALANCE SECTION -->
 			<Container x={fsBalanceSectionX} y={0} zIndex={2}>
+				{#if assetsLoaded}
+					<BaseSprite
+						texture={bonusBalanceSectionTexture}
+						width={fsSectionWidth * 0.92}
+						height={barHeight * 0.9}
+						anchor={0.5}
+						zIndex={0}
+					/>
+				{/if}
 				<Text
 					anchor={{ x: 0.5, y: 1 }}
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text="BALANCE"
 					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
@@ -584,17 +637,28 @@
 					resolution={TEXT_RESOLUTION}
 					text={balanceText}
 					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 			</Container>
 
 			<!-- SPIN (BET) SECTION — no arrows during free spins -->
 			<Container x={fsSpinSectionX} y={0} zIndex={2}>
+				{#if assetsLoaded}
+					<BaseSprite
+						texture={bonusSpinSectionTexture}
+						width={fsSectionWidth * 0.92}
+						height={barHeight * 0.9}
+						anchor={0.5}
+						zIndex={0}
+					/>
+				{/if}
 				<Text
 					anchor={{ x: 0.5, y: 1 }}
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text={betLabel}
 					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
@@ -602,14 +666,36 @@
 					resolution={TEXT_RESOLUTION}
 					text={spinText}
 					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 			</Container>
 
 			<!-- COMBINED: TOTAL WIN (top) + FREE SPINS (bottom) -->
 			<Container x={fsCombinedSectionX} y={0} zIndex={2}>
-				<!-- Individual borders -->
-				<Graphics draw={drawTotalWinBorder} />
-				<Graphics draw={drawFreeSpinsBorder} />
+				{#if assetsLoaded}
+					<!-- TOTAL WIN section sprite (top half) -->
+					<BaseSprite
+						texture={bonusTotalWinSectionTexture}
+						width={fsSectionWidth * 0.92}
+						height={barHeight * 0.44}
+						anchor={{ x: 0.5, y: 1 }}
+						y={0}
+						zIndex={0}
+					/>
+					<!-- FREE SPINS section sprite (bottom half) -->
+					<BaseSprite
+						texture={bonusFreeSpinsSectionTexture}
+						width={fsSectionWidth * 0.92}
+						height={barHeight * 0.44}
+						anchor={{ x: 0.5, y: 0 }}
+						y={0}
+						zIndex={0}
+					/>
+				{:else}
+					<!-- Fallback borders when sprites not yet loaded -->
+					<Graphics draw={drawTotalWinBorder} />
+					<Graphics draw={drawFreeSpinsBorder} />
+				{/if}
 				<!-- TOTAL WIN row -->
 				<Text
 					anchor={{ x: 0.5, y: 0.5 }}
@@ -617,6 +703,7 @@
 					resolution={TEXT_RESOLUTION}
 					text="TOTAL WIN"
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0.5 }}
@@ -624,6 +711,7 @@
 					resolution={TEXT_RESOLUTION}
 					text={totalWinText}
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 				<!-- FREE SPINS row -->
 				<Text
@@ -632,6 +720,7 @@
 					resolution={TEXT_RESOLUTION}
 					text="FREE SPINS"
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0.5 }}
@@ -639,6 +728,7 @@
 					resolution={TEXT_RESOLUTION}
 					text={`${fsRemaining}`}
 					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					zIndex={1}
 				/>
 			</Container>
 
@@ -658,7 +748,7 @@
 						onpointerup={() => { fastPressed = false; handleSpeedToggle(); }}
 					/>
 					<BaseSprite
-						texture={activeTurboTexture}
+						texture={bonusTurboTexture}
 						width={smallButtonSize}
 						height={smallButtonSize}
 						anchor={0.5}

@@ -258,8 +258,8 @@
 								<thead><tr><th>Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
 									<tr><td>3</td><td>8</td></tr>
-									<tr><td>4</td><td>12</td></tr>
-									<tr><td>5+</td><td>15</td></tr>
+									<tr><td>4</td><td>11</td></tr>
+									<tr><td>5+</td><td>14</td></tr>
 								</tbody>
 							</table>
 							<p>Bonus symbols that land during the Bonus Round award additional spins (retrigger):</p>
@@ -268,9 +268,10 @@
 								<tbody>
 									<tr><td>3</td><td>+5</td></tr>
 									<tr><td>4</td><td>+8</td></tr>
-									<tr><td>5</td><td>+10</td></tr>
-									<tr><td>6</td><td>+12</td></tr>
-									<tr><td>7</td><td>+15</td></tr>
+									<tr><td>5</td><td>+11</td></tr>
+									<tr><td>6</td><td>+14</td></tr>
+									<tr><td>7</td><td>+17</td></tr>
+									<tr><td>8+</td><td>+20</td></tr>
 								</tbody>
 							</table>
 							<ul>
@@ -282,13 +283,16 @@
 					<div class="section">
 						<h2>Super Bonus Round</h2>
 						<div class="feature-block">
-							<p>Landing <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> on the same spin triggers the Super Bonus Round.</p>
+							<p>Landing <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> on the same spin triggers the Super Bonus Round. Spins awarded equal the base Free Spin award plus a Super Bonus bonus: <strong>+2</strong> for 1 Super Bonus symbol, <strong>+4</strong> for 2 or more.</p>
 							<table class="info-table">
-								<thead><tr><th>Bonus Symbols</th><th>+ Super Bonus</th><th>Spins Awarded</th></tr></thead>
+								<thead><tr><th>Bonus Symbols</th><th>Super Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
-									<tr><td>3</td><td>1+</td><td>10</td></tr>
-									<tr><td>4</td><td>1+</td><td>12</td></tr>
-									<tr><td>5+</td><td>1+</td><td>15</td></tr>
+									<tr><td>3</td><td>1</td><td>10</td></tr>
+									<tr><td>3</td><td>2+</td><td>12</td></tr>
+									<tr><td>4</td><td>1</td><td>13</td></tr>
+									<tr><td>4</td><td>2+</td><td>15</td></tr>
+									<tr><td>5+</td><td>1</td><td>16</td></tr>
+									<tr><td>5+</td><td>2+</td><td>18</td></tr>
 								</tbody>
 							</table>
 							<ul>
@@ -515,7 +519,7 @@
 
 						<h3>{isSocial ? 'Get' : 'Buy'} Bonus</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>100×</strong> the standard {isSocial ? 'play amount' : 'bet'}. Immediately starts a Bonus Round with <strong>8 spins</strong>. No base-game spin occurs, and all cell multipliers start inactive.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>100×</strong> the standard {isSocial ? 'play amount' : 'bet'}. A trigger spin is played with <strong>3 or more Bonus symbols guaranteed</strong> on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.</p>
 						</div>
 
 						<h3>Grid Multiplier Modes</h3>
