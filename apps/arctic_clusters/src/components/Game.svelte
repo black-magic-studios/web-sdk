@@ -37,6 +37,7 @@
 	import GameInfoModal from './GameInfoModal.svelte';
 	import ConstellationWildMeter from './ConstellationWildMeter.svelte';
 	import ReplayOverlay from './ReplayOverlay.svelte';
+	import StudioIntro from './StudioIntro.svelte';
 
 	import { stateUrlDerived } from 'state-shared';
 
@@ -78,6 +79,7 @@
 
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
 
+	let showStudioIntro = $state(true);
 	let showBuyBonus = $state(false);
 	let showGameInfo = $state(false);
 
@@ -145,6 +147,10 @@
 	<EnablePixiExtension />
 
 	<Background />
+
+	{#if showStudioIntro}
+		<StudioIntro ondone={() => (showStudioIntro = false)} />
+	{/if}
 
 	{#if context.stateLayout.showLoadingScreen}
 		<LoadingScreen onloaded={() => (context.stateLayout.showLoadingScreen = false)} />
