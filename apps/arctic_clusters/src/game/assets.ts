@@ -1,12 +1,12 @@
 export default {
 	background: {
 		type: 'sprite',
-		src: '/assets/sprites/background/arctic_background_3840x2160.webp',
+		src: './assets/sprites/background/arctic_background_3840x2160.webp',
 		preload: true,
 	},
 	studioLogo: {
 		type: 'sprite',
-		src: '/assets/sprites/black_magic_studios_horizontal_logo_transparent.png',
+		src: './assets/sprites/black_magic_studios_horizontal_logo_transparent.png',
 	},
 	loader: {
 		type: 'spine',
@@ -96,11 +96,11 @@ export default {
 	},
 	S: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png',
+		src: './assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png',
 	},
 	SS: {
 		type: 'sprite',
-		src: '/assets/super.png',
+		src: './assets/super.png',
 	},
 	explosion: {
 		type: 'spine',
@@ -112,63 +112,63 @@ export default {
 	},
 	W: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/arctic_clusters_wild.png',
+		src: './assets/sprites/symbolsStatic/arctic_clusters_wild.png',
 	},
 	reelFrameEdge: {
 		type: 'sprite',
 		// Served from SvelteKit static/ in dev & production.
-		src: '/assets/sprites/reelsFrame/arctic_clusters_frame.png',
+		src: './assets/sprites/reelsFrame/arctic_clusters_frame.png',
 	},
 	reelMask: {
 		type: 'sprite',
 		// Served from SvelteKit static/ in dev & production.
-		src: '/assets/sprites/reelsFrame/reel_mask/arctic_clusters_square_reel_mask.png',
+		src: './assets/sprites/reelsFrame/reel_mask/arctic_clusters_square_reel_mask.png',
 	},
 	cellBackground: {
 		type: 'sprite',
 		// Cell background for 7x7 grid - rendered behind multipliers and symbols
-		src: '/assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
+		src: './assets/sprites/reelsFrame/cell/arctic_clusters_cell.png',
 	},
 	// Multiplier grid symbol sprites (new design)
 	multiGrid2x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
 	},
 	multiGrid4x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
 	},
 	multiGrid8x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
 	},
 	multiGrid16x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
 	},
 	multiGrid32x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
 	},
 	multiGrid64x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
 	},
 	multiGrid128x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
 	},
 	multiGrid256x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
 	},
 	multiGrid512x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
 	},
 	multiGrid1024x: {
 		type: 'sprite',
-		src: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
+		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
 	},
 	payFrame: {
 		type: 'sprite',

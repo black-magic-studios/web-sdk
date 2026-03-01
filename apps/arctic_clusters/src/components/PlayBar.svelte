@@ -402,7 +402,7 @@
 	// ASSET LOADING
 	// ============================================================
 	onMount(async () => {
-		const B = '/assets/sprites/buttons_new';
+		const B = './assets/sprites/buttons_new';
 		try {
 			const [
 				play, playHover, playPressed,
@@ -477,7 +477,7 @@
 			assetsLoaded = true;
 
 			// Load bonus play bar assets independently so main bar is never blocked
-			const BB = '/assets/sprites/buttons_new/bonus_play_bar';
+			const BB = './assets/sprites/buttons_new/bonus_play_bar';
 			const [bBar, bMenu, bTurbo, bSpin, bTotalWin, bFreeSpins] = await Promise.all([
 				Assets.load(`${BB}/play_bar_bonus_0011_Play_Bar.png`),
 				Assets.load(`${BB}/play_bar_bonus_0005_Menu.png`),

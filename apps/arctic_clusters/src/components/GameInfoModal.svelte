@@ -16,10 +16,10 @@
 	const props: Props = $props();
 
 	// Symbol image paths (served from SvelteKit static/)
-	const SYMBOL_SHEET = '/assets/sprites/symbolsStatic/symbolsStatic.png';
-	const WILD_IMG = '/assets/sprites/symbolsStatic/arctic_clusters_wild.png';
-	const SCATTER_IMG = '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png';
-	const SUPER_IMG = '/assets/super.png';
+	const SYMBOL_SHEET = './assets/sprites/symbolsStatic/symbolsStatic.png';
+	const WILD_IMG = './assets/sprites/symbolsStatic/arctic_clusters_wild.png';
+	const SCATTER_IMG = './assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png';
+	const SUPER_IMG = './assets/super.png';
 
 	// Spritesheet: 768x768, each symbol 256x256
 	const symbolPos: Record<string, { x: number; y: number }> = {
@@ -313,7 +313,7 @@
 
 						<div class="controls-list">
 							<div class="control-item">
-								<img src="/assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Spin</strong>
 									<p>Starts a spin using the current {isSocial ? 'play' : 'bet'} amount. Press again during a spin to skip animations.</p>
@@ -322,8 +322,8 @@
 
 							<div class="control-item">
 								<div class="control-bet-arrows">
-									<img src="/assets/sprites/buttons_new/increase_base.png" alt="Increase" class="control-btn-img-sm" />
-									<img src="/assets/sprites/buttons_new/decrease_base.png" alt="Decrease" class="control-btn-img-sm" />
+									<img src="./assets/sprites/buttons_new/increase_base.png" alt="Increase" class="control-btn-img-sm" />
+									<img src="./assets/sprites/buttons_new/decrease_base.png" alt="Decrease" class="control-btn-img-sm" />
 								</div>
 								<div class="control-info">
 									<strong>{isSocial ? 'Play' : 'Bet'} Adjust</strong>
@@ -332,7 +332,7 @@
 							</div>
 
 							<div class="control-item">
-								<img src="/assets/sprites/buttons_new/autoplay_base.png" alt="Autoplay" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/autoplay_base.png" alt="Autoplay" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Autoplay</strong>
 									<p>Automatically plays a set number of spins. Configure the number of rounds and optional stop conditions (e.g., on bonus trigger, on balance change).</p>
@@ -341,9 +341,9 @@
 
 							<div class="control-item">
 								<div class="turbo-speeds">
-									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_normal.png" alt="Normal" class="turbo-speed-img" />
-									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_turbo.png" alt="Turbo" class="turbo-speed-img" />
-									<img src="/assets/sprites/buttons_new/play_bar_0002_turbo_super_turbo.png" alt="Super Turbo" class="turbo-speed-img" />
+									<img src="./assets/sprites/buttons_new/play_bar_0002_turbo_normal.png" alt="Normal" class="turbo-speed-img" />
+									<img src="./assets/sprites/buttons_new/play_bar_0002_turbo_turbo.png" alt="Turbo" class="turbo-speed-img" />
+									<img src="./assets/sprites/buttons_new/play_bar_0002_turbo_super_turbo.png" alt="Super Turbo" class="turbo-speed-img" />
 								</div>
 								<div class="control-info">
 									<strong>Spin Speed</strong>
@@ -352,7 +352,7 @@
 							</div>
 
 							<div class="control-item">
-								<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{isSocial ? 'Play' : 'Buy'} Feature" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{isSocial ? 'Play' : 'Buy'} Feature" class="control-btn-img" />
 								<div class="control-info">
 									<strong>{isSocial ? 'Play' : 'Buy'} Feature</strong>
 									<p>Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or {isSocial ? 'play' : 'buy'} directly into a bonus round.</p>
@@ -360,7 +360,7 @@
 							</div>
 
 							<div class="control-item">
-								<img src="/assets/sprites/buttons_new/menu_base.png" alt="Menu" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/menu_base.png" alt="Menu" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Menu</strong>
 									<p>Opens the settings menu with options for sound control, game info, and game rules.</p>

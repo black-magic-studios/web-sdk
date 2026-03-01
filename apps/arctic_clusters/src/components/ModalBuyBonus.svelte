@@ -74,20 +74,20 @@
 
 	// ── Computed costs ──
 	// ── Symbol / multiplier images for cards ──
-	const BONUS_IMG = '/assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png';
+	const BONUS_IMG = './assets/sprites/symbolsStatic/cool_clusters/symbols/arctic_clusters_bonus.png';
 
 	// Map each multiplier to its grid image (512x and 1024x fall back to 256+)
 	const MULT_IMG_MAP: Record<string, string> = {
-		M2X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
-		M4X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
-		M8X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
-		M16X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
-		M32X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
-		M64X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
-		M128X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
-		M256X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
-		M512X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
-		M1024X: '/assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
+		M2X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x2.png',
+		M4X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x4.png',
+		M8X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x8.png',
+		M16X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x16.png',
+		M32X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x32.png',
+		M64X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x64.png',
+		M128X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x128.png',
+		M256X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x256.png',
+		M512X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x512.png',
+		M1024X: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
 	};
 	const currentMultImg = $derived(MULT_IMG_MAP[currentMult.key]);
 
@@ -259,7 +259,7 @@
 	.card-bg {
 		position: absolute;
 		inset: -12px;
-		background-image: url('/assets/sprites/background/arctic_background_3840x2160.webp');
+		background-image: url('./assets/sprites/background/arctic_background_3840x2160.webp');
 		background-size: 600%;
 		filter: blur(6px) brightness(0.5);
 		opacity: 0.7;

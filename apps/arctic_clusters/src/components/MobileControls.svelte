@@ -143,7 +143,7 @@
 			</div>
 
 			<button class="ctrl-btn fast-btn fs-turbo-btn" onclick={handleFastPlay}>
-				<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
+				<img src="./assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
 			</button>
 		</div>
 	{:else}
@@ -154,7 +154,7 @@
 		</button>
 
 		<button class="ctrl-btn auto-btn" onclick={handleAutoPlay}>
-			<img src="/assets/sprites/buttons_new/autoplay_base.png" alt="Auto" />
+			<img src="./assets/sprites/buttons_new/autoplay_base.png" alt="Auto" />
 		</button>
 
 		<button
@@ -162,15 +162,15 @@
 			class:disabled
 			onclick={handleSpin}
 		>
-			<img src="/assets/sprites/buttons_new/play_button.png" alt="Spin" />
+			<img src="./assets/sprites/buttons_new/play_button.png" alt="Spin" />
 		</button>
 
 		<button class="ctrl-btn fast-btn" onclick={handleFastPlay}>
-			<img src="/assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
+			<img src="./assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
 		</button>
 
 		<button class="ctrl-btn buy-btn" onclick={handleBuyBonus}>
-			<img src="/assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
+			<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
 		</button>
 	</div>
 

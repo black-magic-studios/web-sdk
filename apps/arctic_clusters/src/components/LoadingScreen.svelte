@@ -23,7 +23,7 @@
 		<!-- Feature characters image — renders on top of the title -->
 		<div class="image-wrapper">
 			<img
-				src="/assets/sprites/symbolsStatic/feature_characters.png"
+				src="./assets/sprites/symbolsStatic/feature_characters.png"
 				alt="Arctic Clusters Characters"
 				class="feature-image"
 			/>
