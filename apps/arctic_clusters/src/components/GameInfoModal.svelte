@@ -1,12 +1,35 @@
 <script lang="ts">
 	import PopupLight from './PopupLight.svelte';
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateI18nDerived, stateUrlDerived } from 'state-shared';
+	import { stateI18nDerived, stateUrlDerived, stateMeta, stateConfig } from 'state-shared';
 	import { getContext } from '../game/context';
+	import config from '../game/config';
 
 	const context = getContext();
 	const t = (key: string) => stateI18nDerived.translate(key);
 	const isSocial = $derived(stateUrlDerived.social());
+
+	// ── Dynamic values from RGS config (with local fallbacks) ──
+	const getRtp = () => stateConfig.betModes?.base?.rtp ?? config.rtp ?? 0.965;
+	const getMaxWin = () => stateConfig.betModes?.base?.max_win ?? (config.betModes as any)?.base?.max_win ?? 25000;
+	const getModeCost = (key: string) => {
+		if (stateMeta.betModeMeta[key]?.costMultiplier != null) return stateMeta.betModeMeta[key].costMultiplier;
+		if (stateConfig.betModes?.[key]?.cost != null) return stateConfig.betModes[key].cost;
+		return (config.betModes as any)?.[key]?.cost ?? 1;
+	};
+
+	const rtpDisplay = $derived((getRtp() * 100).toFixed(2) + '%');
+	const maxWinDisplay = $derived(getMaxWin().toLocaleString() + 'x');
+	const anteCostDisplay = $derived(getModeCost('ante') + '×');
+	const bonusCostDisplay = $derived(getModeCost('bonus') + '×');
+
+	// Grid multiplier cost table — built dynamically
+	const MULT_KEYS = ['M2X', 'M4X', 'M8X', 'M16X', 'M32X', 'M64X', 'M128X', 'M256X', 'M512X', 'M1024X'] as const;
+	const gridCostTable = $derived(MULT_KEYS.map((key) => {
+		const label = key.replace('M', '').replace('X', 'x');
+		const cost = getModeCost(key);
+		return { label, cost: cost + 'x' };
+	}));
 
 	type Props = {
 		show: boolean;
@@ -402,8 +425,8 @@
 						<h2>Game Overview</h2>
 						<div class="stats-grid">
 							<div class="stat"><span class="stat-label">Grid</span><span class="stat-value">7 × 7</span></div>
-							<div class="stat"><span class="stat-label">RTP</span><span class="stat-value">96.50%</span></div>
-							<div class="stat"><span class="stat-label">Max Win</span><span class="stat-value">25,000x</span></div>
+							<div class="stat"><span class="stat-label">RTP</span><span class="stat-value">{rtpDisplay}</span></div>
+							<div class="stat"><span class="stat-label">Max Win</span><span class="stat-value">{maxWinDisplay}</span></div>
 						</div>
 
 						<div class="cluster-example">
@@ -493,7 +516,7 @@
 								<li>Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.</li>
 								<li>Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.</li>
 								<li>All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.</li>
-								<li>The maximum payout per spin is capped at <strong>25,000×</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
+								<li>The maximum payout per spin is capped at <strong>{maxWinDisplay}</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
 								<li>Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.</li>
 							</ul>
 						</div>
@@ -514,12 +537,12 @@
 
 						<h3>Extra Chance</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>2.5×</strong> the standard {isSocial ? 'play amount' : 'bet'}. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>{anteCostDisplay}</strong> the standard {isSocial ? 'play amount' : 'bet'}. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.</p>
 						</div>
 
 						<h3>{isSocial ? 'Get' : 'Buy'} Bonus</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>100×</strong> the standard {isSocial ? 'play amount' : 'bet'}. A trigger spin is played with <strong>3 or more Bonus symbols guaranteed</strong> on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.</p>
+							<p>{isSocial ? 'For' : 'Costs'} <strong>{bonusCostDisplay}</strong> the standard {isSocial ? 'play amount' : 'bet'}. A trigger spin is played with <strong>3 or more Bonus symbols guaranteed</strong> on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.</p>
 						</div>
 
 						<h3>Grid Multiplier Modes</h3>
@@ -530,16 +553,9 @@
 									<tr><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} Cost</th></tr>
 								</thead>
 								<tbody>
-									<tr><td>2x</td><td>2.9x</td></tr>
-									<tr><td>4x</td><td>5.8x</td></tr>
-									<tr><td>8x</td><td>11.2x</td></tr>
-									<tr><td>16x</td><td>23.0x</td></tr>
-									<tr><td>32x</td><td>46.2x</td></tr>
-									<tr><td>64x</td><td>90.6x</td></tr>
-									<tr><td>128x</td><td>181.8x</td></tr>
-									<tr><td>256x</td><td>354.5x</td></tr>
-									<tr><td>512x</td><td>665.1x</td></tr>
-									<tr><td>1024x</td><td>1,110.8x</td></tr>
+									{#each gridCostTable as row}
+										<tr><td>{row.label}</td><td>{row.cost}</td></tr>
+									{/each}
 								</tbody>
 							</table>
 						</div>

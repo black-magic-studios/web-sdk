@@ -15,7 +15,7 @@
 
 	const context = getContext();
 
-	let show = $state(true);
+	let show = $state(false);
 	let amount = $state(0);
 	let winLevelData = $state<WinLevelData | undefined>(undefined);
 	let displayAmount = $state(0);
@@ -85,7 +85,7 @@
 	}
 </script>
 
-{#if show && winLevelData}
+{#if show}
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="fs-outro-overlay" onclick={skipOrDismiss}>

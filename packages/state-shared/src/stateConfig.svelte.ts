@@ -15,4 +15,5 @@ export const stateConfig = $state({
 	},
 	betAmountOptions: [1, 5, 25, 50, 75, 100, 200, 500, 800, 1000],
 	betMenuOptions: [1, 5, 25, 50, 75, 100, 200, 500, 800, 1000],
+	betModes: {} as Record<string, { cost: number; feature?: boolean; buyBonus?: boolean; max_win?: number; rtp?: number }>,
 });

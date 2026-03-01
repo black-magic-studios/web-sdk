@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateBet, stateI18nDerived, stateConfig, stateBetDerived } from 'state-shared';
+	import { stateBet, stateI18nDerived, stateConfig, stateBetDerived, stateMeta } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { stateBonus } from 'components-ui-html/src/stateBonus.svelte';
 	import { getContextEventEmitter } from 'utils-event-emitter';
@@ -32,19 +32,23 @@
 		}
 	};
 
-	// ── Multiplier mode definitions ──
-	const MULT_MODES = [
-		{ key: 'M2X', label: '2x', cost: 2.9, color: '#ff88bb' },
-		{ key: 'M4X', label: '4x', cost: 5.8, color: '#ff99aa' },
-		{ key: 'M8X', label: '8x', cost: 11.2, color: '#ffcc66' },
-		{ key: 'M16X', label: '16x', cost: 23.0, color: '#55ddbb' },
-		{ key: 'M32X', label: '32x', cost: 46.2, color: '#ffcc55' },
-		{ key: 'M64X', label: '64x', cost: 90.6, color: '#88aaff' },
-		{ key: 'M128X', label: '128x', cost: 181.8, color: '#ff8877' },
-		{ key: 'M256X', label: '256x', cost: 354.5, color: '#66ddee' },
-		{ key: 'M512X', label: '512x', cost: 665.1, color: '#ffaa66' },
-		{ key: 'M1024X', label: '1024x', cost: 1110.8, color: '#ff88cc' },
-	] as const;
+	// ── Multiplier mode definitions — costs from RGS/config via stateMeta ──
+	const MULT_KEYS = ['M2X', 'M4X', 'M8X', 'M16X', 'M32X', 'M64X', 'M128X', 'M256X', 'M512X', 'M1024X'] as const;
+	const MULT_COLORS: Record<string, string> = {
+		M2X: '#ff88bb', M4X: '#ff99aa', M8X: '#ffcc66', M16X: '#55ddbb', M32X: '#ffcc55',
+		M64X: '#88aaff', M128X: '#ff8877', M256X: '#66ddee', M512X: '#ffaa66', M1024X: '#ff88cc',
+	};
+
+	const MULT_MODES = $derived(MULT_KEYS.map((key) => {
+		const meta = stateMeta.betModeMeta[key];
+		const label = key.replace('M', '').replace('X', 'x');
+		return {
+			key,
+			label,
+			cost: meta?.costMultiplier ?? 1,
+			color: MULT_COLORS[key] ?? '#ffffff',
+		};
+	}));
 
 	let multIndex = $state(0);
 	const currentMult = $derived(MULT_MODES[multIndex]);
@@ -56,20 +60,47 @@
 		if (multIndex > 0) multIndex--;
 	};
 
+	// ── Active mode tracking ──
+	const isAnteActive = $derived(stateBet.activeBetModeKey === 'ANTE');
+	const isMultActive = $derived(MULT_KEYS.includes(stateBet.activeBetModeKey as any));
+
 	// ── Card actions ──
 	const activateMode = (modeKey: string) => {
 		stateBonus.selectedBetModeKey = modeKey;
 		stateBet.activeBetModeKey = modeKey;
 		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+	};
+
+	const deactivateMode = () => {
+		stateBonus.selectedBetModeKey = 'BASE';
+		stateBet.activeBetModeKey = 'BASE';
+		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+	};
+
+	// ── Buy bonus confirmation ──
+	let confirmOpen = $state(false);
+	let confirmModeKey = $state('');
+	let confirmCost = $state(0);
+
+	const requestBuy = (modeKey: string, cost: number) => {
+		confirmModeKey = modeKey;
+		confirmCost = cost;
+		confirmOpen = true;
+		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+	};
+
+	const confirmBuy = () => {
+		stateBonus.selectedBetModeKey = confirmModeKey;
+		stateBet.activeBetModeKey = confirmModeKey;
+		eventEmitter.broadcast({ type: 'bet' as any });
+		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		confirmOpen = false;
 		props.onclose();
 	};
 
-	const buyMode = (modeKey: string) => {
-		stateBonus.selectedBetModeKey = modeKey;
-		stateBet.activeBetModeKey = modeKey;
-		eventEmitter.broadcast({ type: 'bet' as any });
+	const cancelBuy = () => {
+		confirmOpen = false;
 		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
-		props.onclose();
 	};
 
 	// ── Computed costs ──
@@ -91,9 +122,9 @@
 	};
 	const currentMultImg = $derived(MULT_IMG_MAP[currentMult.key]);
 
-	const anteCost = $derived(stateBet.betAmount * 1.2);
+	const anteCost = $derived(stateBet.betAmount * (stateMeta.betModeMeta['ANTE']?.costMultiplier ?? 2.5));
 	const multCost = $derived(stateBet.betAmount * currentMult.cost);
-	const bonusCost = $derived(stateBet.betAmount * 100);
+	const bonusCost = $derived(stateBet.betAmount * (stateMeta.betModeMeta['BONUS']?.costMultiplier ?? 100));
 
 	const canAfford = (cost: number) => stateBet.betAmount > 0 && stateBet.balanceAmount >= cost;
 </script>
@@ -112,7 +143,8 @@
 			<!-- Card 1: Extra Chance -->
 			<div
 				class="card"
-				class:disabled={!canAfford(anteCost)}
+				class:disabled={!isAnteActive && !canAfford(anteCost)}
+				class:active={isAnteActive}
 			>
 				<div class="card-bg" style="background-position: 20% 30%;"></div>
 				<div class="card-body">
@@ -120,32 +152,42 @@
 					<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
 					<div class="card-desc">1 Bonus symbol guaranteed on the last reel each spin.</div>
 					<div class="card-price">{numberToCurrencyString(anteCost)}</div>
+					{#if isAnteActive}
+						<div class="card-base-bet">{numberToCurrencyString(stateBet.betAmount)}</div>
+					{/if}
 					<button
 						class="card-action"
-						class:disabled={!canAfford(anteCost)}
-						disabled={!canAfford(anteCost)}
-						onclick={() => activateMode('ANTE')}
-					>ACTIVATE</button>
+						class:active={isAnteActive}
+						class:disabled={!isAnteActive && !canAfford(anteCost)}
+						disabled={!isAnteActive && !canAfford(anteCost)}
+						onclick={() => isAnteActive ? deactivateMode() : activateMode('ANTE')}
+					>{isAnteActive ? 'DEACTIVATE' : 'ACTIVATE'}</button>
 				</div>
 			</div>
 
 			<!-- Card 2: Multiplier Grid -->
-			<div class="card featured" class:disabled={!canAfford(multCost)}>
+			<div class="card featured" class:disabled={!isMultActive && !canAfford(multCost)} class:active={isMultActive}>
 				<div class="card-bg" style="background-position: 50% 40%;"></div>
 				<div class="card-body">
 					<div class="card-title">{currentMult.label} Grid</div>
 					<div class="cell-preview">
+						<button class="mult-pick-btn" onclick={multDown} disabled={multIndex <= 0}>&#9664;</button>
 						<img src={currentMultImg} alt="Grid cell" class="cell-img" />
 						<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
+						<button class="mult-pick-btn" onclick={multUp} disabled={multIndex >= MULT_MODES.length - 1}>&#9654;</button>
 					</div>
 					<div class="card-desc">All cells set to {currentMult.label} multiplier.</div>
 					<div class="card-price">{numberToCurrencyString(multCost)}</div>
+					{#if isMultActive}
+						<div class="card-base-bet">{numberToCurrencyString(stateBet.betAmount)}</div>
+					{/if}
 					<button
 						class="card-action"
-						class:disabled={!canAfford(multCost)}
-						disabled={!canAfford(multCost)}
-						onclick={() => activateMode(currentMult.key)}
-					>ACTIVATE</button>
+						class:active={isMultActive}
+						class:disabled={!isMultActive && !canAfford(multCost)}
+						disabled={!isMultActive && !canAfford(multCost)}
+						onclick={() => isMultActive ? deactivateMode() : activateMode(currentMult.key)}
+					>{isMultActive ? 'DEACTIVATE' : 'ACTIVATE'}</button>
 				</div>
 			</div>
 
@@ -168,11 +210,33 @@
 						class="card-action"
 						class:disabled={!canAfford(bonusCost)}
 						disabled={!canAfford(bonusCost)}
-						onclick={() => buyMode('BONUS')}
+						onclick={() => requestBuy('BONUS', bonusCost)}
 					>{stateI18nDerived.translate('BUY')}</button>
 				</div>
 			</div>
 		</div>
+
+		<!-- ── Buy Bonus Confirmation Dialog ── -->
+		{#if confirmOpen}
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div class="confirm-overlay" onclick={cancelBuy}>
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div class="confirm-dialog" onclick={(e) => e.stopPropagation()}>
+					<div class="confirm-title">CONFIRM PURCHASE</div>
+					<div class="confirm-desc">
+						Buy Bonus &mdash; 8 Free Spins
+					</div>
+					<div class="confirm-cost">{numberToCurrencyString(confirmCost)}</div>
+					<div class="confirm-sub">will be deducted from your balance</div>
+					<div class="confirm-actions">
+						<button class="confirm-btn cancel" onclick={cancelBuy}>CANCEL</button>
+						<button class="confirm-btn accept" onclick={confirmBuy}>CONFIRM</button>
+					</div>
+				</div>
+			</div>
+		{/if}
 	</PopupLight>
 {/if}
 
@@ -401,6 +465,164 @@
 	.pick-btn:disabled {
 		opacity: 0.25;
 		cursor: not-allowed;
+	}
+
+	.mult-pick-btn {
+		font-size: 1.2em;
+		width: 2em;
+		height: 2em;
+		border-radius: 50%;
+		border: 1px solid rgba(255,255,255,0.3);
+		background: rgba(255,255,255,0.08);
+		color: white;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: background 0.12s;
+		flex-shrink: 0;
+	}
+
+	.mult-pick-btn:hover:not(:disabled) {
+		background: rgba(255,255,255,0.2);
+	}
+
+	.mult-pick-btn:disabled {
+		opacity: 0.25;
+		cursor: not-allowed;
+	}
+
+	/* ── Active card state ── */
+	.card.active {
+		border-color: rgba(100, 255, 180, 0.5);
+		box-shadow: 0 0 20px rgba(80, 255, 160, 0.2);
+		opacity: 1;
+	}
+
+	.card-action.active {
+		background: rgba(255, 80, 80, 0.15);
+		border-color: rgba(255, 100, 100, 0.5);
+		color: #ff8888;
+	}
+
+	.card-action.active:hover {
+		background: rgba(255, 80, 80, 0.25);
+	}
+
+	/* ── Base bet (greyed out, shown when enhanced mode active) ── */
+	.card-base-bet {
+		font-size: 0.85em;
+		font-weight: 500;
+		color: rgba(255, 255, 255, 0.35);
+		margin-top: -0.3em;
+	}
+
+	/* ── Confirmation overlay ── */
+	.confirm-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 10000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		animation: overlayFadeIn 0.15s ease forwards;
+	}
+
+	.confirm-dialog {
+		background: rgba(5, 20, 45, 0.95);
+		border: 1px solid rgba(100, 200, 255, 0.35);
+		border-radius: 12px;
+		padding: 1.5em 2em;
+		text-align: center;
+		font-family: 'Montserrat', sans-serif;
+		color: white;
+		max-width: 320px;
+		width: 90%;
+		box-shadow: 0 0 40px rgba(60, 140, 255, 0.2);
+		animation: dialogPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+	}
+
+	.confirm-title {
+		font-size: 1.2em;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		margin-bottom: 0.6em;
+		color: #7ec8ff;
+		text-shadow: 0 0 12px rgba(100, 180, 255, 0.4);
+	}
+
+	.confirm-desc {
+		font-size: 0.95em;
+		opacity: 0.8;
+		margin-bottom: 0.4em;
+	}
+
+	.confirm-cost {
+		font-size: 1.4em;
+		font-weight: 700;
+		color: #66ddaa;
+		text-shadow: 0 0 8px rgba(102, 221, 170, 0.3);
+		margin-bottom: 0.2em;
+	}
+
+	.confirm-sub {
+		font-size: 0.75em;
+		opacity: 0.5;
+		margin-bottom: 1em;
+	}
+
+	.confirm-actions {
+		display: flex;
+		gap: 0.8em;
+		justify-content: center;
+	}
+
+	.confirm-btn {
+		font-family: 'Montserrat', sans-serif;
+		font-size: 0.9em;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		padding: 0.5em 1.4em;
+		border-radius: 6px;
+		cursor: pointer;
+		transition: background 0.12s, transform 0.1s;
+	}
+
+	.confirm-btn:active {
+		transform: scale(0.95);
+	}
+
+	.confirm-btn.cancel {
+		background: transparent;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		color: rgba(255, 255, 255, 0.7);
+	}
+
+	.confirm-btn.cancel:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	.confirm-btn.accept {
+		background: rgba(80, 200, 120, 0.2);
+		border: 1px solid rgba(80, 200, 120, 0.5);
+		color: #66ddaa;
+	}
+
+	.confirm-btn.accept:hover {
+		background: rgba(80, 200, 120, 0.35);
+	}
+
+	@keyframes overlayFadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	@keyframes dialogPop {
+		from { opacity: 0; transform: scale(0.85); }
+		to { opacity: 1; transform: scale(1); }
 	}
 
 </style>

@@ -155,6 +155,9 @@
 
 		<button class="ctrl-btn auto-btn" onclick={handleAutoPlay}>
 			<img src="./assets/sprites/buttons_new/autoplay_base.png" alt="Auto" />
+			{#if stateBetDerived.hasAutoBetCounter()}
+				<span class="autoplay-counter">{stateBet.autoSpinsCounter === Infinity ? '∞' : stateBet.autoSpinsCounter}</span>
+			{/if}
 		</button>
 
 		<button
@@ -438,5 +441,22 @@
 		flex-shrink: 0;
 		margin: 0 clamp(4px, 1.5vw, 10px);
 		pointer-events: auto;
+	}
+
+	.auto-btn {
+		position: relative;
+	}
+
+	.autoplay-counter {
+		position: absolute;
+		bottom: -4px;
+		left: 50%;
+		transform: translateX(-50%);
+		font-family: 'Arial', sans-serif;
+		font-size: clamp(9px, 2vw, 13px);
+		font-weight: 700;
+		color: #00ffcc;
+		text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.8);
+		pointer-events: none;
 	}
 </style>

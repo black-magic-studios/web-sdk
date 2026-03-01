@@ -77,6 +77,10 @@
 	// AUTOPLAY SPINNING ANIMATION
 	// ============================================================
 	const isAutoplaying = $derived(stateBetDerived.hasAutoBetCounter());
+	const autoSpinsRemaining = $derived(stateBet.autoSpinsCounter);
+	const autoSpinsText = $derived(
+		autoSpinsRemaining === Infinity ? '∞' : autoSpinsRemaining > 0 ? String(autoSpinsRemaining) : ''
+	);
 	let autoplayFrame = $state(0);
 	const AUTOPLAY_SPIN_FRAMES = 8;
 	const AUTOPLAY_SPIN_INTERVAL = 80; // ms per frame
@@ -736,7 +740,7 @@
 						onpointerup={() => { fastPressed = false; handleSpeedToggle(); }}
 					/>
 					<BaseSprite
-						texture={bonusAssetsLoaded ? bonusTurboTexture : activeTurboTexture}
+						texture={activeTurboTexture}
 						width={smallButtonSize}
 						height={smallButtonSize}
 						anchor={0.5}
@@ -904,6 +908,21 @@
 					height={smallButtonSize}
 					anchor={0.5}
 				/>
+				{#if isAutoplaying && autoSpinsText}
+					<Text
+						anchor={{ x: 0.5, y: 0.5 }}
+						y={smallButtonSize * 0.52}
+						resolution={TEXT_RESOLUTION}
+						text={autoSpinsText}
+						style={{
+							fontFamily: 'Arial',
+							fontSize: Math.round(Math.max(10, smallButtonSize * 0.3)),
+							fill: 0x00ffcc,
+							fontWeight: 'bold',
+							stroke: { color: 0x000000, width: 3 },
+						}}
+					/>
+				{/if}
 			</Container>
 
 			<!-- TURBO / SPEED BUTTON (right of autoplay) -->

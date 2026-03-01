@@ -140,6 +140,7 @@ const spinWithMultipliers = async ({
 export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContext> = {
 	reveal: async (bookEvent: BookEventOfType<'reveal'>, { bookEvents }: BookEventContext) => {
 		const rt0 = performance.now();
+		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
 		eventEmitter.broadcast({ type: 'tumbleWinAmountReset' });
 		// Reset aurora state for new spin
 		stateGame.auroraPositions = [];
@@ -187,36 +188,44 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		stateGame.gameType = bookEvent.gameType;
 
+		// Filter anticipation: Only slow down reels if 2+ scatters have already
+		// landed on preceding reels.  The server marks *all* potential anticipation
+		// reels, but the game should only anticipate when a 3rd scatter could
+		// trigger the bonus (i.e. 2 are already visible).
+		const filteredAnticipation = bookEvent.anticipation.map((val, reelIndex) => {
+			if (!val) return 0;
+			// Count scatter/super-scatter symbols on reels BEFORE this one
+			// (active rows only — indices 1..7 in padded board)
+			let precedingScatters = 0;
+			for (let r = 0; r < reelIndex; r++) {
+				const reel = bookEvent.board[r];
+				if (!reel) continue;
+				for (let row = 1; row < reel.length - 1; row++) {
+					const sym = reel[row];
+					if (sym && (sym.name === 'S' || sym.name === 'SS')) {
+						precedingScatters++;
+					}
+				}
+			}
+			return precedingScatters >= 2 ? val : 0;
+		});
+		// Use the filtered anticipation for the spin
+		const revealWithFilteredAnticipation = { ...bookEvent, anticipation: filteredAnticipation };
+
 		if (isMultMode) {
 			// Multiplier mode: clear board → show grid (diff) → drop symbols
 			// Works for both base game and bonus game spins — the grid reveal
 			// handler skips cells that already match, so repeated spins are no-ops.
-			await spinWithMultipliers({ revealEvent: bookEvent, initialGrid });
+			await spinWithMultipliers({ revealEvent: revealWithFilteredAnticipation, initialGrid });
 		} else {
 			// Normal spin (no multiplier data in board)
-			await stateGameDerived.enhancedBoard.spin({ revealEvent: bookEvent });
+			await stateGameDerived.enhancedBoard.spin({ revealEvent: revealWithFilteredAnticipation });
 		}
 		eventEmitter.broadcast({ type: 'soundScatterCounterClear' });
 	},
 	winInfo: async (bookEvent: BookEventOfType<'winInfo'>) => {
-		// Count aurora wilds that are part of winning clusters
-		// During wild release, do NOT accumulate — the session total is frozen and only decrements
-		if (stateGame.auroraWildPositions.length > 0 && !stateGame.isWildRelease) {
-			const allWinPositions = _.flatten(bookEvent.wins.map((win) => win.positions));
-			const winPosKeys = new Set(allWinPositions.map((p) => `${p.reel}_${p.row}`));
-			let newConnected = 0;
-			for (const wp of stateGame.auroraWildPositions) {
-				if (winPosKeys.has(`${wp.reel}_${wp.row}`)) {
-					newConnected++;
-				}
-			}
-			// Accumulate: add newly connected wilds to the per-spin count AND session total
-			const added = newConnected - stateGame.auroraWildsConnected;
-			if (added > 0) {
-				stateGame.auroraWildsConnected = newConnected;
-				stateGame.auroraWildsSessionTotal += added;
-			}
-		}
+		// Wild meter updates are handled by the server via wildMeterUpdate events.
+		// No client-side aurora wild counting — math is the source of truth.
 
 		// Signal Sound.svelte to briefly boost music volume on this win
 		eventEmitter.broadcast({ type: 'soundBoostMusicOnWin' });
@@ -236,22 +245,22 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 			await animateSymbols({ positions: uniquePositions });
 		};
 
-		const promise2 = async () => {
-			await eventEmitter.broadcastAsync({
-				type: 'showClusterWinAmounts',
-				wins: bookEvent.wins.map((win) => {
-					return {
-						win: win.meta.winWithoutMult,
-						mult: win.meta.clusterMult,
-						result: win.meta.winWithoutMult * win.meta.clusterMult,
-						reel: win.meta.overlay.reel,
-						row: win.meta.overlay.row,
-					};
-				}),
-			});
-		};
+		// Fire-and-forget: floating win amounts animate independently
+		// without blocking the game flow
+		eventEmitter.broadcast({
+			type: 'showClusterWinAmounts',
+			wins: bookEvent.wins.map((win) => {
+				return {
+					win: win.meta.winWithoutMult,
+					mult: win.meta.clusterMult,
+					result: win.meta.winWithoutMult * win.meta.clusterMult,
+					reel: win.meta.overlay.reel,
+					row: win.meta.overlay.row,
+				};
+			}),
+		});
 
-		await Promise.all([promise1(), promise2()]);
+		await promise1();
 	},
 	updateTumbleWin: async (bookEvent: BookEventOfType<'updateTumbleWin'>) => {
 		if (bookEvent.amount > 0) {
@@ -267,39 +276,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateBet.winBookEventAmount = bookEvent.amount;
 	},
 	buyBonusTrigger: async (bookEvent: BookEventOfType<'buyBonusTrigger'>) => {
-		// Player purchased direct entry to free spins — same intro flow as freeSpinTrigger
-		// but without scatter animation (no scatters on the board).
+		// Only reset state here — the intro/transition is handled by freeSpinTrigger
+		// or superBonusTrigger which fires after the tumble with bonus symbols.
 		stateGame.auroraWildsSessionTotal = 0;
 		stateGame.isWildRelease = false;
 		stateGame.wildReleaseRemaining = 0;
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
-		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
-		await eventEmitter.broadcastAsync({ type: 'uiHide' });
-		await eventEmitter.broadcastAsync({ type: 'transition' });
-		eventEmitter.broadcast({ type: 'freeSpinIntroShow' });
-		eventEmitter.broadcast({ type: 'soundOnce', name: 'jng_intro_fs' });
-		await eventEmitter.broadcastAsync({
-			type: 'freeSpinIntroUpdate',
-			totalFreeSpins: bookEvent.totalFs,
-		});
-		stateGame.gameType = 'freegame';
-		eventEmitter.broadcast({ type: 'freeSpinIntroHide' });
-		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_freespin', duration: 500 });
-		eventEmitter.broadcast({ type: 'boardFrameGlowShow' });
-		eventEmitter.broadcast({ type: 'globalMultiplierShow' });
-		await eventEmitter.broadcastAsync({
-			type: 'globalMultiplierUpdate',
-			multiplier: 1,
-		});
-		eventEmitter.broadcast({ type: 'freeSpinCounterShow' });
-		eventEmitter.broadcast({
-			type: 'freeSpinCounterUpdate',
-			current: undefined,
-			total: bookEvent.totalFs,
-		});
-		await eventEmitter.broadcastAsync({ type: 'uiShow' });
-		await eventEmitter.broadcastAsync({ type: 'drawerButtonShow' });
-		eventEmitter.broadcast({ type: 'drawerFold' });
 	},
 	freeSpinTrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
 		// Reset session-wide wild tracking for new bonus
@@ -397,7 +378,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		});
 	},
 	freeSpinEnd: async (bookEvent: BookEventOfType<'freeSpinEnd'>) => {
-		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel];
+		// Fallback to winLevel 1 (zero/small, 0-duration) when winLevel is 0 or out of range
+		const winLevelData = winLevelMap[bookEvent.winLevel as WinLevel] ?? winLevelMap[1];
 
 		// Reset wild release state
 		stateGame.isWildRelease = false;
@@ -465,8 +447,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'tumbleBoardReset' });
 	},
 	setWin: async (bookEvent: BookEventOfType<'setWin'>) => {
-		// Compute win level client-side from win/bet ratio (ignore RGS winLevel)
-		const winLevelData = getWinLevelFromAmount(bookEvent.amount);
+		// Use server-provided winLevel — math is the source of truth
+		const winLevel = (bookEvent.winLevel || 1) as WinLevel;
+		const winLevelData = winLevelMap[winLevel] ?? winLevelMap[1];
 
 		eventEmitter.broadcast({ type: 'winShow' });
 		winLevelSoundsPlay({ winLevelData });
@@ -498,9 +481,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 	finalWin: async (bookEvent: BookEventOfType<'finalWin'>) => {
 		// Note: multiplierGridClear is NOT called here - grid persists until next spin
 		eventEmitter.broadcast({ type: 'globalMultiplierHide' });
-		// Keep the tumble total visible for 1s so the player can read it
-		await new Promise((r) => setTimeout(r, 1000 / stateBetDerived.timeScale()));
-		eventEmitter.broadcast({ type: 'tumbleWinAmountHide' });
+		// Tumble win total stays visible — it will be hidden at next spin start
+		// (no blocking delay so the player can immediately press spin)
 		// Clear any remaining aurora overlays at end of cascade
 		eventEmitter.broadcast({ type: 'auroraCellsClear' });
 		stateGame.auroraPositions = [];
@@ -551,15 +533,14 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		reelSymbol.symbolState = 'land';
 
 		// 3. Detect wild release from meterBefore > 0 (no separate wildRelease event in some data formats)
-		//    When meterBefore > 0 this is a wild release placement → set flag and decrement
+		//    Use server-authoritative meterAfter to update session total
 		if (bookEvent.meterBefore != null && bookEvent.meterBefore > 0) {
 			if (!stateGame.isWildRelease) {
 				stateGame.isWildRelease = true;
 				stateGame.wildReleaseRemaining = bookEvent.meterBefore;
 			}
-			if (stateGame.auroraWildsSessionTotal > 0) {
-				stateGame.auroraWildsSessionTotal--;
-			}
+			// Use server-authoritative meterAfter value
+			stateGame.auroraWildsSessionTotal = bookEvent.meterAfter;
 			if (stateGame.wildReleaseRemaining > 0) {
 				stateGame.wildReleaseRemaining--;
 			}
@@ -586,7 +567,8 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'auroraSpinHide' });
 	},
 	wildMeterUpdate: async (bookEvent: BookEventOfType<'wildMeterUpdate'>) => {
-		// Aurora wilds were consumed by wins and banked into the wild meter.
+		// Update session total from the server-authoritative meterAfter value
+		stateGame.auroraWildsSessionTotal = bookEvent.meterAfter;
 		// Play a sound to acknowledge the bank increase.
 		if (bookEvent.delta > 0) {
 			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_win' });

@@ -9,8 +9,9 @@
 	import { GameVersion, Modals } from 'components-ui-html';
 	import ModalBuyBonus from './ModalBuyBonus.svelte';
 
-	import { stateMeta } from 'state-shared';
+	import { stateMeta, stateConfig } from 'state-shared';
 	import { getContext } from '../game/context';
+	import config from '../game/config';
 	import EnableSound from './EnableSound.svelte';
 	import EnableGameActor from './EnableGameActor.svelte';
 	import ResumeBet from './ResumeBet.svelte';
@@ -43,39 +44,81 @@
 
 	const context = getContext();
 
-	// ── Register arctic_clusters multiplier bet modes ──
-	const MULTIPLIER_MODES = [
-		{ key: 'M2X', label: '2x', cost: 2.9 },
-		{ key: 'M4X', label: '4x', cost: 5.8 },
-		{ key: 'M8X', label: '8x', cost: 11.2 },
-		{ key: 'M16X', label: '16x', cost: 23.0 },
-		{ key: 'M32X', label: '32x', cost: 46.2 },
-		{ key: 'M64X', label: '64x', cost: 90.6 },
-		{ key: 'M128X', label: '128x', cost: 181.8 },
-		{ key: 'M256X', label: '256x', cost: 354.5 },
-		{ key: 'M512X', label: '512x', cost: 665.1 },
-		{ key: 'M1024X', label: '1024x', cost: 1110.8 },
-	] as const;
+	// ── Register arctic_clusters multiplier bet modes from RGS config ──
+	// The RGS sends betModes in the authenticate response (stored in stateConfig.betModes).
+	// Fall back to the local config for dev mode when RGS is not connected.
+	const MULTIPLIER_KEYS = ['M2X', 'M4X', 'M8X', 'M16X', 'M32X', 'M64X', 'M128X', 'M256X', 'M512X', 'M1024X'] as const;
 
-	for (const m of MULTIPLIER_MODES) {
-		stateMeta.betModeMeta[m.key] = {
-			mode: m.key,
-			costMultiplier: m.cost,
+	const getCost = (key: string): number => {
+		// Prefer RGS-provided config, fall back to local config
+		if (stateConfig.betModes?.[key]?.cost != null) return stateConfig.betModes[key].cost;
+		if (config.betModes?.[key as keyof typeof config.betModes]?.cost != null) {
+			return (config.betModes as any)[key].cost;
+		}
+		return 1;
+	};
+
+	for (const key of MULTIPLIER_KEYS) {
+		const label = key.replace('M', '').replace('X', 'x');
+		const cost = getCost(key);
+		stateMeta.betModeMeta[key] = {
+			mode: key,
+			costMultiplier: cost,
 			type: 'activate',
 			parent: '',
 			children: '',
 			assets: { icon: '', dialogImage: '', dialogVolatility: '', volatility: '', button: '' },
 			text: {
-				title: `${m.label} Grid`,
-				dialog: `Every Cell on the Grid starts with a ${m.label} multiplier for ${m.cost}x the player play amount.`,
-				description: `Every Cell on the Grid starts with a ${m.label} multiplier.`,
+				title: `${label} Grid`,
+				dialog: `Every Cell on the Grid starts with a ${label} multiplier for ${cost}x the player play amount.`,
+				description: `Every Cell on the Grid starts with a ${label} multiplier.`,
 				button: 'ACTIVATE',
-				betAmountLabel: `${m.label} GRID`,
-				tickerIdle: `${m.label} GRID ACTIVE`,
+				betAmountLabel: `${label} GRID`,
+				tickerIdle: `${label} GRID ACTIVE`,
 				tickerSpin: 'GOOD LUCK',
 			},
 		};
 	}
+
+	// Register ante mode
+	const anteCost = getCost('ante');
+	stateMeta.betModeMeta['ANTE'] = {
+		mode: 'ANTE',
+		costMultiplier: anteCost,
+		type: 'activate',
+		parent: '',
+		children: '',
+		assets: { icon: '', dialogImage: '', dialogVolatility: '', volatility: '', button: '' },
+		text: {
+			title: 'Extra Chance',
+			dialog: `1 Bonus symbol guaranteed on the last reel each spin for ${anteCost}x the player play amount.`,
+			description: '1 Bonus symbol guaranteed on the last reel each spin.',
+			button: 'ACTIVATE',
+			betAmountLabel: 'EXTRA CHANCE',
+			tickerIdle: 'EXTRA CHANCE ACTIVE',
+			tickerSpin: 'GOOD LUCK',
+		},
+	};
+
+	// Register bonus buy mode
+	const bonusCost = getCost('bonus');
+	stateMeta.betModeMeta['BONUS'] = {
+		mode: 'BONUS',
+		costMultiplier: bonusCost,
+		type: 'buy',
+		parent: '',
+		children: '',
+		assets: { icon: '', dialogImage: '', dialogVolatility: '', volatility: '', button: '' },
+		text: {
+			title: 'Buy Bonus',
+			dialog: `Buy into a Bonus round for ${bonusCost}x the player play amount.`,
+			description: 'Instantly trigger a Bonus round.',
+			button: 'BUY',
+			betAmountLabel: 'BUY BONUS',
+			tickerIdle: '',
+			tickerSpin: 'GOOD LUCK',
+		},
+	};
 
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
 

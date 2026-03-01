@@ -56,7 +56,26 @@
 		justify-content: center;
 		overflow: hidden;
 		cursor: default;
-		background: transparent;
+		background: url('./assets/sprites/background/arctic_background_3840x2160.webp') center/cover no-repeat;
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: inherit;
+			filter: blur(8px);
+			transform: scale(1.05);
+			z-index: -1;
+		}
+
+		/* Dark overlay so text and characters pop */
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: rgba(5, 12, 28, 0.55);
+			z-index: -1;
+		}
 
 		&.loaded {
 			cursor: pointer;
@@ -88,11 +107,11 @@
 		filter: drop-shadow(0 8px 32px rgba(30, 200, 150, 0.22));
 	}
 
-	/* Pull title up so the characters' paws hang slightly over it */
+	/* Title below characters — no overlap */
 	.title-wrap {
 		position: relative;
 		z-index: 1;
-		margin-top: -5%;
+		margin-top: 4px;
 		width: 100%;
 		text-align: center;
 	}
