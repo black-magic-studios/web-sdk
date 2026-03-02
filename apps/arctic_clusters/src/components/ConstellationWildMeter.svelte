@@ -55,6 +55,13 @@ isStacked
 	: boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1,
 );
 
+// Title font size — larger on mobile so WILDS count is always readable
+const titleFontSize = $derived(
+	isStacked
+		? Math.max(18, meterSize * 0.15)
+		: Math.max(14, meterSize * 0.11)
+);
+
 // ── Node Map — star geometry builder ───────────────────
 // Builds 49 line segments in 5 phases and collects unique vertices.
 type Pt = { x: number; y: number };
@@ -238,7 +245,7 @@ anchor={{ x: 0.5, y: 1 }}
 text={`WILDS: ${count}`}
 style={{
 fill: 0xc8e0ff,
-fontSize: Math.max(14, meterSize * 0.11),
+fontSize: titleFontSize,
 fontFamily: 'Montserrat, Arial, sans-serif',
 fontWeight: '700',
 dropShadow: true,

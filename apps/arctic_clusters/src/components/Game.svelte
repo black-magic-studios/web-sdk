@@ -330,7 +330,8 @@
 	.pregame-checkbox-wrap {
 		position: fixed;
 		bottom: 18px;
-		right: 18px;
+		left: 50%;
+		transform: translateX(-50%);
 		z-index: 1200;
 		pointer-events: auto;
 	}

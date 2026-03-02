@@ -176,15 +176,15 @@
 
 	// ── Wild meter constants ──
 	const WILD_METER_NODES = 49;
-	const meterSize = $derived(isStacked ? boardLayout.width * 0.4 : boardLayout.width * 0.28);
+	const meterSize = $derived(isStacked ? boardLayout.width * 0.24 : boardLayout.width * 0.28);
 	const meterX = $derived(
 		isStacked
-			? boardLayout.width / 2
+			? boardLayout.width * 0.5 - meterSize * 0.5
 			: boardLayout.width + meterSize * 0.65
 	);
 	const meterY = $derived(
 		isStacked
-			? -meterSize * 0.65
+			? -meterSize * 1.4
 			: boardLayout.height * 0.35
 	);
 
@@ -233,34 +233,70 @@
 	const textX = $derived(boardLayout.width / 2);
 	const textY = $derived(boardLayout.height + 55);
 
-	// Rules text positioned below the wild meter on the right side
-	const rulesX = $derived(meterX + meterSize * 0.5);
-	const rulesY = $derived(meterY + meterSize + 15);
+	// On mobile (stacked), place text blocks LEFT and RIGHT of the meter (side by side)
+	// On desktop, text goes above/below the meter on the right side
+	const auroraDescX = $derived(
+		isStacked
+			? meterX * 0.5                          // center of space left of meter
+			: meterX + meterSize * 0.5
+	);
+	const auroraDescY = $derived(
+		isStacked
+			? meterY + meterSize * 0.25              // vertically aligned with meter
+			: meterY - 35
+	);
 
-	// Aurora description positioned above the wild meter
-	const auroraDescX = $derived(meterX + meterSize * 0.5);
-	const auroraDescY = $derived(meterY - 20);
+	// Rules text: right of meter on mobile, below meter on desktop
+	const rulesX = $derived(
+		isStacked
+			? meterX + meterSize + (boardLayout.width - meterX - meterSize) * 0.5  // center of space right of meter
+			: meterX + meterSize * 0.5
+	);
+	const rulesY = $derived(
+		isStacked
+			? meterY + meterSize * 0.05              // near top of meter
+			: meterY + meterSize + 15
+	);
+
 	const auroraCellPreviewSize = $derived(Math.min(cellWidth, cellHeight));
 
-	// Font size scales with board
-	const baseFontSize = $derived(Math.max(16, Math.min(38, boardLayout.width * 0.035)));
-	const rulesFontSize = $derived(Math.max(11, Math.min(18, boardLayout.width * 0.022)));
+	// Font size scales with board — side-by-side columns need smaller text on mobile
+	const baseFontSize = $derived(
+		isStacked
+			? Math.max(18, Math.min(42, boardLayout.width * 0.042))
+			: Math.max(16, Math.min(38, boardLayout.width * 0.035))
+	);
+	const rulesFontSize = $derived(
+		isStacked
+			? Math.max(10, Math.min(16, boardLayout.width * 0.025))
+			: Math.max(11, Math.min(18, boardLayout.width * 0.022))
+	);
 
 	// BitmapFont native size — render at this size and scale container for sharpness
 	const FONT_NATIVE = 140;
 	const rulesScale = $derived(rulesFontSize / FONT_NATIVE);
 	const baseScale = $derived(baseFontSize / FONT_NATIVE);
-	const meterTitleScale = $derived(Math.max(12, meterSize * 0.11) / FONT_NATIVE);
+	const meterTitleScale = $derived(
+		isStacked
+			? Math.max(14, meterSize * 0.14) / FONT_NATIVE
+			: Math.max(12, meterSize * 0.11) / FONT_NATIVE
+	);
 	const nativeLineHeight = $derived((rulesFontSize + 6) / rulesScale);
 
-	// Aurora cell description lines (above meter)
+	// Aurora cell description lines
 	const AURORA_DESC_LINES = [
 		'AURORA CELLS IN A WINNING',
 		'CLUSTER SPAWN 1-3 WILDS',
 		'AT RANDOM POSITIONS.',
 	];
+	// Shorter mobile versions for side-by-side columns
+	const AURORA_DESC_LINES_MOBILE = [
+		'AURORA CELLS',
+		'SPAWN 1-3',
+		'WILDS',
+	];
 
-	// Constellation meter description lines (below meter)
+	// Constellation meter description lines
 	const METER_DESC_LINES = [
 		'WILDS IN WINNING CLUSTERS',
 		'ARE COLLECTED IN THE',
@@ -268,6 +304,15 @@
 		'FREE SPINS FOR A',
 		'FINAL AURORA SPIN.',
 	];
+	const METER_DESC_LINES_MOBILE = [
+		'WILDS COLLECTED',
+		'IN CONSTELLATION',
+		'METER FOR FINAL',
+		'AURORA SPIN.',
+	];
+
+	const auroraDescLines = $derived(isStacked ? AURORA_DESC_LINES_MOBILE : AURORA_DESC_LINES);
+	const meterDescLines = $derived(isStacked ? METER_DESC_LINES_MOBILE : METER_DESC_LINES);
 </script>
 
 <!-- ════════════════════════════════════════════════════════ -->
@@ -412,8 +457,9 @@
 
 	<!-- Aurora cell description — above the wild meter -->
 	<BoardContainer zIndex={20}>
-		<!-- Aurora cell icon (same size as board cells) -->
-		<Container x={auroraDescX} y={auroraDescY - auroraCellPreviewSize * 0.5 - (AURORA_DESC_LINES.length) * (rulesFontSize + 6) - 12}>
+		<!-- Aurora cell icon (same size as board cells) — desktop only -->
+		{#if !isStacked}
+		<Container x={auroraDescX} y={auroraDescY - (auroraDescLines.length) * (rulesFontSize + 6) - auroraCellPreviewSize * 0.5 - 24}>
 			<Graphics
 				draw={(g) => {
 					const s = auroraCellPreviewSize;
@@ -434,11 +480,14 @@
 				}}
 			/>
 		</Container>
+		{/if}
 		<!-- Aurora description text -->
-		{#each AURORA_DESC_LINES as line, i}
+		{#each auroraDescLines as line, i}
 			<Container
 				x={auroraDescX}
-				y={auroraDescY - (AURORA_DESC_LINES.length - 1 - i) * (rulesFontSize + 6) - 8}
+				y={isStacked
+					? auroraDescY + i * (rulesFontSize + 6)
+					: auroraDescY - (auroraDescLines.length - 1 - i) * (rulesFontSize + 6)}
 				scale={rulesScale}
 			>
 				<BitmapText
@@ -449,7 +498,7 @@
 						letterSpacing: 1,
 					}}
 					tint={0xd4aaff}
-					anchor={{ x: 0.5, y: 1 }}
+					anchor={{ x: 0.5, y: isStacked ? 0 : 1 }}
 				/>
 			</Container>
 		{/each}
@@ -518,9 +567,9 @@
 		</Container>
 	</BoardContainer>
 
-	<!-- Constellation meter rules — below the wild meter on the right side -->
+	<!-- Constellation meter rules — right of meter on mobile, below on desktop -->
 	<BoardContainer zIndex={20}>
-		{#each METER_DESC_LINES as line, i}
+		{#each meterDescLines as line, i}
 			<Container
 				x={rulesX}
 				y={rulesY + i * (rulesFontSize + 6)}

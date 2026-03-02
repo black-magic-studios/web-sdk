@@ -171,12 +171,12 @@
 				<div class="card-body">
 					<div class="card-title">{currentMult.label} Grid</div>
 					<div class="cell-picker-row">
-						<button class="mult-pick-btn" onclick={multDown} disabled={multIndex <= 0}>&#9664;</button>
+						<button class="mult-pick-btn" onclick={multDown} disabled={multIndex <= 0}><svg viewBox="0 0 10 10" width="0.7em" height="0.7em"><polygon points="8,1 2,5 8,9" fill="currentColor"/></svg></button>
 						<div class="cell-preview">
 							<img src={currentMultImg} alt="Grid cell" class="cell-img" />
 							<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
 						</div>
-						<button class="mult-pick-btn" onclick={multUp} disabled={multIndex >= MULT_MODES.length - 1}>&#9654;</button>
+						<button class="mult-pick-btn" onclick={multUp} disabled={multIndex >= MULT_MODES.length - 1}><svg viewBox="0 0 10 10" width="0.7em" height="0.7em"><polygon points="2,1 8,5 2,9" fill="currentColor"/></svg></button>
 					</div>
 					<div class="card-desc">All cells set to {currentMult.label} multiplier.</div>
 					<div class="card-price">{numberToCurrencyString(multCost)}</div>
@@ -494,6 +494,8 @@
 		flex-shrink: 0;
 		position: relative;
 		z-index: 2;
+		line-height: 1;
+		padding: 0;
 	}
 
 	.mult-pick-btn:hover:not(:disabled) {
