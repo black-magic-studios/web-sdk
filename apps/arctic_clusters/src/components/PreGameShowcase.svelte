@@ -321,7 +321,7 @@
 {/if}
 
 <!-- ════════════════════════════════════════════════════════ -->
-<!-- SCREEN 2 — Bonus Wilds Board + Wild Meter               -->
+<!-- SCREEN 2 — Bonus Wilds Board                            -->
 <!-- ════════════════════════════════════════════════════════ -->
 {#if activeScreen === 1}
 	<BoardContainer zIndex={5}>
@@ -404,6 +404,11 @@
 			</Container>
 		{/each}
 	</BoardContainer>
+{/if}
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- RIGHT SIDE INFO — visible on BOTH pages                 -->
+<!-- ════════════════════════════════════════════════════════ -->
 
 	<!-- Aurora cell description — above the wild meter -->
 	<BoardContainer zIndex={20}>
@@ -534,7 +539,6 @@
 			</Container>
 		{/each}
 	</BoardContainer>
-{/if}
 
 <!-- ════════════════════════════════════════════════════════ -->
 <!-- PAGINATION DOTS (always visible)                        -->

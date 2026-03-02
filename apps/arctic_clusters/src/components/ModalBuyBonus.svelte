@@ -170,10 +170,12 @@
 				<div class="card-bg" style="background-position: 50% 40%;"></div>
 				<div class="card-body">
 					<div class="card-title">{currentMult.label} Grid</div>
-					<div class="cell-preview">
+					<div class="cell-picker-row">
 						<button class="mult-pick-btn" onclick={multDown} disabled={multIndex <= 0}>&#9664;</button>
-						<img src={currentMultImg} alt="Grid cell" class="cell-img" />
-						<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
+						<div class="cell-preview">
+							<img src={currentMultImg} alt="Grid cell" class="cell-img" />
+							<span class="cell-label" style="color: {currentMult.color}; text-shadow: 0 0 8px {currentMult.color}80, 0 1px 3px rgba(0,0,0,0.7);">{currentMult.label}</span>
+						</div>
 						<button class="mult-pick-btn" onclick={multUp} disabled={multIndex >= MULT_MODES.length - 1}>&#9654;</button>
 					</div>
 					<div class="card-desc">All cells set to {currentMult.label} multiplier.</div>
@@ -407,6 +409,14 @@
 		justify-content: center;
 	}
 
+	/* ── Multiplier picker row (arrows + cell) ── */
+	.cell-picker-row {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4em;
+	}
+
 	/* ── Multiplier cell preview ── */
 	.cell-preview {
 		width: 4.5em;
@@ -416,6 +426,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.cell-img {
