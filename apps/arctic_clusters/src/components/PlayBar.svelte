@@ -12,6 +12,7 @@
 	import BoardContainer from './BoardContainer.svelte';
 	import HamburgerMenu from './HamburgerMenu.svelte';
 	import AutoplayMenu from './AutoplayMenu.svelte';
+	import BetMenu from './BetMenu.svelte';
 
 	const context = getContext();
 	const boardLayout = $derived(context.stateGameDerived.boardLayout());
@@ -59,6 +60,10 @@
 	const balanceText = $derived(numberToCurrencyString(balanceTween.current));
 	const winText = $derived(bookEventAmountToCurrencyString(winTween.current));
 	const spinText = $derived(numberToCurrencyString(stateBetDerived.betCost()));
+	const baseBetText = $derived(numberToCurrencyString(stateBet.betAmount));
+
+	// Whether a cost-multiplier mode is active (ANTE, M2X, etc.) — shows base bet below total cost
+	const hasActiveCostMode = $derived(stateBetDerived.betCost() !== stateBet.betAmount);
 
 	// Social mode text overrides — uses sweeps_en language file when social=true
 	const betLabel = $derived(stateI18nDerived.translate('BET'));
@@ -174,6 +179,9 @@
 
 	// Autoplay menu
 	let autoplayMenuOpen = $state(false);
+
+	// Bet menu (inline, matching autoplay style)
+	let betMenuOpen = $state(false);
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
@@ -339,18 +347,19 @@
 	const fsBottomLabelY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.28)); // Total Win label
 	const fsBottomValueY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.70)); // Total Win value
 	// Font sizes relative to box heights
-	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(9,  fsFSH * 0.28)));
-	const fsCombinedValueFontSize = $derived(Math.round(Math.max(10, fsFSH * 0.40)));
+	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(10, fsFSH * 0.32)));
+	const fsCombinedValueFontSize = $derived(Math.round(Math.max(12, fsFSH * 0.45)));
 
-	// Bet disabled state
-	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
+	// Bet disabled state — bypass balance check in replay mode
+	const disabled = $derived(!stateBetDerived.isBetCostAvailable() && !stateUrlDerived.replay());
 	const betIdle = $derived(context.stateXstateDerived.isIdle());
 
-	// Arrow disabled states  
+	// Arrow disabled states — only grey out when at bet limits, NOT during spin  
+	// (handlers independently check betIdle to prevent changes during play)
 	const smallest = $derived(stateConfig.betAmountOptions[0]);
 	const biggest = $derived(stateConfig.betAmountOptions[stateConfig.betAmountOptions.length - 1]);
-	const decreaseDisabled = $derived(!betIdle || stateBet.betAmount <= smallest);
-	const increaseDisabled = $derived(!betIdle || stateBet.betAmount >= biggest);
+	const decreaseDisabled = $derived(stateBet.betAmount <= smallest);
+	const increaseDisabled = $derived(stateBet.betAmount >= biggest);
 
 	// ============================================================
 	// DRAW FUNCTIONS
@@ -539,7 +548,7 @@
 	const handleBetMenu = () => {
 		if (betIdle) {
 			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-			stateModal.modal = { name: 'betAmountMenu' };
+			betMenuOpen = !betMenuOpen;
 		}
 	};
 
@@ -549,6 +558,10 @@
 			.sort((a, b) => a - b)
 			.find((option) => option > stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextBigger || biggest);
+		// Deactivate any Nx multiplier mode when bet is changed via playbar
+		if (stateBet.activeBetModeKey !== 'BASE') {
+			stateBet.activeBetModeKey = 'BASE';
+		}
 	};
 
 	const handleBetDecrease = () => {
@@ -557,6 +570,10 @@
 			.sort((a, b) => b - a)
 			.find((option) => option < stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextSmaller || smallest);
+		// Deactivate any Nx multiplier mode when bet is changed via playbar
+		if (stateBet.activeBetModeKey !== 'BASE') {
+			stateBet.activeBetModeKey = 'BASE';
+		}
 	};
 </script>
 
@@ -702,7 +719,7 @@
 					y={fsTopValueY}
 					resolution={TEXT_RESOLUTION}
 					text={`${fsRemaining}`}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<!-- TOTAL WIN row (bottom box) -->
@@ -793,18 +810,27 @@
 			<Container x={spinSectionX} y={0} zIndex={2}>
 				<Text
 					anchor={{ x: 0.5, y: 1 }}
-					y={labelY}
+					y={hasActiveCostMode ? labelY - Math.round(barHeight * 0.08) : labelY}
 					resolution={TEXT_RESOLUTION}
 					text={betLabel}
 					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
-					y={valueY}
+					y={hasActiveCostMode ? valueY - Math.round(barHeight * 0.08) : valueY}
 					resolution={TEXT_RESOLUTION}
 					text={spinText}
 					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
 				/>
+				{#if hasActiveCostMode}
+					<Text
+						anchor={{ x: 0.5, y: 0 }}
+						y={valueY + Math.round(barHeight * 0.18)}
+						resolution={TEXT_RESOLUTION}
+						text={baseBetText}
+						style={{ fontFamily: 'Arial', fontSize: Math.round(labelFontSize * 0.85), fill: 0x88aabb, fontWeight: 'bold' }}
+					/>
+				{/if}
 				<!-- Invisible hit area for bet menu (tap value to open full menu) -->
 				<Graphics
 					draw={(g: PIXI.Graphics) => {
@@ -976,3 +1002,4 @@
 
 <HamburgerMenu show={hamburgerOpen} onclose={() => { hamburgerOpen = false; }} />
 <AutoplayMenu show={autoplayMenuOpen} onclose={() => { autoplayMenuOpen = false; }} />
+<BetMenu show={betMenuOpen} onclose={() => { betMenuOpen = false; }} />

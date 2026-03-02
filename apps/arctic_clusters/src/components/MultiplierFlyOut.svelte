@@ -127,7 +127,7 @@
 				anchor={0.5}
 				text={`${item.mult}X`}
 				style={{
-					fontFamily: 'gold',
+					fontFamily: 'multiplier',
 					fontSize: symbolSize * 0.6,
 					letterSpacing: -3,
 				}}

@@ -33,7 +33,7 @@ const totalPlaced = $derived(stateGame.auroraWildPositions.length);
 const count = $derived(sessionTotal);
 
 const visible = $derived(
-isFreegameType(stateGame.gameType) && stateGame.spinActive && (isWildRelease || sessionTotal > 0 || totalPlaced > 0),
+isFreegameType(stateGame.gameType),
 );
 
 // ── Constants ──────────────────────────────────────────

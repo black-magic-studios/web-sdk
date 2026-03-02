@@ -4,6 +4,7 @@
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
+	import BetMenu from './BetMenu.svelte';
 
 	type Props = { hidden?: boolean };
 	const props: Props = $props();
@@ -54,8 +55,8 @@
 	const spinText = $derived(numberToCurrencyString(stateBetDerived.betCost()));
 	const showWin = $derived(stateBet.winBookEventAmount > 0);
 
-	// Bet disabled / idle state
-	const disabled = $derived(!stateBetDerived.isBetCostAvailable());
+	// Bet disabled / idle state — bypass balance check in replay mode
+	const disabled = $derived(!stateBetDerived.isBetCostAvailable() && !stateUrlDerived.replay());
 	const betIdle = $derived(context.stateXstateDerived.isIdle());
 
 	// Arrow disabled states
@@ -63,6 +64,9 @@
 	const biggest = $derived(stateConfig.betAmountOptions[stateConfig.betAmountOptions.length - 1]);
 	const decreaseDisabled = $derived(!betIdle || stateBet.betAmount <= smallest);
 	const increaseDisabled = $derived(!betIdle || stateBet.betAmount >= biggest);
+
+	// Bet menu (inline, matching autoplay style)
+	let betMenuOpen = $state(false);
 
 	// ── Handlers ──
 	const handleSpin = () => {
@@ -95,7 +99,7 @@
 	const handleBetMenu = () => {
 		if (betIdle) {
 			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-			stateModal.modal = { name: 'betAmountMenu' };
+			betMenuOpen = !betMenuOpen;
 		}
 	};
 
@@ -210,6 +214,8 @@
 	</div>
 	{/if}
 </div>
+
+<BetMenu show={betMenuOpen} onclose={() => { betMenuOpen = false; }} />
 
 <style lang="scss">
 	.mobile-controls {

@@ -34,11 +34,11 @@
 	const cr = $derived(Math.round(cellWidth * CR_RATIO));
 
 	// ── Aurora colours ──
-	const GLOW_COLOR = 0xffee00;
-	const GLOW_COLOR_OUTER = 0xffcc00;
-	const BORDER_COLOR_AURORA = 0xffdd00;
-	const INNER_FILL_COLOR = 0xffee00;
-	const CENTER_DOT_COLOR = 0xffff88;
+	const GLOW_COLOR = 0xb44dff;
+	const GLOW_COLOR_OUTER = 0x9933dd;
+	const BORDER_COLOR_AURORA = 0xaa44ee;
+	const INNER_FILL_COLOR = 0xb44dff;
+	const CENTER_DOT_COLOR = 0xd4aaff;
 	const EXPLODE_COLOR = 0xffffff;
 
 	// ── State ──

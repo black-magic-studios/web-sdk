@@ -67,6 +67,18 @@
 					MOST_USED_BET_INDEXES.includes(index),
 				);
 
+				// Set default bet amount from RGS config (respects currency-specific defaults).
+				// This is overridden below if an active round exists.
+				if (authenticateData.config.defaultBetLevel) {
+					const defaultBet = authenticateData.config.defaultBetLevel / API_AMOUNT_MULTIPLIER;
+					stateBet.betAmount = defaultBet;
+					stateBet.wageredBetAmount = defaultBet;
+				} else if (stateConfig.betAmountOptions.length > 0) {
+					// Fallback: use smallest available bet level
+					stateBet.betAmount = stateConfig.betAmountOptions[0];
+					stateBet.wageredBetAmount = stateConfig.betAmountOptions[0];
+				}
+
 				// betModes — store raw RGS bet mode config for the game to consume
 				if (authenticateData.config?.betModes) {
 					stateConfig.betModes = authenticateData.config.betModes;

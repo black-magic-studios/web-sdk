@@ -15,7 +15,6 @@
 	import { CanvasSizeRectangle, MainContainer } from 'components-layout';
 	import { OnMount } from 'components-shared';
 
-	import WinCoins from './WinCoins.svelte';
 	import WinAnimation from './WinAnimation.svelte';
 	import PressToContinue from './PressToContinue.svelte';
 	import { SYMBOL_SIZE } from '../game/constants';
@@ -70,7 +69,7 @@
 									maxWidth={2130}
 									text={bookEventAmountToCurrencyString(countUpAmount)}
 									style={{
-										fontFamily: 'gold',
+										fontFamily: 'multiplier',
 										fontSize: SYMBOL_SIZE * 3.6,
 										align: 'center',
 										fontWeight: 'bold',
@@ -85,7 +84,7 @@
 									context.stateLayoutDerived.mainLayout().scale}
 								text={bookEventAmountToCurrencyString(countUpAmount)}
 								style={{
-									fontFamily: 'gold',
+									fontFamily: 'multiplier',
 									fontSize: SYMBOL_SIZE,
 									align: 'center',
 									fontWeight: 'bold',
@@ -95,8 +94,6 @@
 						{/if}
 					</Container>
 				</MainContainer>
-
-				<WinCoins emit={!countUpCompleted} levelAlias={winLevelData?.alias} />
 
 				<PressToContinue onpress={() => (countUpCompleted ? oncomplete() : finishCountUp())} />
 			{/snippet}

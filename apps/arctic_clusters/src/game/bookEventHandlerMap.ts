@@ -386,6 +386,12 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.wildReleaseRemaining = 0;
 		stateGame.auroraWildsSessionTotal = 0;
 
+		// Reset buy-type bet modes (e.g. BONUS) so the next spin doesn't auto-buy again.
+		// 'activate' modes (ANTE, Nx multipliers) persist intentionally — the player chose them.
+		if (stateBetDerived.activeBetMode()?.type === 'buy') {
+			stateBet.activeBetModeKey = 'BASE';
+		}
+
 		await eventEmitter.broadcastAsync({ type: 'uiHide' });
 		stateGame.gameType = 'basegame';
 		// Play bonus exit music as we leave free spins
@@ -559,7 +565,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.wildReleaseRemaining = bookEvent.wildsToPlace;
 		stateGame.spinActive = true;
 
-		// Show aurora spin announcement — player taps to continue before wilds are placed
+		// Show aurora spin announcement — auto-dismisses after brief display before wilds are placed
 		await eventEmitter.broadcastAsync({
 			type: 'auroraSpinShow',
 			wildsToPlace: bookEvent.wildsToPlace,

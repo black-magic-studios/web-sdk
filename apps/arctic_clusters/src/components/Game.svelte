@@ -9,7 +9,7 @@
 	import { GameVersion, Modals } from 'components-ui-html';
 	import ModalBuyBonus from './ModalBuyBonus.svelte';
 
-	import { stateMeta, stateConfig } from 'state-shared';
+	import { stateMeta, stateConfig, stateBet } from 'state-shared';
 	import { getContext } from '../game/context';
 	import config from '../game/config';
 	import EnableSound from './EnableSound.svelte';
@@ -121,6 +121,17 @@
 	};
 
 	onMount(() => (context.stateLayout.showLoadingScreen = true));
+
+	// ── Clear multiplier grid whenever bet mode changes ──
+	// Prevents stale Nx multipliers from persisting when switching to bonus buy, ante, etc.
+	let previousBetMode = stateBet.activeBetModeKey;
+	$effect(() => {
+		const current = stateBet.activeBetModeKey;
+		if (current !== previousBetMode) {
+			previousBetMode = current;
+			context.eventEmitter.broadcast({ type: 'multiplierGridClear' });
+		}
+	});
 
 	let showStudioIntro = $state(true);
 	let showBuyBonus = $state(false);

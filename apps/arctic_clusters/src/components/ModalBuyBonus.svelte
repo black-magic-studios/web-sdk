@@ -481,6 +481,8 @@
 		justify-content: center;
 		transition: background 0.12s;
 		flex-shrink: 0;
+		position: relative;
+		z-index: 2;
 	}
 
 	.mult-pick-btn:hover:not(:disabled) {

@@ -5,7 +5,6 @@
 </script>
 
 <script lang="ts">
-	import { waitForResolve } from 'utils-shared/wait';
 	import { getContext } from '../game/context';
 
 	const context = getContext();
@@ -13,7 +12,6 @@
 	let show = $state(false);
 	let wildsCount = $state(0);
 	let revealed = $state(false);
-	let oncomplete = $state(() => {});
 
 	context.eventEmitter.subscribeOnMount({
 		auroraSpinShow: async (event) => {
@@ -23,23 +21,18 @@
 			// Brief delay before showing the wilds count to let the backdrop settle
 			await new Promise((r) => setTimeout(r, 350));
 			revealed = true;
-			await waitForResolve((resolve) => (oncomplete = resolve));
+			// Auto-dismiss after a short display period (no tap required)
+			await new Promise((r) => setTimeout(r, 2000));
 		},
 		auroraSpinHide: () => {
 			show = false;
 			revealed = false;
 		},
 	});
-
-	function dismiss() {
-		oncomplete();
-	}
 </script>
 
 {#if show}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div class="aurora-overlay" onclick={dismiss}>
+	<div class="aurora-overlay">
 		<div class="aurora-backdrop"></div>
 
 		<!-- Animated aurora curtain bands -->
@@ -54,7 +47,7 @@
 					<span class="aurora-wilds-count">{wildsCount}</span>
 					<span class="aurora-wilds-text">AURORA WILDS</span>
 				</div>
-				<div class="aurora-hint">TAP TO CONTINUE</div>
+
 			{/if}
 		</div>
 	</div>
@@ -68,7 +61,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		cursor: pointer;
 		animation: overlayFadeIn 0.4s ease forwards;
 		overflow: hidden;
 	}
@@ -113,7 +105,7 @@
 
 	.band-3 {
 		top: 22%;
-		background: linear-gradient(90deg, transparent 0%, rgba(255, 230, 0, 0.12) 40%, rgba(255, 210, 40, 0.18) 60%, transparent 100%);
+		background: linear-gradient(90deg, transparent 0%, rgba(180, 77, 255, 0.15) 40%, rgba(150, 50, 220, 0.22) 60%, transparent 100%);
 		animation-delay: 1.1s;
 	}
 
@@ -132,10 +124,10 @@
 		font-weight: 900;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: #ffee00;
+		color: #b44dff;
 		text-shadow:
-			0 0 24px rgba(255, 230, 0, 0.7),
-			0 0 50px rgba(255, 210, 0, 0.4),
+			0 0 24px rgba(180, 77, 255, 0.7),
+			0 0 50px rgba(150, 50, 220, 0.4),
 			0 2px 4px rgba(0, 0, 0, 0.7);
 		animation: labelGlow 1.6s ease-in-out infinite alternate, contentPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 	}
@@ -173,16 +165,6 @@
 			0 1px 3px rgba(0, 0, 0, 0.5);
 	}
 
-	.aurora-hint {
-		font-family: 'Montserrat', Arial, sans-serif;
-		font-size: clamp(10px, 2.5vw, 15px);
-		font-weight: 600;
-		color: rgba(255, 255, 255, 0.45);
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		animation: hintFadeIn 0.4s ease 0.3s both;
-	}
-
 	@keyframes overlayFadeIn {
 		from { opacity: 0; }
 		to { opacity: 1; }
@@ -205,13 +187,8 @@
 	}
 
 	@keyframes labelGlow {
-		from { text-shadow: 0 0 24px rgba(255, 230, 0, 0.7), 0 0 50px rgba(255, 210, 0, 0.4), 0 2px 4px rgba(0,0,0,0.7); }
-		to   { text-shadow: 0 0 36px rgba(255, 230, 0, 0.95), 0 0 70px rgba(255, 210, 0, 0.6), 0 2px 4px rgba(0,0,0,0.7); }
-	}
-
-	@keyframes hintFadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
+		from { text-shadow: 0 0 24px rgba(180, 77, 255, 0.7), 0 0 50px rgba(150, 50, 220, 0.4), 0 2px 4px rgba(0,0,0,0.7); }
+		to   { text-shadow: 0 0 36px rgba(180, 77, 255, 0.95), 0 0 70px rgba(150, 50, 220, 0.6), 0 2px 4px rgba(0,0,0,0.7); }
 	}
 
 	@keyframes bandSweep {

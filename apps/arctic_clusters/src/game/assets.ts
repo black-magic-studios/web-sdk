@@ -8,20 +8,6 @@ export default {
 		type: 'sprite',
 		src: './assets/sprites/black_magic_studios_horizontal_logo_transparent.png',
 	},
-	loader: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/loader/loader.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/loader/loader.json', import.meta.url).href,
-			scale: 2,
-		},
-		preload: true,
-	},
-	pressToContinueText: {
-		type: 'sprites',
-		src: new URL('../../assets/sprites/pressToContinueText/MM_pressanywhere.json', import.meta.url).href,
-		preload: true,
-	},
 	H1: {
 		type: 'spine',
 		src: {
@@ -170,23 +156,6 @@ export default {
 		type: 'sprite',
 		src: './assets/sprites/symbolsStatic/multiGrid/arctic_clusters_x1024.png',
 	},
-	payFrame: {
-		type: 'sprite',
-		src: new URL('../../assets/sprites/payFrame/payFrame.png', import.meta.url).href,
-	},
-	anticipation: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/anticipation/anticipation.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/anticipation/anticipation.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	goldFont: {
-		type: 'font',
-		src: new URL('../../assets/fonts/goldFont/mm_gold.xml', import.meta.url).href,
-	},
-
 	multiplierFont: {
 		type: 'font',
 		src: new URL('../../assets/fonts/multiplierFont/multiplier.xml', import.meta.url).href,
@@ -195,16 +164,6 @@ export default {
 		type: 'font',
 		src: new URL('../../assets/fonts/multiplierFont/multiplier_hi.xml', import.meta.url).href,
 	},
-
-	globalMultiplier: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/globalMultiplier/multiframe.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/globalMultiplier/multiframe.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-
 
 	tumble_multiplier: {
 		type: 'spine',
@@ -282,42 +241,9 @@ export default {
 		type: 'spriteSheet',
 		src: new URL('../../assets/sprites/symbolsStatic/arctic_clusters_sprite_animations/snowflake_spin_8x8_60f.json', import.meta.url).href,
 	},
-	reelhouse: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/reelhouse/reelhouse_glow.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/reelhouse/reelhouse_glow.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	progressBar: {
-		type: 'sprites',
-		src: new URL('../../assets/sprites/progressBar/progressBar.json', import.meta.url).href,
-		preload: true,
-	},
-	clusterWin: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/clusterWin/clusterpay.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/clusterWin/clusterpay.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
-	transition: {
-		type: 'spine',
-		src: {
-			atlas: new URL('../../assets/spines/transition/transition.atlas', import.meta.url).href,
-			skeleton: new URL('../../assets/spines/transition/transition.json', import.meta.url).href,
-			scale: 2,
-		},
-	},
 	symbolsStatic: {
 		type: 'sprites',
 		src: new URL('../../assets/sprites/symbolsStatic/symbolsStatic.json', import.meta.url).href,
-	},
-	coins: {
-		type: 'spriteSheet',
-		src: new URL('../../assets/sprites/coin/SD2_Coin.json', import.meta.url).href,
 	},
 	sound: {
 		type: 'audio',

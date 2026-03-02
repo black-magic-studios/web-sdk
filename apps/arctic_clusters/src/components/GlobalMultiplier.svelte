@@ -11,22 +11,18 @@
 	import {
 		BitmapText,
 		Container,
-		SpineEventEmitterProvider,
-		SpineProvider,
-		SpineSlot,
-		SpineTrack,
+		Graphics,
 	} from 'pixi-svelte';
 	import { FadeContainer } from 'components-pixi';
 	import { stateBetDerived } from 'state-shared';
-	import { waitForResolve, waitForTimeout } from 'utils-shared/wait';
+	import { waitForTimeout } from 'utils-shared/wait';
 
 	import BoardContainer from './BoardContainer.svelte';
 	import { getContext } from '../game/context';
-	import { SYMBOL_WIDTH, SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
-
-	type AnimationName = 'static' | 'win' | 'reset' | 'increment';
+	import { SYMBOL_HEIGHT, SYMBOL_SIZE } from '../game/constants';
 
 	const PANEL_WIDTH = SYMBOL_SIZE * 0.641;
+	const PANEL_HEIGHT = SYMBOL_SIZE * 0.45;
 	const context = getContext();
 	const scale = $derived(context.stateLayoutDerived.isStacked() ? 1.28 : 1);
 	const desktopPosition = $derived({
@@ -42,73 +38,55 @@
 	);
 
 	let show = $state(false);
-	let animationName = $state<AnimationName>('static');
 	let multiplier = $state(1);
 	let previousMultiplier = new Tween(1);
-	let oncomplete = $state(() => {});
+	let animating = $state(false);
 
 	context.eventEmitter.subscribeOnMount({
 		globalMultiplierShow: () => (show = true),
 		globalMultiplierHide: () => (show = false),
 		globalMultiplierUpdate: async (emitterEvent) => {
 			if (emitterEvent.multiplier === 1 && multiplier !== 1) {
-				animationName = 'reset';
+				animating = true;
 				await waitForTimeout(300 / stateBetDerived.timeScale());
 				context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_multiplier_reset' });
 				previousMultiplier.set(emitterEvent.multiplier);
-			}
-
-			if (emitterEvent.multiplier > multiplier) {
-				animationName = 'increment';
-			}
-
-			if (animationName !== 'static') {
 				multiplier = emitterEvent.multiplier;
-				await waitForResolve((resolve) => (oncomplete = resolve));
-				animationName = 'static';
+				await waitForTimeout(300 / stateBetDerived.timeScale());
+				animating = false;
+			} else if (emitterEvent.multiplier > multiplier) {
+				animating = true;
+				multiplier = emitterEvent.multiplier;
+				previousMultiplier.set(multiplier, { duration: 0 });
+				await waitForTimeout(400 / stateBetDerived.timeScale());
+				animating = false;
+			} else {
+				multiplier = emitterEvent.multiplier;
 				previousMultiplier.set(multiplier, { duration: 0 });
 			}
 		},
 	});
+
+	// Draw a rounded panel background
+	const drawPanel = (g: import('pixi.js').Graphics) => {
+		g.roundRect(-PANEL_WIDTH / 2, -PANEL_HEIGHT / 2, PANEL_WIDTH, PANEL_HEIGHT, 8);
+		g.fill({ color: 0x0a1428, alpha: 0.85 });
+		g.stroke({ color: 0x4488cc, width: 1.5, alpha: 0.6 });
+	};
 </script>
 
 <FadeContainer {show}>
 	<BoardContainer>
 		<Container {...position} {scale}>
-			<SpineProvider key="globalMultiplier" width={PANEL_WIDTH}>
-				<SpineTrack
-					trackIndex={0}
-					{animationName}
-					timeScale={stateBetDerived.timeScale()}
-					listener={{
-						complete: () => {
-							oncomplete();
-						},
-					}}
-				/>
-				<SpineEventEmitterProvider>
-					<SpineSlot slotName="slot_multi">
-						<BitmapText
-							anchor={0.5}
-							text={`${Math.round(previousMultiplier.current)}×`}
-							style={{
-								fontFamily: 'gold',
-								fontSize: SYMBOL_SIZE * 5.2,
-							}}
-						/>
-					</SpineSlot>
-					<SpineSlot slotName="slot_multi_next">
-						<BitmapText
-							anchor={0.5}
-							text={`${multiplier}×`}
-							style={{
-								fontFamily: 'gold',
-								fontSize: SYMBOL_SIZE * 5.2,
-							}}
-						/>
-					</SpineSlot>
-				</SpineEventEmitterProvider>
-			</SpineProvider>
+			<Graphics draw={drawPanel} />
+			<BitmapText
+				anchor={0.5}
+				text={`${multiplier}×`}
+				style={{
+					fontFamily: 'multiplier',
+					fontSize: SYMBOL_SIZE * 4,
+				}}
+			/>
 		</Container>
 	</BoardContainer>
 </FadeContainer>
