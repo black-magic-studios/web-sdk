@@ -180,6 +180,12 @@
 		tumbleBoardVanish: async ({ explodingPositions }) => {
 			if (explodingPositions.length === 0) return;
 
+			// Yield one frame so Svelte can flush the tumbleBoardInit symbol
+			// creation before we start adding glow/explosion overlay sprites.
+			// Without this, ~50 PIXI sprite instantiations + the first glow
+			// AnimatedSprite all land in a single frame, causing a microstutter.
+			await new Promise((r) => requestAnimationFrame(r));
+
 			// Euclidean distance from board center — creates a consistent
 			// directional wave that always feels intentional.
 			const CENTER_REEL = 3;
