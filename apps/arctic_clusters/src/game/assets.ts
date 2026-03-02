@@ -185,10 +185,6 @@ export default {
 		type: 'spriteSheet',
 		src: new URL('../../assets/spines/tumbleWin/starexplosion_spritesheet.json', import.meta.url).href,
 	},
-	snowPoof: {
-		type: 'spriteSheet',
-		src: new URL('../../assets/spines/tumbleWin/snow_poof_spritesheet.json', import.meta.url).href,
-	},
 	glowH1: {
 		type: 'spriteSheet',
 		src: new URL('../../assets/spines/tumbleWin/glow_H1_spritesheet.json', import.meta.url).href,

@@ -21,6 +21,7 @@
 	import { Tween } from 'svelte/motion';
 	import { backOut } from 'svelte/easing';
 
+	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { BoardContext } from 'components-shared';
 	import { Container, SpriteSheet } from 'pixi-svelte';
 	import { waitForResolve } from 'utils-shared/wait';
@@ -67,9 +68,9 @@
 	let show = $state(false);
 
 	// Glow animation state: cellKey → { asset key, symbol size ratio }
-	let poofingCells = $state<Map<string, { assetKey: string; sizeRatio: number }>>(new Map());
+	const poofingCells = new SvelteMap<string, { assetKey: string; sizeRatio: number }>();
 	// Explosion animation state: cellKey → true
-	let explodingCells = $state<Set<string>>(new Set());
+	const explodingCells = new SvelteSet<string>();
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const poofScale = $derived((symbolHeight * POOF_SIZE_RATIO) / POOF_FRAME_HEIGHT);
@@ -145,8 +146,8 @@
 		tumbleBoardReset: () => {
 			context.stateGame.tumbleBoardAdding = [];
 			context.stateGame.tumbleBoardBase = [];
-			poofingCells = new Map();
-			explodingCells = new Set();
+			poofingCells.clear();
+			explodingCells.clear();
 		},
 		tumbleBoardExplode: async ({ explodingPositions }) => {
 			// Small delay to ensure any previous spriteSheet animations are cleared
@@ -210,9 +211,7 @@
 				const sizeRatio = SYMBOL_GLOW_SCALE[symbolName] ?? 1;
 
 				// Start glow overlay — symbol stays visible underneath
-				const nextMap = new Map(poofingCells);
-				nextMap.set(key, { assetKey, sizeRatio });
-				poofingCells = nextMap;
+				poofingCells.set(key, { assetKey, sizeRatio });
 
 				// Wait for full glow animation (symbol stays visible)
 				await new Promise((r) => setTimeout(r, POOF_DURATION_MS / ts));
@@ -226,20 +225,16 @@
 
 				// Hide symbol + start explosion sprite
 				tumbleSymbol.symbolState = 'vanished';
-				explodingCells = new Set([...explodingCells, key]);
+				explodingCells.add(key);
 
 				// Cleanup glow sprite
-				const next = new Map(poofingCells);
-				next.delete(key);
-				poofingCells = next;
+				poofingCells.delete(key);
 
 				// Wait for explosion to finish
 				await new Promise((r) => setTimeout(r, EXPLOSION_DURATION_MS / ts));
 
 				// Cleanup explosion sprite
-				const nextExploding = new Set(explodingCells);
-				nextExploding.delete(key);
-				explodingCells = nextExploding;
+				explodingCells.delete(key);
 			});
 
 			await Promise.all(promises);
