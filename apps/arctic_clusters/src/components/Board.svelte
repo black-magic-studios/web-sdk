@@ -25,6 +25,11 @@
 	import AuroraCellIndicator from './AuroraCellIndicator.svelte';
 	import WildPlacementEffect from './WildPlacementEffect.svelte';
 
+	type Props = {
+		hideSymbols?: boolean;
+	};
+
+	const { hideSymbols = false }: Props = $props();
 	const context = getContext();
 
 	let show = $state(true);
@@ -82,27 +87,33 @@
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
-			<MultiplierGrid inBoardSpace />
-			<AuroraCellIndicator inBoardSpace />
-			<WildPlacementEffect />
-			<BoardBase />
+			{#if !hideSymbols}
+				<MultiplierGrid inBoardSpace />
+				<AuroraCellIndicator inBoardSpace />
+				<WildPlacementEffect />
+				<BoardBase />
+			{/if}
 		</BoardContainer>
 	</BoardContext>
 
-	<BoardContext animate={true}>
-		<BoardContainer zIndex={10}>
-			<BoardBase />
-		</BoardContainer>
-	</BoardContext>
+	{#if !hideSymbols}
+		<BoardContext animate={true}>
+			<BoardContainer zIndex={10}>
+				<BoardBase />
+			</BoardContainer>
+		</BoardContext>
+	{/if}
 {:else}
 	<!-- When Board is hidden (during tumble), keep multiplier grid behind symbols -->
 	<BoardContext animate={false}>
 		<BoardContainer zIndex={0}>
 			<ReelMaskSprite inBoardSpace />
 			<CellGrid inBoardSpace />
-			<MultiplierGrid inBoardSpace />
-			<AuroraCellIndicator inBoardSpace />
-			<WildPlacementEffect />
+			{#if !hideSymbols}
+				<MultiplierGrid inBoardSpace />
+				<AuroraCellIndicator inBoardSpace />
+				<WildPlacementEffect />
+			{/if}
 		</BoardContainer>
 	</BoardContext>
 {/if}

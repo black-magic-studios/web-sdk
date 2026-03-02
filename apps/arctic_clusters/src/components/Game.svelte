@@ -39,6 +39,7 @@
 	import ConstellationWildMeter from './ConstellationWildMeter.svelte';
 	import ReplayOverlay from './ReplayOverlay.svelte';
 	import StudioIntro from './StudioIntro.svelte';
+	import PreGameShowcase from './PreGameShowcase.svelte';
 
 	import { stateUrlDerived } from 'state-shared';
 
@@ -133,9 +134,29 @@
 		}
 	});
 
+	// ── Pre-game showcase skip preference (persisted in localStorage) ──
+	const SKIP_PREGAME_KEY = 'arctic_clusters_skip_pregame';
+	const skipPreGame = typeof localStorage !== 'undefined' && localStorage.getItem(SKIP_PREGAME_KEY) === 'true';
+
 	let showStudioIntro = $state(true);
+	let preGameMode = $state(!skipPreGame);
+	let dontShowAgain = $state(skipPreGame);
 	let showBuyBonus = $state(false);
 	let showGameInfo = $state(false);
+
+	function dismissPreGame() {
+		if (dontShowAgain && typeof localStorage !== 'undefined') {
+			localStorage.setItem(SKIP_PREGAME_KEY, 'true');
+		}
+		preGameMode = false;
+	}
+
+	// Auto-dismiss loading screen once studio intro ends and assets are loaded
+	$effect(() => {
+		if (!showStudioIntro && context.stateApp.loaded && context.stateLayout.showLoadingScreen) {
+			context.stateLayout.showLoadingScreen = false;
+		}
+	});
 
 	// ── Replay mode state ──
 	let replayState = $state<'ready' | 'playing' | 'done'>(
@@ -206,46 +227,59 @@
 		<StudioIntro ondone={() => (showStudioIntro = false)} />
 	{/if}
 
-	{#if context.stateLayout.showLoadingScreen}
+	{#if context.stateLayout.showLoadingScreen && !preGameMode}
 		<LoadingScreen onloaded={() => (context.stateLayout.showLoadingScreen = false)} />
-	{:else}
-		<ResumeBet />
-		<!--
-			The reason why <Sound /> is rendered after clicking the loading screen:
-			"Autoplay with sound is allowed if: The user has interacted with the domain (click, tap, etc.)."
-			Ref: https://developer.chrome.com/blog/autoplay
-		-->
-		<Sound />
+	{:else if !preGameMode || context.stateApp.loaded}
+		{#if !preGameMode}
+			<ResumeBet />
+			<!--
+				The reason why <Sound /> is rendered after clicking the loading screen:
+				"Autoplay with sound is allowed if: The user has interacted with the domain (click, tap, etc.)."
+				Ref: https://developer.chrome.com/blog/autoplay
+			-->
+			<Sound />
+		{/if}
 
 		<Snowflakes />
 		<AuroraParticles layer="background" />
 		<BoardFrame />
-		<Board />
-		<Anticipations />
-		<TumbleBoard />
-		<MultiplierFlyOut />
-		<ClusterWinAmounts />
-		<AuroraParticles layer="foreground" />
-		<ConstellationWildMeter />
-		{#if !useMobileControls}
-			<PlayBar />
+		<Board hideSymbols={preGameMode} />
+
+		{#if !preGameMode}
+			<Anticipations />
+			<TumbleBoard />
+			<MultiplierFlyOut />
+			<ClusterWinAmounts />
 		{/if}
 
-		<Container x={20} scale={uiScale} y={4}>
-			<UiGameName name="ARCTIC CLUSTERS" />
-		</Container>
-		<Sprite
-			key="studioLogo"
-			anchor={{ x: 1, y: 0 }}
-			x={context.stateLayoutDerived.canvasSizes().width - 20}
-			y={6}
-			height={Math.round(REM * 2 * uiScale)}
-			width={Math.round(REM * 2 * (2808 / 589) * uiScale)}
-		/>
-		<WinOverlay />
-		<TumbleWinAmount />
-		<AuroraSpinAnnounce />
-		<Transition />
+		<AuroraParticles layer="foreground" />
+
+		{#if preGameMode}
+			<PreGameShowcase onpress={dismissPreGame} />
+		{:else}
+			<ConstellationWildMeter />
+			{#if !useMobileControls}
+				<PlayBar />
+			{/if}
+		{/if}
+
+		{#if !preGameMode}
+			<Container x={20} scale={uiScale} y={4}>
+				<UiGameName name="ARCTIC CLUSTERS" />
+			</Container>
+			<Sprite
+				key="studioLogo"
+				anchor={{ x: 1, y: 0 }}
+				x={context.stateLayoutDerived.canvasSizes().width - 20}
+				y={6}
+				height={Math.round(REM * 2 * uiScale)}
+				width={Math.round(REM * 2 * (2808 / 589) * uiScale)}
+			/>
+			<WinOverlay />
+			<TumbleWinAmount />
+			<AuroraSpinAnnounce />
+			<Transition />
+		{/if}
 
 		<!-- <I18nTest /> -->
 	{/if}
@@ -265,8 +299,19 @@
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
 
-{#if useMobileControls}
+{#if useMobileControls && !preGameMode}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />
+{/if}
+
+{#if preGameMode && !context.stateLayout.showLoadingScreen && !showStudioIntro}
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="pregame-checkbox-wrap">
+		<label class="pregame-checkbox" onclick={(e) => e.stopPropagation()}>
+			<input type="checkbox" bind:checked={dontShowAgain} />
+			<span>DONT SHOW NEXT TIME</span>
+		</label>
+	</div>
 {/if}
 </div>
 
@@ -280,6 +325,43 @@
 	.game-root {
 		width: 100%;
 		height: 100%;
+	}
+
+	.pregame-checkbox-wrap {
+		position: fixed;
+		bottom: 18px;
+		right: 18px;
+		z-index: 1200;
+		pointer-events: auto;
+	}
+
+	.pregame-checkbox {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		cursor: pointer;
+		user-select: none;
+		background: rgba(0, 0, 0, 0.55);
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		border-radius: 8px;
+		padding: 8px 14px;
+		backdrop-filter: blur(6px);
+	}
+
+	.pregame-checkbox input[type='checkbox'] {
+		width: 18px;
+		height: 18px;
+		accent-color: #22cc55;
+		cursor: pointer;
+		margin: 0;
+	}
+
+	.pregame-checkbox span {
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: 13px;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		color: rgba(255, 255, 255, 0.88);
 	}
 
 	.shake-light {
