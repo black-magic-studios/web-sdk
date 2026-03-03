@@ -1,7 +1,7 @@
 {
   "frames": {
-    "poof_000": {
-      "filename": "poof_000.png",
+    "glowL3_poof_000": {
+      "filename": "glowL3_poof_000.png",
       "frame": {
         "x": 0,
         "y": 0,
@@ -22,8 +22,8 @@
       },
       "duration_ms": 17
     },
-    "poof_001": {
-      "filename": "poof_001.png",
+    "glowL3_poof_001": {
+      "filename": "glowL3_poof_001.png",
       "frame": {
         "x": 320,
         "y": 0,
@@ -44,8 +44,8 @@
       },
       "duration_ms": 17
     },
-    "poof_002": {
-      "filename": "poof_002.png",
+    "glowL3_poof_002": {
+      "filename": "glowL3_poof_002.png",
       "frame": {
         "x": 640,
         "y": 0,
@@ -66,8 +66,8 @@
       },
       "duration_ms": 17
     },
-    "poof_003": {
-      "filename": "poof_003.png",
+    "glowL3_poof_003": {
+      "filename": "glowL3_poof_003.png",
       "frame": {
         "x": 960,
         "y": 0,
@@ -88,8 +88,8 @@
       },
       "duration_ms": 17
     },
-    "poof_004": {
-      "filename": "poof_004.png",
+    "glowL3_poof_004": {
+      "filename": "glowL3_poof_004.png",
       "frame": {
         "x": 1280,
         "y": 0,
@@ -110,8 +110,8 @@
       },
       "duration_ms": 17
     },
-    "poof_005": {
-      "filename": "poof_005.png",
+    "glowL3_poof_005": {
+      "filename": "glowL3_poof_005.png",
       "frame": {
         "x": 1600,
         "y": 0,
@@ -132,8 +132,8 @@
       },
       "duration_ms": 17
     },
-    "poof_006": {
-      "filename": "poof_006.png",
+    "glowL3_poof_006": {
+      "filename": "glowL3_poof_006.png",
       "frame": {
         "x": 1920,
         "y": 0,
@@ -154,8 +154,8 @@
       },
       "duration_ms": 17
     },
-    "poof_007": {
-      "filename": "poof_007.png",
+    "glowL3_poof_007": {
+      "filename": "glowL3_poof_007.png",
       "frame": {
         "x": 2240,
         "y": 0,
@@ -176,8 +176,8 @@
       },
       "duration_ms": 17
     },
-    "poof_008": {
-      "filename": "poof_008.png",
+    "glowL3_poof_008": {
+      "filename": "glowL3_poof_008.png",
       "frame": {
         "x": 0,
         "y": 320,
@@ -198,8 +198,8 @@
       },
       "duration_ms": 17
     },
-    "poof_009": {
-      "filename": "poof_009.png",
+    "glowL3_poof_009": {
+      "filename": "glowL3_poof_009.png",
       "frame": {
         "x": 320,
         "y": 320,
@@ -220,8 +220,8 @@
       },
       "duration_ms": 17
     },
-    "poof_010": {
-      "filename": "poof_010.png",
+    "glowL3_poof_010": {
+      "filename": "glowL3_poof_010.png",
       "frame": {
         "x": 640,
         "y": 320,
@@ -242,8 +242,8 @@
       },
       "duration_ms": 17
     },
-    "poof_011": {
-      "filename": "poof_011.png",
+    "glowL3_poof_011": {
+      "filename": "glowL3_poof_011.png",
       "frame": {
         "x": 960,
         "y": 320,
@@ -264,8 +264,8 @@
       },
       "duration_ms": 17
     },
-    "poof_012": {
-      "filename": "poof_012.png",
+    "glowL3_poof_012": {
+      "filename": "glowL3_poof_012.png",
       "frame": {
         "x": 1280,
         "y": 320,
@@ -286,8 +286,8 @@
       },
       "duration_ms": 17
     },
-    "poof_013": {
-      "filename": "poof_013.png",
+    "glowL3_poof_013": {
+      "filename": "glowL3_poof_013.png",
       "frame": {
         "x": 1600,
         "y": 320,
@@ -308,8 +308,8 @@
       },
       "duration_ms": 17
     },
-    "poof_014": {
-      "filename": "poof_014.png",
+    "glowL3_poof_014": {
+      "filename": "glowL3_poof_014.png",
       "frame": {
         "x": 1920,
         "y": 320,
@@ -330,8 +330,8 @@
       },
       "duration_ms": 17
     },
-    "poof_015": {
-      "filename": "poof_015.png",
+    "glowL3_poof_015": {
+      "filename": "glowL3_poof_015.png",
       "frame": {
         "x": 2240,
         "y": 320,

@@ -1,6 +1,6 @@
 lockdown-install.js:1 SES Removing unpermitted intrinsics
 lockdown-install.js:1 SES Removing unpermitted intrinsics
-client:756 WebSocket connection to 'wss://ominous-meme-5gjrg6pwqrp6f44jg-6001.app.github.dev:6001/?token=XhUmh9rVFr_H' failed: 
+client:756 WebSocket connection to 'wss://ominous-meme-5gjrg6pwqrp6f44jg-6001.app.github.dev:6001/?token=Nut8REcJnOFz' failed: 
 createConnection @ client:756
 client:795 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
 connect @ client:795

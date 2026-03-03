@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import * as PIXI from 'pixi.js';
+	// Import prepare plugin so renderer.prepare.upload() is available
+	import 'pixi.js/prepare';
 
 	import { getContextApp } from '../context.svelte';
 	import { getProcessed } from '../assetLoad';
@@ -36,6 +38,39 @@
 			counter = counter + 1;
 			const ratio = counter / assetNameList.length;
 			context.stateApp.loadingProgress = ratio * 100;
+		}
+	};
+
+	/**
+	 * Pre-upload all spritesheet textures to the GPU so the first render frame
+	 * doesn't stall while transferring large atlas images to VRAM.
+	 *
+	 * Each glow spritesheet is ~6 MB and the explosion atlas is ~30 MB.
+	 * Without this step the GPU upload is deferred to the first draw call,
+	 * causing a visible stutter when glow/explosion animations start.
+	 */
+	const preUploadTextures = async (assets: LoadedAssets) => {
+		const renderer = context.stateApp.pixiApplication?.renderer;
+		if (!renderer?.prepare) return;
+
+		// Collect unique TextureSources from all loaded spritesheet arrays
+		const seen = new Set<PIXI.TextureSource>();
+		const sources: PIXI.TextureSource[] = [];
+
+		for (const value of Object.values(assets)) {
+			if (Array.isArray(value) && value.length > 0 && value[0] instanceof PIXI.Texture) {
+				for (const tex of value as PIXI.Texture[]) {
+					const src = tex.source;
+					if (src && !seen.has(src)) {
+						seen.add(src);
+						sources.push(src);
+					}
+				}
+			}
+		}
+
+		if (sources.length > 0) {
+			await renderer.prepare.upload(sources);
 		}
 	};
 
@@ -81,11 +116,17 @@
 			(async () => {
 				if (assetNameList.length > 0) {
 					const postLoadedAssets = await loadAssets(assetNameList);
-					if (postLoadedAssets)
-						context.stateApp.loadedAssets = {
+					if (postLoadedAssets) {
+						const allAssets = {
 							...context.stateApp.loadedAssets,
 							...postLoadedAssets,
 						};
+						context.stateApp.loadedAssets = allAssets;
+
+						// Pre-upload all spritesheet textures to GPU during loading
+						// to avoid stutter on first animation render
+						await preUploadTextures(allAssets);
+					}
 				}
 				context.stateApp.loaded = true;
 			})();

@@ -43,10 +43,8 @@
 		const v8UploadSource = (texture as any)?.source?.uploadMethodId === 'image' 
 			? (texture as any)?.source?.resource 
 			: null;
-		// PIXI v7 paths
-		const baseSource = (texture as any)?.baseTexture?.resource?.source;
 		
-		const candidates = [v8Source, v8Resource, v8UploadSource, baseSource];
+		const candidates = [v8Source, v8Resource, v8UploadSource];
 		
 		for (const candidate of candidates) {
 			if (!candidate) continue;

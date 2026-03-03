@@ -79,8 +79,6 @@
 	// Speed-scaled animation speeds for SpriteSheet components
 	const poofAnimSpeed = $derived(POOF_ANIMATION_SPEED * stateBetDerived.timeScale());
 	const explosionAnimSpeed = $derived(EXPLOSION_ANIMATION_SPEED * stateBetDerived.timeScale());
-	const hasPoofs = $derived(poofingCells.size > 0);
-	const hasExplosions = $derived(explodingCells.size > 0);
 
 	// Constrained backOut easing - limits overshoot to stay within cell boundary
 	// Standard backOut overshoots by ~10% which can cross into adjacent cells
@@ -311,53 +309,49 @@
 	</BoardContext>
 
 	<!-- Glow overlay in its own high-zIndex layer so it renders ABOVE symbols -->
-	{#if hasPoofs}
-		<BoardContainer zIndex={20}>
-			{#each [...poofingCells] as [cellKey, cellData] (cellKey)}
-				{@const [reelStr, rowStr] = cellKey.split(',')}
-				{@const reel = parseInt(reelStr)}
-				{@const row = parseInt(rowStr)}
-				<Container
-					x={getSymbolXDynamic(reel, symbolWidth)}
-					y={getSymbolYDynamic(row - 1, symbolHeight)}
-				>
-					<!-- Main glow — scaled to match symbol's display sizeRatio -->
-					<SpriteSheet
-						key={cellData.assetKey}
-						animationName={POOF_ANIMATION_NAME}
-						anchor={0.5}
-						scale={poofScale * cellData.sizeRatio}
-						animationSpeed={poofAnimSpeed}
-						loop={false}
-						play={true}
-					/>
-				</Container>
-			{/each}
-		</BoardContainer>
-	{/if}
+	<BoardContainer zIndex={20}>
+		{#each [...poofingCells] as [cellKey, cellData] (cellKey)}
+			{@const [reelStr, rowStr] = cellKey.split(',')}
+			{@const reel = parseInt(reelStr)}
+			{@const row = parseInt(rowStr)}
+			<Container
+				x={getSymbolXDynamic(reel, symbolWidth)}
+				y={getSymbolYDynamic(row - 1, symbolHeight)}
+			>
+				<!-- Main glow — scaled to match symbol's display sizeRatio -->
+				<SpriteSheet
+					key={cellData.assetKey}
+					animationName={POOF_ANIMATION_NAME}
+					anchor={0.5}
+					scale={poofScale * cellData.sizeRatio}
+					animationSpeed={poofAnimSpeed}
+					loop={false}
+					play={true}
+				/>
+			</Container>
+		{/each}
+	</BoardContainer>
 
 	<!-- Explosion sprites — fire at the exact moment each cell vanishes -->
-	{#if hasExplosions}
-		<BoardContainer zIndex={15}>
-			{#each [...explodingCells] as cellKey (cellKey)}
-				{@const [reelStr, rowStr] = cellKey.split(',')}
-				{@const reel = parseInt(reelStr)}
-				{@const row = parseInt(rowStr)}
-				<Container
-					x={getSymbolXDynamic(reel, symbolWidth)}
-					y={getSymbolYDynamic(row - 1, symbolHeight)}
-				>
-					<SpriteSheet
-						key={EXPLOSION_ASSET_KEY}
-						animationName={EXPLOSION_ANIMATION_NAME}
-						anchor={0.5}
-						scale={explosionScale}
-						animationSpeed={explosionAnimSpeed}
-						loop={false}
-						play={true}
-					/>
-				</Container>
-			{/each}
-		</BoardContainer>
-	{/if}
+	<BoardContainer zIndex={15}>
+		{#each [...explodingCells] as cellKey (cellKey)}
+			{@const [reelStr, rowStr] = cellKey.split(',')}
+			{@const reel = parseInt(reelStr)}
+			{@const row = parseInt(rowStr)}
+			<Container
+				x={getSymbolXDynamic(reel, symbolWidth)}
+				y={getSymbolYDynamic(row - 1, symbolHeight)}
+			>
+				<SpriteSheet
+					key={EXPLOSION_ASSET_KEY}
+					animationName={EXPLOSION_ANIMATION_NAME}
+					anchor={0.5}
+					scale={explosionScale}
+					animationSpeed={explosionAnimSpeed}
+					loop={false}
+					play={true}
+				/>
+			</Container>
+		{/each}
+	</BoardContainer>
 {/if}

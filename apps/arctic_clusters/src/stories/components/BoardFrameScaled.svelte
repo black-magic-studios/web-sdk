@@ -21,26 +21,12 @@
 	const getSource = (
 		texture: PIXI.Texture,
 	): HTMLImageElement | HTMLCanvasElement | ImageBitmap | null => {
-		const source = (texture as any)?.source?.resource?.source;
-		const baseSource = (texture as any)?.baseTexture?.resource?.source;
-		const isImageBitmap =
-			typeof ImageBitmap !== 'undefined' && source instanceof ImageBitmap;
-		const isBaseImageBitmap =
-			typeof ImageBitmap !== 'undefined' && baseSource instanceof ImageBitmap;
-		if (
-			source &&
-			(source instanceof HTMLImageElement ||
-				source instanceof HTMLCanvasElement ||
-				isImageBitmap)
-		)
-			return source;
-		if (
-			baseSource &&
-			(baseSource instanceof HTMLImageElement ||
-				baseSource instanceof HTMLCanvasElement ||
-				isBaseImageBitmap)
-		)
-			return baseSource;
+		const source = (texture as any)?.source?.resource?.source
+			?? (texture as any)?.source?.resource;
+		if (!source) return null;
+		if (source instanceof HTMLImageElement) return source;
+		if (source instanceof HTMLCanvasElement) return source;
+		if (typeof ImageBitmap !== 'undefined' && source instanceof ImageBitmap) return source;
 		return null;
 	};
 

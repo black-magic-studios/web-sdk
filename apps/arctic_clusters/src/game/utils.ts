@@ -20,26 +20,16 @@ import type { RawSymbol, SymbolState } from './types';
 export const { getEmptyBoard } = createGetEmptyPaddedBoard({ reelsDimensions: BOARD_DIMENSIONS });
 export const { playBookEvent, playBookEvents: _playBookEvents } = createPlayBookUtils({ bookEventHandlerMap });
 
-// Wrapped playBookEvents with per-event logging to trace freezes
-const playBookEventsWithLogging = async (bookEvents: Bet['state']) => {
-	let spinCount = 0;
-	for (let i = 0; i < bookEvents.length; i++) {
-		const evt = bookEvents[i];
-		if (evt.type === 'reveal') spinCount++;
-		const t0 = performance.now();
-		try {
-			await playBookEvent(evt, { bookEvents });
-		} catch (err) {
-			console.error(`[playBet] ❌ event[${i}] type="${evt.type}" THREW after ${(performance.now() - t0).toFixed(0)}ms`, err);
-			throw err;
-		}
+const playBookEventsSequential = async (bookEvents: Bet['state']) => {
+	for (const evt of bookEvents) {
+		await playBookEvent(evt, { bookEvents });
 	}
 };
 
 export const playBookEvents = _playBookEvents;
 export const playBet = async (bet: Bet) => {
 	stateBet.winBookEventAmount = 0;
-	await playBookEventsWithLogging(bet.state);
+	await playBookEventsSequential(bet.state);
 	eventEmitter.broadcast({ type: 'stopButtonEnable' });
 };
 
