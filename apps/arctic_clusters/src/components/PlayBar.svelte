@@ -185,7 +185,7 @@
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
-		spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
+		disabled ? playTexture : spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
 	);
 
 	// Autoplay: if autoplaying, show spinning frame; otherwise hover/pressed logic
@@ -202,12 +202,12 @@
 		return turboNormalTexture;
 	});
 
-	// Increase/Decrease arrow textures
+	// Increase/Decrease arrow textures (always rest texture when disabled)
 	const activeIncreaseTexture = $derived(
-		incPressed ? increasePressedTexture : incHovered ? increaseHoverTexture : increaseTexture
+		increaseDisabled ? increaseTexture : incPressed ? increasePressedTexture : incHovered ? increaseHoverTexture : increaseTexture
 	);
 	const activeDecreaseTexture = $derived(
-		decPressed ? decreasePressedTexture : decHovered ? decreaseHoverTexture : decreaseTexture
+		decreaseDisabled ? decreaseTexture : decPressed ? decreasePressedTexture : decHovered ? decreaseHoverTexture : decreaseTexture
 	);
 
 	const activeBuyTexture = $derived(
@@ -257,9 +257,40 @@
 	const buyButtonSize = $derived(barHeight * BUY_BUTTON_SCALE);
 	const buttonGap = $derived(barWidth * BUTTON_GAP);
 
-	// Font sizes — generous for clarity
-	const labelFontSize = $derived(Math.round(Math.max(12, barHeight * 0.2)));
-	const valueFontSize = $derived(Math.round(Math.max(14, barHeight * 0.256)));
+	// Font sizes — scale with bar, lower minimum for tiny viewports
+	const labelFontSize = $derived(Math.round(Math.max(6, barHeight * 0.2)));
+	const valueFontSize = $derived(Math.round(Math.max(7, barHeight * 0.256)));
+
+	/**
+	 * Dynamically compute a font size that fits within the given maxWidth.
+	 * Uses an approximate character width ratio (0.6 for Arial bold).
+	 * Returns the default fontSize if the text fits, otherwise scales down.
+	 */
+	const dynamicFontSize = (text: string, defaultSize: number, maxWidth: number): number => {
+		const charWidthRatio = 0.62; // approximate width-to-height ratio for Arial bold
+		const estimatedWidth = text.length * defaultSize * charWidthRatio;
+		if (estimatedWidth <= maxWidth) return defaultSize;
+		const scaled = Math.floor((maxWidth / (text.length * charWidthRatio)));
+		return Math.max(5, scaled); // never go below 5px (supports tiny viewports like 400×225)
+	};
+
+	// Dynamic label font sizes (also scale down for tiny viewports)
+	const balanceLabelFontSize = $derived(dynamicFontSize('BALANCE', labelFontSize, sectionWidth * 0.92));
+	const winLabelFontSize = $derived(dynamicFontSize('WIN', labelFontSize, sectionWidth * 0.92));
+	const betLabelFontSize = $derived(dynamicFontSize(betLabel, labelFontSize, sectionWidth * 0.92));
+	const fsBalanceLabelFontSize = $derived(dynamicFontSize('BALANCE', labelFontSize, fsSectionWidth * 0.92));
+	const fsWinLabelFontSize = $derived(dynamicFontSize('WIN', labelFontSize, fsSectionWidth * 0.92));
+	const fsBetLabelFontSize = $derived(dynamicFontSize(betLabel, labelFontSize, fsSectionWidth * 0.92));
+
+	// Dynamic value font sizes that shrink for long currency strings
+	const balanceValueFontSize = $derived(dynamicFontSize(balanceText, valueFontSize, sectionWidth * 0.92));
+	const winValueFontSize = $derived(dynamicFontSize(winText, valueFontSize, sectionWidth * 0.92));
+	const spinValueFontSize = $derived(dynamicFontSize(spinText, valueFontSize, sectionWidth * 0.92));
+
+	// Free spins mode dynamic font sizes (4 narrower sections)
+	const fsBalanceValueFontSize = $derived(dynamicFontSize(balanceText, valueFontSize, fsSectionWidth * 0.92));
+	const fsWinValueFontSize = $derived(dynamicFontSize(spinWinText, valueFontSize, fsSectionWidth * 0.92));
+	const fsSpinValueFontSize = $derived(dynamicFontSize(spinText, valueFontSize, fsSectionWidth * 0.92));
 
 	// Vertical positions for label/value text — tighter to center
 	const labelY = $derived(-barHeight * 0.08);
@@ -295,6 +326,12 @@
 
 	// Buy button — OUTSIDE the bar, to the left
 	const buyButtonX = $derived(-barWidth / 2 - buttonGap - buyButtonSize / 2);
+
+	// Deactivate mode button — shown between spin and autoplay, at top edge of bar
+	const DEACTIVATE_BTN_SCALE = 0.38;
+	const deactivateBtnSize = $derived(barHeight * DEACTIVATE_BTN_SCALE);
+	const deactivateBtnX = $derived(spinButtonX + spinButtonSize / 2 + buttonGap + smallButtonSize * 0.3);
+	const deactivateBtnY = $derived(-spinButtonSize / 2 - deactivateBtnSize * 0.15);
 
 	// Menu button — INSIDE bar at far left
 	const LEFT_BUTTON_SCALE = 0.55;
@@ -516,11 +553,12 @@
 	// ============================================================
 	const handleSpin = () => {
 		if (stateUrlDerived.replay()) return;
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		context.eventEmitter.broadcast({ type: 'bet' });
 	};
 
 	const handleAutoPlay = () => {
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		if (stateBetDerived.hasAutoBetCounter()) {
 			// Stop autoplay if running
 			stateBet.autoSpinsCounter = 0;
@@ -531,7 +569,7 @@
 	};
 
 	const handleSpeedToggle = () => {
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		// Cycle: 0 (normal) → 1 (turbo) → 2 (super turbo) → 0 (normal)
 		const next = ((speedMode + 1) % 3) as SpeedMode;
 		stateBetDerived.updateSpeedMode(next, { persistent: true });
@@ -547,33 +585,33 @@
 
 	const handleBetMenu = () => {
 		if (betIdle) {
-			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 			betMenuOpen = !betMenuOpen;
 		}
 	};
 
+	const handleDeactivateMode = () => {
+		if (!betIdle) return;
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
+		stateBet.activeBetModeKey = 'BASE';
+	};
+
 	const handleBetIncrease = () => {
 		if (!betIdle) return;
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 		const nextBigger = [...stateConfig.betAmountOptions]
 			.sort((a, b) => a - b)
 			.find((option) => option > stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextBigger || biggest);
-		// Deactivate any Nx multiplier mode when bet is changed via playbar
-		if (stateBet.activeBetModeKey !== 'BASE') {
-			stateBet.activeBetModeKey = 'BASE';
-		}
 	};
 
 	const handleBetDecrease = () => {
 		if (!betIdle) return;
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 		const nextSmaller = [...stateConfig.betAmountOptions]
 			.sort((a, b) => b - a)
 			.find((option) => option < stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextSmaller || smallest);
-		// Deactivate any Nx multiplier mode when bet is changed via playbar
-		if (stateBet.activeBetModeKey !== 'BASE') {
-			stateBet.activeBetModeKey = 'BASE';
-		}
 	};
 </script>
 
@@ -622,14 +660,14 @@
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text="BALANCE"
-					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsBalanceLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
 					y={valueY}
 					resolution={TEXT_RESOLUTION}
 					text={balanceText}
-					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsBalanceValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
 				/>
 			</Container>
 
@@ -641,14 +679,14 @@
 						y={labelY}
 						resolution={TEXT_RESOLUTION}
 						text="WIN"
-						style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+						style={{ fontFamily: 'Arial', fontSize: fsWinLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
 					/>
 					<Text
 						anchor={{ x: 0.5, y: 0 }}
 						y={valueY}
 						resolution={TEXT_RESOLUTION}
 						text={spinWinText}
-						style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+						style={{ fontFamily: 'Arial', fontSize: fsWinValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
 					/>
 				{/if}
 			</Container>
@@ -669,7 +707,7 @@
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text={betLabel}
-					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsBetLabelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<Text
@@ -677,7 +715,7 @@
 					y={valueY}
 					resolution={TEXT_RESOLUTION}
 					text={spinText}
-					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsSpinValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 			</Container>
@@ -775,14 +813,14 @@
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text="BALANCE"
-					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: balanceLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
 					y={valueY}
 					resolution={TEXT_RESOLUTION}
 					text={balanceText}
-					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: balanceValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
 				/>
 			</Container>
 
@@ -794,14 +832,14 @@
 					y={labelY}
 					resolution={TEXT_RESOLUTION}
 					text="WIN"
-					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: winLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
 					y={valueY}
 					resolution={TEXT_RESOLUTION}
 					text={winText}
-					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: winValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
 				/>
 			</Container>
 			{/if}
@@ -813,14 +851,14 @@
 					y={hasActiveCostMode ? labelY - Math.round(barHeight * 0.08) : labelY}
 					resolution={TEXT_RESOLUTION}
 					text={betLabel}
-					style={{ fontFamily: 'Arial', fontSize: labelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: betLabelFontSize, fill: SPIN_LABEL_COLOR, fontWeight: 'bold' }}
 				/>
 				<Text
 					anchor={{ x: 0.5, y: 0 }}
 					y={hasActiveCostMode ? valueY - Math.round(barHeight * 0.08) : valueY}
 					resolution={TEXT_RESOLUTION}
 					text={spinText}
-					style={{ fontFamily: 'Arial', fontSize: valueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: spinValueFontSize, fill: VALUE_COLOR, fontWeight: 'bold' }}
 				/>
 				{#if hasActiveCostMode}
 					<Text
@@ -855,7 +893,7 @@
 					cursor={increaseDisabled ? 'not-allowed' : 'pointer'}
 					onpointerover={() => { incHovered = true; }}
 					onpointerout={() => { incHovered = false; incPressed = false; }}
-					onpointerdown={() => { incPressed = true; }}
+					onpointerdown={() => { if (!increaseDisabled) incPressed = true; }}
 					onpointerup={() => { incPressed = false; if (!increaseDisabled) handleBetIncrease(); }}
 				/>
 				<BaseSprite
@@ -863,7 +901,7 @@
 					width={arrowButtonSize}
 					height={arrowButtonSize * (42 / 56)}
 					anchor={0.5}
-					{...(increaseDisabled ? { alpha: 0.3 } : {})}
+					alpha={increaseDisabled ? 0.3 : 1}
 				/>
 			</Container>
 
@@ -878,7 +916,7 @@
 					cursor={decreaseDisabled ? 'not-allowed' : 'pointer'}
 					onpointerover={() => { decHovered = true; }}
 					onpointerout={() => { decHovered = false; decPressed = false; }}
-					onpointerdown={() => { decPressed = true; }}
+					onpointerdown={() => { if (!decreaseDisabled) decPressed = true; }}
 					onpointerup={() => { decPressed = false; if (!decreaseDisabled) handleBetDecrease(); }}
 				/>
 				<BaseSprite
@@ -886,9 +924,38 @@
 					width={arrowButtonSize}
 					height={arrowButtonSize * (42 / 56)}
 					anchor={0.5}
-					{...(decreaseDisabled ? { alpha: 0.3 } : {})}
+					alpha={decreaseDisabled ? 0.3 : 1}
 				/>
 			</Container>
+
+			<!-- DEACTIVATE MODE BUTTON (above spin, only visible when a cost mode is active) -->
+			{#if hasActiveCostMode && betIdle}
+				<Container x={deactivateBtnX} y={deactivateBtnY} zIndex={4}>
+					<Graphics
+						draw={(g: PIXI.Graphics) => {
+							g.roundRect(-deactivateBtnSize * 1.5, -deactivateBtnSize / 2, deactivateBtnSize * 3, deactivateBtnSize, deactivateBtnSize * 0.25);
+							g.fill({ color: 0xcc4444, alpha: 0.85 });
+							g.roundRect(-deactivateBtnSize * 1.5, -deactivateBtnSize / 2, deactivateBtnSize * 3, deactivateBtnSize, deactivateBtnSize * 0.25);
+							g.stroke({ color: 0xff6666, width: 1.5, alpha: 0.6 });
+						}}
+						eventMode="static"
+						cursor="pointer"
+						onpointerup={handleDeactivateMode}
+					/>
+					<Text
+						anchor={{ x: 0.5, y: 0.5 }}
+						resolution={TEXT_RESOLUTION}
+						text="DEACTIVATE"
+						style={{
+							fontFamily: 'Arial',
+							fontSize: Math.round(Math.max(8, deactivateBtnSize * 0.42)),
+							fill: 0xffffff,
+							fontWeight: 'bold',
+							letterSpacing: 0.5,
+						}}
+					/>
+				</Container>
+			{/if}
 
 			<!-- SPIN BUTTON -->
 			<Container x={spinButtonX} y={0} zIndex={3}>
@@ -902,7 +969,7 @@
 					cursor={disabled ? 'not-allowed' : 'pointer'}
 					onpointerover={() => { spinHovered = true; }}
 					onpointerout={() => { spinHovered = false; spinPressed = false; }}
-					onpointerdown={() => { spinPressed = true; }}
+					onpointerdown={() => { if (!disabled) spinPressed = true; }}
 					onpointerup={() => { spinPressed = false; if (!disabled) handleSpin(); }}
 				/>
 				<BaseSprite

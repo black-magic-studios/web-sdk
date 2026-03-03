@@ -3,6 +3,7 @@
 		stateUi,
 		stateBet,
 		stateBetDerived,
+		stateI18nDerived,
 		AUTO_SPINS_TEXT_OPTIONS,
 		AUTO_SPINS_TEXT_OPTION_MAP,
 		type AutoSpinsText,
@@ -44,7 +45,7 @@
 		stateBet.autoSpinsSingleWinLimitAmount = stateBet.betAmount * LOCAL_LIMIT_MULTIPLIER_MAP[selectedWinLimit];
 		if (stateBetDerived.activeBetMode().type === 'buy') stateBet.activeBetModeKey = 'BASE';
 
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		context.eventEmitter.broadcast({ type: 'autoBet' });
 		onclose();
 	};
@@ -72,7 +73,7 @@
 
 		{#if activeSection === 'spins'}
 			<!-- SPIN COUNT OPTIONS -->
-			<div class="section-label">AUTO SPINS</div>
+			<div class="section-label">{stateI18nDerived.translate('AUTO SPINS')}</div>
 			<div class="options-grid">
 				{#each AUTO_SPINS_TEXT_OPTIONS as option}
 					<button
@@ -84,7 +85,7 @@
 			</div>
 		{:else}
 			<!-- SINGLE WIN LIMIT -->
-			<div class="section-label">SINGLE WIN LIMIT</div>
+			<div class="section-label">{stateI18nDerived.translate('SINGLE WIN LIMIT')}</div>
 			<div class="options-grid">
 				{#each LOCAL_LIMIT_OPTIONS as option}
 					<button
@@ -95,8 +96,8 @@
 				{/each}
 			</div>
 
-			<!-- COIN DECREASE LIMIT -->
-			<div class="section-label">COIN DECREASE LIMIT</div>
+			<!-- LOSS LIMIT -->
+			<div class="section-label">{stateI18nDerived.translate('LOSS LIMIT')}</div>
 			<div class="options-grid">
 				{#each LOCAL_LIMIT_OPTIONS as option}
 					<button
@@ -148,16 +149,54 @@
 		-webkit-backdrop-filter: blur(10px);
 		border: 1px solid rgba(120, 180, 220, 0.2);
 		overflow: hidden;
+		overflow-y: auto;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 		min-width: 220px;
 		max-width: 280px;
+		max-height: calc(100vh - env(safe-area-inset-bottom, 0px) - 14%);
+		max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 14%);
 		animation: menuSlideIn 0.2s ease-out;
 		padding-bottom: 6px;
+	}
+
+	/* Portrait mobile: center the menu */
+	@media (orientation: portrait) {
+		.menu {
+			right: auto;
+			left: 50%;
+			transform: translateX(-50%);
+			bottom: calc(env(safe-area-inset-bottom, 0px) + 18%);
+			max-height: calc(100vh - env(safe-area-inset-bottom, 0px) - 20%);
+			max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 20%);
+			animation: menuSlideInPortrait 0.2s ease-out;
+		}
+	}
+
+	/* Very small viewports: full-width centered with more room */
+	@media (max-height: 400px) {
+		.menu {
+			bottom: 4px;
+			max-height: calc(100vh - 8px);
+			max-height: calc(100dvh - 8px);
+		}
+	}
+
+	@media (orientation: portrait) and (max-height: 500px) {
+		.menu {
+			bottom: 4px;
+			max-height: calc(100vh - 8px);
+			max-height: calc(100dvh - 8px);
+		}
 	}
 
 	@keyframes menuSlideIn {
 		from { opacity: 0; transform: translateY(10px) scale(0.96); }
 		to { opacity: 1; transform: translateY(0) scale(1); }
+	}
+
+	@keyframes menuSlideInPortrait {
+		from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.96); }
+		to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 	}
 
 	/* ── Tab bar ── */

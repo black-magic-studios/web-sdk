@@ -3,6 +3,7 @@
 		stateBet,
 		stateBetDerived,
 		stateConfig,
+		stateI18nDerived,
 	} from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -15,12 +16,29 @@
 	const betOptions = $derived(stateConfig.betAmountOptions);
 	const currentBetIndex = $derived(betOptions.indexOf(stateBet.betAmount));
 
+	// Insufficient balance message state
+	let insufficientBalanceMsg = $state('');
+	let insufficientTimeout: ReturnType<typeof setTimeout> | null = null;
+
+	const showInsufficientBalance = () => {
+		insufficientBalanceMsg = 'INSUFFICIENT BALANCE';
+		if (insufficientTimeout) clearTimeout(insufficientTimeout);
+		insufficientTimeout = setTimeout(() => { insufficientBalanceMsg = ''; }, 2500);
+	};
+
+	/** Check if a bet amount exceeds the player's balance */
+	const exceedsBalance = (value: number) => value > stateBet.balanceAmount;
+
 	const betUp = () => {
 		const idx = currentBetIndex;
 		if (idx < betOptions.length - 1) {
-			stateBetDerived.setBetAmount(betOptions[idx + 1]);
-			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-			if (stateBet.activeBetModeKey !== 'BASE') stateBet.activeBetModeKey = 'BASE';
+			const nextBet = betOptions[idx + 1];
+			if (exceedsBalance(nextBet)) {
+				showInsufficientBalance();
+				return;
+			}
+			stateBetDerived.setBetAmount(nextBet);
+			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 		}
 	};
 
@@ -28,15 +46,17 @@
 		const idx = currentBetIndex;
 		if (idx > 0) {
 			stateBetDerived.setBetAmount(betOptions[idx - 1]);
-			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-			if (stateBet.activeBetModeKey !== 'BASE') stateBet.activeBetModeKey = 'BASE';
+			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 		}
 	};
 
 	const selectBet = (value: number) => {
+		if (exceedsBalance(value)) {
+			showInsufficientBalance();
+			return;
+		}
 		stateBetDerived.setBetAmount(value);
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
-		if (stateBet.activeBetModeKey !== 'BASE') stateBet.activeBetModeKey = 'BASE';
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 	};
 
 	const isMaxValue = (value: number) => value === betOptions[betOptions.length - 1];
@@ -47,7 +67,7 @@
 	};
 
 	const confirm = () => {
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		onclose();
 	};
 </script>
@@ -60,7 +80,7 @@
 	<div class="menu">
 		<!-- HEADER -->
 		<div class="header">
-			<div class="title">SELECT YOUR BET</div>
+			<div class="title">{stateI18nDerived.translate('SELECT YOUR BET')}</div>
 		</div>
 
 		<!-- BET TOGGLE (+/-) -->
@@ -84,10 +104,16 @@
 				<button
 					class="option-chip"
 					class:selected={stateBet.betAmount === option}
+					class:unaffordable={exceedsBalance(option)}
 					onclick={() => selectBet(option)}
 				>{isMaxValue(option) ? 'MAX' : formatValue(option)}</button>
 			{/each}
 		</div>
+
+		<!-- INSUFFICIENT BALANCE MESSAGE -->
+		{#if insufficientBalanceMsg}
+			<div class="insufficient-msg">{insufficientBalanceMsg}</div>
+		{/if}
 
 		<!-- CONFIRM BUTTON -->
 		<button class="confirm-btn" onclick={confirm}>
@@ -106,6 +132,7 @@
 	.menu {
 		position: fixed;
 		z-index: 999;
+		/* Anchor to bottom-right but stay within viewport */
 		bottom: calc(env(safe-area-inset-bottom, 0px) + 12%);
 		right: 72px;
 		display: flex;
@@ -118,8 +145,11 @@
 		border: 1px solid rgba(120, 180, 220, 0.2);
 		overflow: hidden;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-		min-width: 220px;
-		max-width: 280px;
+		min-width: 180px;
+		max-width: min(280px, calc(100vw - 20px));
+		/* Constrain height so it never overflows top of viewport */
+		max-height: min(460px, calc(88vh - 20px));
+		overflow-y: auto;
 		animation: menuSlideIn 0.2s ease-out;
 		padding-bottom: 6px;
 	}
@@ -191,25 +221,28 @@
 
 	/* ── Options grid ── */
 	.options-grid {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
 		gap: 6px;
 		padding: 4px 14px 10px;
 	}
 
 	.option-chip {
-		padding: 6px 10px;
+		padding: 6px 4px;
 		border: 1.5px solid rgba(120, 180, 220, 0.2);
 		border-radius: 8px;
 		background: rgba(40, 50, 70, 0.5);
 		color: #d0e8f8;
 		font-family: 'Montserrat', Arial, sans-serif;
-		font-size: 12px;
+		font-size: clamp(9px, 2.5vw, 12px);
 		font-weight: 600;
 		cursor: pointer;
 		transition: background 0.15s, border-color 0.15s, color 0.15s;
-		min-width: 38px;
+		min-width: 0;
 		text-align: center;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 
 		&:hover {
 			background: rgba(60, 100, 150, 0.4);
@@ -221,6 +254,32 @@
 			border-color: #68b8e0;
 			color: #ffffff;
 		}
+
+		&.unaffordable {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+	}
+
+	/* ── Insufficient balance message ── */
+	.insufficient-msg {
+		margin: 2px 14px 0;
+		padding: 6px 8px;
+		text-align: center;
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+		color: #ff6b6b;
+		background: rgba(255, 60, 60, 0.1);
+		border: 1px solid rgba(255, 100, 100, 0.3);
+		border-radius: 6px;
+		animation: fadeInMsg 0.2s ease-out;
+	}
+
+	@keyframes fadeInMsg {
+		from { opacity: 0; transform: translateY(-4px); }
+		to { opacity: 1; transform: translateY(0); }
 	}
 
 	/* ── Confirm button ── */

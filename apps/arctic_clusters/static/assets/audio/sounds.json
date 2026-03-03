@@ -261,6 +261,22 @@
 		"tumble_win_4": [
 			692000,
 			100.00000000002274
+		],
+		"sfx_btn_click_1": [
+			694000,
+			200
+		],
+		"sfx_btn_click_2": [
+			694500,
+			200
+		],
+		"sfx_btn_click_3": [
+			695000,
+			200
+		],
+		"sfx_btn_click_4": [
+			695500,
+			200
 		]
 	},
 	"config": {
@@ -452,6 +468,18 @@
 		},
 		"tumble_win_4": {
 			"volume": 1
+		},
+		"sfx_btn_click_1": {
+			"volume": 0.35
+		},
+		"sfx_btn_click_2": {
+			"volume": 0.35
+		},
+		"sfx_btn_click_3": {
+			"volume": 0.35
+		},
+		"sfx_btn_click_4": {
+			"volume": 0.35
 		}
 	}
 }

@@ -37,6 +37,7 @@ const game = () => getUrlSearchParam('game') || '';
 const version = () => getUrlSearchParam('version') || '';
 const mode = () => getUrlSearchParam('mode') || '';
 const event = () => getUrlSearchParam('event') || '';
+const currency = () => getUrlSearchParam('currency') || '';
 
 export const stateUrlDerived = {
 	// states for play
@@ -51,4 +52,5 @@ export const stateUrlDerived = {
 	mode,
 	version,
 	event,
+	currency,
 };

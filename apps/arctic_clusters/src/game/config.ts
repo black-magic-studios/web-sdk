@@ -21,7 +21,7 @@ export default {
 			max_win: 25000.0,
 		},
 		ante: {
-			cost: 2.5,
+			cost: 2.0,
 			feature: true,
 			buyBonus: false,
 			rtp: 0.965,

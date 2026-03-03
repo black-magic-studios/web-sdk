@@ -1,0 +1,13 @@
+{
+	"src": [
+		"./assets/audio/btn_clicks.ogg",
+		"./assets/audio/btn_clicks.m4a",
+		"./assets/audio/btn_clicks.mp3"
+	],
+	"sprite": {
+		"btn_click_1": [0, 200],
+		"btn_click_2": [500, 210],
+		"btn_click_3": [1000, 205],
+		"btn_click_4": [1500, 205]
+	}
+}

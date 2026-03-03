@@ -59,7 +59,11 @@ export type SoundEffectName =
 	| 'tumble_win_4'
 	| 'win_explosion'
 	| 'bonus_symbol_land'
-	| 'multi_pop_sound';
+	| 'multi_pop_sound'
+	| 'sfx_btn_click_1'
+	| 'sfx_btn_click_2'
+	| 'sfx_btn_click_3'
+	| 'sfx_btn_click_4';
 
 export type SoundName = MusicName | SoundEffectName;
 

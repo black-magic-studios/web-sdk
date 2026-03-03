@@ -5,6 +5,7 @@
 	import { OnHotkey } from 'components-shared';
 	import { OnPressFullScreen } from 'components-layout';
 
+	import { stateI18nDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 	import BoardContainer from './BoardContainer.svelte';
 	import MultiplierLabel from './MultiplierLabel.svelte';
@@ -352,7 +353,7 @@
 	<BoardContainer zIndex={20}>
 		<Container x={textX} y={textY} scale={baseScale}>
 			<BitmapText
-				text="WIN UP TO 25,000 X BET"
+				text={stateI18nDerived.translate('WIN UP TO 25,000 X BET')}
 				style={{
 					fontFamily: FONT_FAMILY,
 					fontSize: FONT_NATIVE,

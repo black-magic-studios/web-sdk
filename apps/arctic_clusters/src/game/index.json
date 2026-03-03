@@ -1,0 +1,82 @@
+{
+  "modes": [
+    {
+      "cost": 1.0,
+      "events": "books_base.jsonl.zst",
+      "name": "base",
+      "weights": "lookUpTable_base_0.csv"
+    },
+    {
+      "cost": 2.0,
+      "events": "books_ante.jsonl.zst",
+      "name": "ante",
+      "weights": "lookUpTable_ante_0.csv"
+    },
+    {
+      "cost": 100.0,
+      "events": "books_bonus.jsonl.zst",
+      "name": "bonus",
+      "weights": "lookUpTable_bonus_0.csv"
+    },
+    {
+      "cost": 3.0,
+      "events": "books_M2X.jsonl.zst",
+      "name": "M2X",
+      "weights": "lookUpTable_M2X_0.csv"
+    },
+    {
+      "cost": 6.0,
+      "events": "books_M4X.jsonl.zst",
+      "name": "M4X",
+      "weights": "lookUpTable_M4X_0.csv"
+    },
+    {
+      "cost": 11.0,
+      "events": "books_M8X.jsonl.zst",
+      "name": "M8X",
+      "weights": "lookUpTable_M8X_0.csv"
+    },
+    {
+      "cost": 23.0,
+      "events": "books_M16X.jsonl.zst",
+      "name": "M16X",
+      "weights": "lookUpTable_M16X_0.csv"
+    },
+    {
+      "cost": 45.0,
+      "events": "books_M32X.jsonl.zst",
+      "name": "M32X",
+      "weights": "lookUpTable_M32X_0.csv"
+    },
+    {
+      "cost": 91.0,
+      "events": "books_M64X.jsonl.zst",
+      "name": "M64X",
+      "weights": "lookUpTable_M64X_0.csv"
+    },
+    {
+      "cost": 173.0,
+      "events": "books_M128X.jsonl.zst",
+      "name": "M128X",
+      "weights": "lookUpTable_M128X_0.csv"
+    },
+    {
+      "cost": 356.0,
+      "events": "books_M256X.jsonl.zst",
+      "name": "M256X",
+      "weights": "lookUpTable_M256X_0.csv"
+    },
+    {
+      "cost": 656.0,
+      "events": "books_M512X.jsonl.zst",
+      "name": "M512X",
+      "weights": "lookUpTable_M512X_0.csv"
+    },
+    {
+      "cost": 1107.0,
+      "events": "books_M1024X.jsonl.zst",
+      "name": "M1024X",
+      "weights": "lookUpTable_M1024X_0.csv"
+    }
+  ]
+}

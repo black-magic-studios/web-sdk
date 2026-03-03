@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateModal, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
 	import BetMenu from './BetMenu.svelte';
+	import AutoplayMenu from './AutoplayMenu.svelte';
 
 	type Props = { hidden?: boolean };
 	const props: Props = $props();
@@ -73,17 +74,25 @@
 		if (!disabled && !stateUrlDerived.replay()) context.eventEmitter.broadcast({ type: 'bet' });
 	};
 
+	let autoplayMenuOpen = $state(false);
+
 	const handleAutoPlay = () => {
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		if (stateBetDerived.hasAutoBetCounter()) {
 			stateBet.autoSpinsCounter = 0;
 		} else {
-			stateModal.modal = { name: 'autoSpin' };
+			autoplayMenuOpen = !autoplayMenuOpen;
 		}
 	};
 
+	const turboImg = $derived(
+		stateBet.speedMode === 2 ? './assets/sprites/buttons_new/play_bar_0002_turbo_super_turbo.png'
+		: stateBet.speedMode === 1 ? './assets/sprites/buttons_new/play_bar_0002_turbo_turbo.png'
+		: './assets/sprites/buttons_new/play_bar_0002_turbo_normal.png'
+	);
+
 	const handleFastPlay = () => {
-		context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		const next = ((stateBet.speedMode + 1) % 3) as 0 | 1 | 2;
 		stateBetDerived.updateSpeedMode(next, { persistent: true });
 	};
@@ -92,13 +101,21 @@
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
+	const handleDeactivateMode = () => {
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
+		stateBet.activeBetModeKey = 'BASE';
+	};
+
+	// Whether a cost-multiplier mode is active (ANTE, M2X, etc.)
+	const hasActiveCostMode = $derived(stateBetDerived.betCost() !== stateBet.betAmount);
+
 	const handleInfo = () => {
 		context.eventEmitter.broadcast({ type: 'gameInfoOpen' } as any);
 	};
 
 	const handleBetMenu = () => {
 		if (betIdle) {
-			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 			betMenuOpen = !betMenuOpen;
 		}
 	};
@@ -109,6 +126,7 @@
 			.sort((a, b) => a - b)
 			.find((option) => option > stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextBigger || biggest);
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 	};
 
 	const handleBetDecrease = () => {
@@ -117,6 +135,7 @@
 			.sort((a, b) => b - a)
 			.find((option) => option < stateBet.betAmount);
 		stateBetDerived.setBetAmount(nextSmaller || smallest);
+		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 	};
 </script>
 
@@ -147,7 +166,7 @@
 			</div>
 
 			<button class="ctrl-btn fast-btn fs-turbo-btn" onclick={handleFastPlay}>
-				<img src="./assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
+				<img src={turboImg} alt="Fast" />
 			</button>
 		</div>
 	{:else}
@@ -170,10 +189,13 @@
 			onclick={handleSpin}
 		>
 			<img src="./assets/sprites/buttons_new/play_button.png" alt="Spin" />
+			{#if hasActiveCostMode && betIdle}
+				<button class="deactivate-badge" onclick={(e) => { e.stopPropagation(); handleDeactivateMode(); }}>✕</button>
+			{/if}
 		</button>
 
 		<button class="ctrl-btn fast-btn" onclick={handleFastPlay}>
-			<img src="./assets/sprites/buttons_new/turbo_base.png" alt="Fast" />
+			<img src={turboImg} alt="Fast" />
 		</button>
 
 		<button class="ctrl-btn buy-btn" onclick={handleBuyBonus}>
@@ -201,12 +223,14 @@
 				<button
 					class="arrow-btn"
 					class:arrow-disabled={decreaseDisabled}
+					disabled={decreaseDisabled}
 					onclick={handleBetDecrease}
 				>▼</button>
 				<button class="value bet-menu-btn" onclick={handleBetMenu}>{spinText}</button>
 				<button
 					class="arrow-btn"
 					class:arrow-disabled={increaseDisabled}
+					disabled={increaseDisabled}
 					onclick={handleBetIncrease}
 				>▲</button>
 			</div>
@@ -216,6 +240,7 @@
 </div>
 
 <BetMenu show={betMenuOpen} onclose={() => { betMenuOpen = false; }} />
+<AutoplayMenu show={autoplayMenuOpen} onclose={() => { autoplayMenuOpen = false; }} />
 
 <style lang="scss">
 	.mobile-controls {
@@ -230,7 +255,6 @@
 		pointer-events: none;
 		padding-bottom: env(safe-area-inset-bottom, 0px);
 		transition: opacity 0.2s ease, transform 0.2s ease;
-		overflow: hidden;
 
 		&.hidden {
 			opacity: 0;
@@ -287,11 +311,38 @@
 	.spin-btn {
 		width: clamp(52px, 15.5vw, 76px);
 		height: clamp(52px, 15.5vw, 76px);
+		position: relative;
 
 		&.disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
 		}
+	}
+
+	.deactivate-badge {
+		position: absolute;
+		top: -6px;
+		right: -6px;
+		width: clamp(18px, 5vw, 24px);
+		height: clamp(18px, 5vw, 24px);
+		border-radius: 50%;
+		background: rgba(200, 50, 50, 0.9);
+		border: 1.5px solid rgba(255, 100, 100, 0.6);
+		color: #ffffff;
+		font-size: clamp(9px, 2.5vw, 13px);
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		padding: 0;
+		line-height: 1;
+		z-index: 5;
+		pointer-events: auto;
+		transition: background 0.15s, transform 0.1s;
+
+		&:hover { background: rgba(220, 70, 70, 1); }
+		&:active { transform: scale(0.9); }
 	}
 
 	/* Info "i" button circle */
@@ -311,7 +362,7 @@
 	}
 
 	/* ── Info bar ── */
-	.info-bar {
+  .info-bar {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -320,17 +371,22 @@
 		background: rgba(16, 22, 36, 0.94);
 		border-top: 1px solid rgba(100, 180, 255, 0.15);
 		pointer-events: auto;
-		padding: 2px 0;
+		padding: 8px 0;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		transform: translateZ(0);
+		backface-visibility: hidden;
 	}
 
-	.info-section {
+  .info-section {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 2px 6px;
-		min-width: 0;
+		padding: 6px 8px;
+		min-width: fit-content;
+		overflow: visible;
 
 		&:not(:last-child) {
 			border-right: 1px solid rgba(100, 180, 255, 0.12);
@@ -339,12 +395,14 @@
 
 	.label {
 		font-family: 'Montserrat', Arial, sans-serif;
-		font-size: clamp(8px, 2.2vw, 11px);
+		font-size: clamp(7px, 2vw, 11px);
 		font-weight: 700;
 		color: #88ccff;
 		letter-spacing: 0.5px;
 		text-transform: uppercase;
-		line-height: 1.2;
+		line-height: 1.4;
+		white-space: nowrap;
+		text-rendering: geometricPrecision;
 	}
 
 	.value {
@@ -354,6 +412,9 @@
 		color: #ffffff;
 		line-height: 1.3;
 		white-space: nowrap;
+		overflow: visible;
+		max-width: 100%;
+		text-rendering: geometricPrecision;
 	}
 
 	.win-value {
@@ -364,7 +425,9 @@
 	.bet-control {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 4px;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	.arrow-btn {
@@ -377,7 +440,9 @@
 		line-height: 1;
 		transition: color 0.15s;
 
-		&:hover { color: #ccffff; }
+		&:hover:not(:disabled) { color: #ccffff; }
+		&:active:not(:disabled) { color: #ffffff; }
+		&:disabled,
 		&.arrow-disabled {
 			color: rgba(136, 204, 255, 0.3);
 			cursor: not-allowed;
@@ -398,12 +463,16 @@
 		background: transparent;
 		font: inherit;
 		font-family: 'Montserrat', Arial, sans-serif;
-		font-size: clamp(11px, 3vw, 15px);
+		font-size: clamp(9px, 2.5vw, 15px);
 		font-weight: 700;
 		color: #ffffff;
 		line-height: 1.3;
 		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 		padding: 0;
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	/* ── Free spins mode ── */

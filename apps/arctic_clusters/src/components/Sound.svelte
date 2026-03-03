@@ -130,8 +130,6 @@
 			}
 		},
 		soundBoostMusicOnWin: () => boostMusicForWin(),
-		soundPressGeneral: () => sound.players.once.play({ name: 'sfx_btn_general' }),
-		soundPressBet: () => sound.players.once.play({ name: 'sfx_btn_spin' }),
 		// scatterCounter
 		soundScatterCounterIncrease: () => (context.stateGame.scatterCounter = context.stateGame.scatterCounter + 1), // prettier-ignore
 		soundScatterCounterClear: () => (context.stateGame.scatterCounter = 0),
@@ -194,6 +192,9 @@
 			// instance — without it, every sfx_reel_stop / scatter / etc. that
 			// ends on the shared once howl would also fire the callback.
 			introSoundId = sound.players.once.howl.play('bgm_intro');
+			// Apply music volume to intro (it plays on the 'once' player which uses SFX volume)
+			const musicVol = stateSoundDerived.volumeMusic();
+			sound.players.once.howl.volume(musicVol, introSoundId);
 			sound.players.once.howl.once('end', function onIntroEnd() {
 				if (!introEndActive) return;
 				introEndActive = false;
@@ -201,6 +202,14 @@
 				currentMusic = 'bgm_main';
 				sound.players.music.play({ name: 'bgm_main' });
 			}, introSoundId);
+		}
+	});
+
+	// Keep intro volume in sync with the music slider
+	$effect(() => {
+		const musicVol = stateSoundDerived.volumeMusic();
+		if (introEndActive && introSoundId !== null) {
+			sound.players.once.howl.volume(musicVol, introSoundId);
 		}
 	});
 </script>

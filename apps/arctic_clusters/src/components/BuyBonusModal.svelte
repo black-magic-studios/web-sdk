@@ -45,7 +45,7 @@
 		import('components-ui-html/src/stateBonus.svelte').then(({ stateBonus }) => {
 			stateBonus.selectedBetModeKey = mode;
 			context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
-			context.eventEmitter.broadcast({ type: 'soundPressGeneral' });
+			context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 			close();
 		});
 	};

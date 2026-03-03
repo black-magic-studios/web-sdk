@@ -129,6 +129,12 @@
 			stateBet.wageredBetAmount = (stateUrlDerived.amount() / API_AMOUNT_MULTIPLIER) || 0;
 			stateBet.activeBetModeKey = stateUrlDerived.mode();
 
+			// Set currency from URL param if provided (e.g. &currency=XGC)
+			const replayCurrency = stateUrlDerived.currency();
+			if (replayCurrency) {
+				stateBet.currency = replayCurrency;
+			}
+
 			const data = await requestReplay({
 				rgsUrl: stateUrlDerived.rgsUrl(),
 				game: stateUrlDerived.game(),

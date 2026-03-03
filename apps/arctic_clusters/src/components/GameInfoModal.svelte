@@ -91,7 +91,7 @@
 	let activeTab = $state<Tab>('paytable');
 	const tabs: Tab[] = ['paytable', 'features', 'controls', 'rules', 'modes', 'disclaimer'];
 	const tabLabels: Record<Tab, string> = $derived({
-		paytable: 'Paytable',
+		paytable: isSocial ? 'Win Table' : 'Paytable',
 		features: 'Features',
 		controls: 'Controls',
 		rules: 'Rules',
@@ -142,10 +142,10 @@
 				<!-- ═══════════════════════════════════════════ -->
 				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
-						<h2>Paytable</h2>
-						<p class="subtitle">{isSocial ? 'All values shown are multiplied by the total play amount.' : 'All values shown are multiplied by the total bet.'} A cluster must contain at least 5 matching symbols to pay.</p>
+						<h2>{isSocial ? 'Win Table' : 'Paytable'}</h2>
+						<p class="subtitle">{isSocial ? 'All values shown are multiplied by the total play amount.' : 'All values shown are multiplied by the total bet.'} A cluster must contain at least 5 matching symbols {isSocial ? 'to win' : 'to pay'}.</p>
 
-						<h3>High Pay Symbols</h3>
+						<h3>{isSocial ? 'High Win Symbols' : 'High Pay Symbols'}</h3>
 						{#each highPay as sym}
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
@@ -164,7 +164,7 @@
 							</div>
 						{/each}
 
-						<h3>Low Pay Symbols</h3>
+						<h3>{isSocial ? 'Low Win Symbols' : 'Low Pay Symbols'}</h3>
 						{#each lowPay as sym}
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
@@ -189,7 +189,7 @@
 								<img src={WILD_IMG} alt="Wild" class="special-icon" />
 								<div class="special-info">
 									<strong>Wild</strong>
-									<p>Substitutes for all paying symbols. Does not replace Bonus or Super Bonus symbols. Wilds only appear through the Aurora Feature.</p>
+									<p>Substitutes for all {isSocial ? 'winning' : 'paying'} symbols. Does not replace Bonus or Super Bonus symbols. Wilds only appear through the Aurora Feature.</p>
 								</div>
 							</div>
 							<div class="special-row">
@@ -218,11 +218,11 @@
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
 							<div class="feature-steps">
-								<div class="step"><span class="step-num">1</span> All clusters on the grid are evaluated and paid.</div>
-								<div class="step"><span class="step-num">2</span> Symbols that formed part of a paying cluster are removed.</div>
+								<div class="step"><span class="step-num">1</span> All clusters on the grid are evaluated and {isSocial ? 'won' : 'paid'}.</div>
+								<div class="step"><span class="step-num">2</span> Symbols that formed part of a {isSocial ? 'winning' : 'paying'} cluster are removed.</div>
 								<div class="step"><span class="step-num">3</span> Remaining symbols fall downward to fill empty spaces.</div>
 								<div class="step"><span class="step-num">4</span> New symbols drop in from the top of each column.</div>
-								<div class="step"><span class="step-num">5</span> This repeats until no new clusters are formed.</div>
+								<div class="step"><span class="step-num">5</span> This repeats until no new {isSocial ? 'winning' : 'paying'} clusters are formed.</div>
 							</div>
 						</div>
 					</div>
@@ -235,7 +235,7 @@
 								<li>When a cell is part of a winning cluster, it receives a <strong>2×</strong> multiplier. If the cell already has an active multiplier, it doubles with each additional winning tumble (<strong>2× → 4× → 8× → 16×</strong>, and so on, up to a maximum of <strong>1,024×</strong>).</li>
 								<li>Wild symbols are the only symbols that can belong to more than one cluster at a time. Even so, a Wild's cell multiplier only increases <strong>once</strong> per tumble step, regardless of how many clusters it helps complete.</li>
 								<li>Multipliers are <strong>positional</strong>. They stay at their cell location on the grid, not with the symbol.</li>
-								<li>When calculating a cluster's payout, the multipliers of all cells in that cluster with an active multiplier are added together, and the total is applied to the base pay. If no cells in the cluster have an active multiplier, only the base pay applies.</li>
+								<li>When calculating a cluster's {isSocial ? 'win' : 'payout'}, the multipliers of all cells in that cluster with an active multiplier are added together, and the total is applied to the base {isSocial ? 'win' : 'pay'}. If no cells in the cluster have an active multiplier, only the base {isSocial ? 'win' : 'pay'} applies.</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Base Game:</strong> All cell multipliers reset to inactive at the start of each spin.<br />
@@ -249,9 +249,9 @@
 						<div class="feature-block">
 							<p>At the start of each spin, <strong>0 to 5 Aurora cells</strong> are randomly assigned to positions on the grid.</p>
 							<ul>
-								<li>When a paying cluster forms on a cell marked as Aurora, the Aurora cell activates and generates <strong>1 to 3 Wild symbols</strong> as pending.</li>
+								<li>When a {isSocial ? 'winning' : 'paying'} cluster forms on a cell marked as Aurora, the Aurora cell activates and generates <strong>1 to 3 Wild symbols</strong> as pending.</li>
 								<li>Once activated, the Aurora cell is removed from the grid. Each Aurora cell can only activate once.</li>
-								<li>Pending Wilds are not placed immediately. Tumbles continue until no further clusters form, at which point all pending Wilds are placed onto the board, replacing paying symbols only.</li>
+								<li>Pending Wilds are not placed immediately. Tumbles continue until no further clusters form, at which point all pending Wilds are placed onto the board, replacing {isSocial ? 'winning' : 'paying'} symbols only.</li>
 								<li>After placement, the tumble sequence resumes. If the placed Wilds create new clusters that overlap remaining Aurora cells, the process repeats.</li>
 							</ul>
 						</div>
@@ -263,9 +263,9 @@
 						<div class="feature-block">
 							<p>During Bonus or Super Bonus Rounds, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
 							<ul>
-								<li>When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a <strong>paying cluster</strong> is added to the collection.</li>
+								<li>When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a <strong>{isSocial ? 'winning' : 'paying'} cluster</strong> is added to the collection.</li>
 								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
-								<li>After all Bonus spins are completed, a <strong>Final Aurora Spin</strong> occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.</li>
+								<li>After all Bonus spins are completed, a <strong>Final Aurora Spin</strong> occurs: a fresh board is {isSocial ? 'generated' : 'dealt'} using only {isSocial ? 'winning' : 'paying'} symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
@@ -410,7 +410,7 @@
 							<div class="control-item">
 								<div class="control-label">WIN</div>
 								<div class="control-info">
-									<p>Shows the total win amount for the current spin, including all tumble payouts.</p>
+									<p>Shows the total win amount for the current spin, including all tumble {isSocial ? 'wins' : 'payouts'}.</p>
 								</div>
 							</div>
 						</div>
@@ -431,7 +431,7 @@
 
 						<div class="cluster-example">
 							<p class="cluster-example-label">Winning Cluster Example</p>
-							<p class="cluster-example-desc">5 or more matching symbols connected horizontally or vertically form a paying cluster. Diagonal connections do not count.</p>
+							<p class="cluster-example-desc">5 or more matching symbols connected horizontally or vertically form a {isSocial ? 'winning' : 'paying'} cluster. Diagonal connections do not count.</p>
 							<!-- svelte-ignore a11y_missing_attribute -->
 							<svg class="cluster-svg" viewBox="0 0 250 200" xmlns="http://www.w3.org/2000/svg">
 								<defs>
@@ -513,11 +513,11 @@
 						<h2>General Rules</h2>
 						<div class="feature-block">
 							<ul>
-								<li>Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.</li>
+								<li>Each {isSocial ? 'winning' : 'paying'} symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.</li>
 								<li>Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.</li>
-								<li>All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.</li>
-								<li>The maximum payout per spin is capped at <strong>{maxWinDisplay}</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
-								<li>Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.</li>
+								<li>All {isSocial ? 'wins' : 'payouts'} from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.</li>
+								<li>The maximum {isSocial ? 'win' : 'payout'} per spin is capped at <strong>{maxWinDisplay}</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
+								<li>Cluster {isSocial ? 'wins' : 'payouts'} use the {isSocial ? 'win table' : 'paytable'} value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.</li>
 							</ul>
 						</div>
 					</div>
@@ -569,10 +569,7 @@
 					<div class="section disclaimer-section">
 						<h2 class="disclaimer-title">General Disclaimer</h2>
 						<div class="disclaimer-block">
-							<p>Any malfunction voids all plays and payouts. A stable internet connection is required. If a disconnection occurs, reload the game to resume any unfinished round.</p>
-							<p>The stated return percentage is based on a large number of rounds and does not apply to any individual session. The game display is illustrative only and does not represent a physical device.</p>
-							<p>All payouts are determined by the Remote Game Server. Values shown in the browser are for display purposes and may differ from the final settled amounts.</p>
-							<p class="disclaimer-copyright">&copy; {new Date().getFullYear()} Stake Engine. All rights reserved.</p>
+							<p>Malfunction voids all wins and {isSocial ? 'plays' : 'bets'}. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds. The expected return is calculated over many {isSocial ? 'plays' : 'rounds'}. The game display is not representative of any physical device and is for illustrative purposes only. Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser. TM and &copy; 2026 Stake Engine.</p>
 						</div>
 					</div>
 				{/if}

@@ -23,12 +23,14 @@
 		const idx = currentBetIndex;
 		if (idx < betOptions.length - 1) {
 			stateBetDerived.setBetAmount(betOptions[idx + 1]);
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 		}
 	};
 	const betDown = () => {
 		const idx = currentBetIndex;
 		if (idx > 0) {
 			stateBetDerived.setBetAmount(betOptions[idx - 1]);
+			eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 		}
 	};
 
@@ -55,9 +57,11 @@
 
 	const multUp = () => {
 		if (multIndex < MULT_MODES.length - 1) multIndex++;
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 	};
 	const multDown = () => {
 		if (multIndex > 0) multIndex--;
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 	};
 
 	// ── Active mode tracking ──
@@ -68,39 +72,47 @@
 	const activateMode = (modeKey: string) => {
 		stateBonus.selectedBetModeKey = modeKey;
 		stateBet.activeBetModeKey = modeKey;
-		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 	};
 
 	const deactivateMode = () => {
 		stateBonus.selectedBetModeKey = 'BASE';
 		stateBet.activeBetModeKey = 'BASE';
-		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 	};
 
-	// ── Buy bonus confirmation ──
+	// ── Buy bonus confirmation (used for ALL selections) ──
 	let confirmOpen = $state(false);
 	let confirmModeKey = $state('');
 	let confirmCost = $state(0);
+	let confirmTitle = $state('');
+	let confirmDesc = $state('');
+	let confirmIsBuy = $state(false); // true = buy (triggers bet), false = activate (sets mode)
 
-	const requestBuy = (modeKey: string, cost: number) => {
+	const requestConfirm = (modeKey: string, cost: number, title: string, desc: string, isBuy: boolean) => {
 		confirmModeKey = modeKey;
 		confirmCost = cost;
+		confirmTitle = title;
+		confirmDesc = desc;
+		confirmIsBuy = isBuy;
 		confirmOpen = true;
-		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 	};
 
-	const confirmBuy = () => {
+	const confirmAction = () => {
 		stateBonus.selectedBetModeKey = confirmModeKey;
 		stateBet.activeBetModeKey = confirmModeKey;
-		eventEmitter.broadcast({ type: 'bet' as any });
-		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		if (confirmIsBuy) {
+			eventEmitter.broadcast({ type: 'bet' as any });
+		}
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		confirmOpen = false;
 		props.onclose();
 	};
 
-	const cancelBuy = () => {
+	const cancelConfirm = () => {
 		confirmOpen = false;
-		eventEmitter.broadcast({ type: 'soundPressGeneral' as any });
+		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 	};
 
 	// ── Computed costs ──
@@ -122,7 +134,7 @@
 	};
 	const currentMultImg = $derived(MULT_IMG_MAP[currentMult.key]);
 
-	const anteCost = $derived(stateBet.betAmount * (stateMeta.betModeMeta['ANTE']?.costMultiplier ?? 2.5));
+	const anteCost = $derived(stateBet.betAmount * (stateMeta.betModeMeta['ANTE']?.costMultiplier ?? 2.0));
 	const multCost = $derived(stateBet.betAmount * currentMult.cost);
 	const bonusCost = $derived(stateBet.betAmount * (stateMeta.betModeMeta['BONUS']?.costMultiplier ?? 100));
 
@@ -133,7 +145,7 @@
 	<PopupLight zIndex={zIndex.modal} onclose={props.onclose}>
 		<!-- Bet size selector -->
 		<div class="bet-bar">
-			<span class="bet-label">BET</span>
+			<span class="bet-label">{stateI18nDerived.translate('BET')}</span>
 			<button class="pick-btn" onclick={betDown} disabled={currentBetIndex <= 0}>&#9660;</button>
 			<span class="pick-label">{numberToCurrencyString(stateBet.betAmount)}</span>
 			<button class="pick-btn" onclick={betUp} disabled={currentBetIndex >= betOptions.length - 1}>&#9650;</button>
@@ -160,7 +172,7 @@
 						class:active={isAnteActive}
 						class:disabled={!isAnteActive && !canAfford(anteCost)}
 						disabled={!isAnteActive && !canAfford(anteCost)}
-						onclick={() => isAnteActive ? deactivateMode() : activateMode('ANTE')}
+						onclick={() => isAnteActive ? deactivateMode() : requestConfirm('ANTE', anteCost, 'ACTIVATE EXTRA CHANCE', '1 Bonus symbol guaranteed on the last reel each spin.', false)}
 					>{isAnteActive ? 'DEACTIVATE' : 'ACTIVATE'}</button>
 				</div>
 			</div>
@@ -188,7 +200,7 @@
 						class:active={isMultActive}
 						class:disabled={!isMultActive && !canAfford(multCost)}
 						disabled={!isMultActive && !canAfford(multCost)}
-						onclick={() => isMultActive ? deactivateMode() : activateMode(currentMult.key)}
+						onclick={() => isMultActive ? deactivateMode() : requestConfirm(currentMult.key, multCost, `ACTIVATE ${currentMult.label} GRID`, `All cells set to ${currentMult.label} multiplier.`, false)}
 					>{isMultActive ? 'DEACTIVATE' : 'ACTIVATE'}</button>
 				</div>
 			</div>
@@ -212,29 +224,29 @@
 						class="card-action"
 						class:disabled={!canAfford(bonusCost)}
 						disabled={!canAfford(bonusCost)}
-						onclick={() => requestBuy('BONUS', bonusCost)}
+						onclick={() => requestConfirm('BONUS', bonusCost, 'BUY BONUS', 'Starts a Bonus round with 8 Free Spins.', true)}
 					>{stateI18nDerived.translate('BUY')}</button>
 				</div>
 			</div>
 		</div>
 
-		<!-- ── Buy Bonus Confirmation Dialog ── -->
+		<!-- ── Confirmation Dialog (for ALL selections) ── -->
 		{#if confirmOpen}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="confirm-overlay" onclick={cancelBuy}>
+			<div class="confirm-overlay" onclick={cancelConfirm}>
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div class="confirm-dialog" onclick={(e) => e.stopPropagation()}>
-					<div class="confirm-title">CONFIRM PURCHASE</div>
+					<div class="confirm-title">{stateI18nDerived.translate(confirmTitle)}</div>
 					<div class="confirm-desc">
-						Buy Bonus &mdash; 8 Free Spins
+						{confirmDesc}
 					</div>
 					<div class="confirm-cost">{numberToCurrencyString(confirmCost)}</div>
-					<div class="confirm-sub">will be deducted from your balance</div>
+					<div class="confirm-sub">{stateI18nDerived.translate(confirmIsBuy ? 'will be deducted from your balance' : 'will be the cost per spin')}</div>
 					<div class="confirm-actions">
-						<button class="confirm-btn cancel" onclick={cancelBuy}>CANCEL</button>
-						<button class="confirm-btn accept" onclick={confirmBuy}>CONFIRM</button>
+						<button class="confirm-btn cancel" onclick={cancelConfirm}>CANCEL</button>
+						<button class="confirm-btn accept" onclick={confirmAction}>CONFIRM</button>
 					</div>
 				</div>
 			</div>

@@ -72,7 +72,7 @@
     },
     "ante": {
       "buyBonus": false,
-      "cost": 2.5,
+      "cost": 2.0,
       "feature": true,
       "max_win": 25000.0,
       "rtp": 0.965

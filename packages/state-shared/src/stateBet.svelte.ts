@@ -1,5 +1,6 @@
 import type { BaseBet } from 'utils-bet';
 import { stateMeta } from './stateMeta.svelte';
+import { stateConfig } from './stateConfig.svelte';
 
 export type Currency = string;
 export type BetToResume = BaseBet | null;
@@ -27,10 +28,15 @@ export const stateBet = $state({
 
 const correctBetAmount = (value: number) => {
 	if (value <= 0) return 0;
-	const costMultiplier = betCostMultiplier();
-	if (costMultiplier === 0) return 0;
-	const max = stateBet.balanceAmount / costMultiplier;
-	if (value >= max) return max;
+	// Only allow values that exist in the RGS betLevels list
+	const options: number[] = stateConfig.betAmountOptions;
+	if (options.length > 0 && !options.includes(value)) {
+		// Snap to the nearest valid bet level
+		const closest = options.reduce((prev, curr) =>
+			Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+		);
+		return closest;
+	}
 	return value;
 };
 
