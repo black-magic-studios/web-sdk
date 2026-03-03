@@ -1,333 +1,2236 @@
- SES Removing unpermitted intrinsics
- SES Removing unpermitted intrinsics
- Avoid using `history.pushState(...)` and `history.replaceState(...)` as these will conflict with SvelteKit's router. Use the `pushState` and `replaceState` imports from `$app/navigation` instead.
-warn @ client.js?v=a7f39c88:2891
- The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127
-_createDeviceAndAdaptor @ chunk-56PQPBCD.js?v=a7f39c88:461
-          PixiJS  v8.8.1 (webgpu) http://www.pixijs.com/
- PixiJS renderer: WebGPU (antialias: false)
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
- PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_000
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_001
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_002
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_003
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_004
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_005
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_006
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_007
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_008
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_009
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_010
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_011
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_012
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_013
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_014
-warn @ client.js?v=a7f39c88:2891
-client.js?v=a7f39c88:2891 PixiJS Warning:  [Cache] already has key: poof_015
-warn @ client.js?v=a7f39c88:2891
-chunk-J5SW3AYT.js?v=a7f39c88:1676 Uncaught Svelte error: component_api_invalid_new
-Attempted to instantiate /workspaces/web-sdk/packages/pixi-svelte/dist/components/Circle.svelte with `new Circle`, which is no longer valid in Svelte 5. If this component is not under your control, set the `compatibility.componentApi` compiler option to `4` to keep it working.
-https://svelte.dev/e/component_api_invalid_new
-
-	in Container.svelte
-	in BoardContainer.svelte
-	in PreGameShowcase.svelte
-	in AssetsLoader.svelte
-	in InitialiseParent.svelte
-	in InitialiseApplication.svelte
-	in App.svelte
-	in Game.svelte
-	in StoryLocale.svelte
-	in StoryGameTemplate.svelte
-	in Story.svelte
-	in ModeAnte.stories.svelte
-	in StoryRenderer.svelte
-	in DecoratorHandler.svelte
-	in PreviewRender.svelte
-
-    at component_api_invalid_new (chunk-J5SW3AYT.js?v=a7f39c88:139:19)
-    at Module.check_target (chunk-G357VPZH.js?v=a7f39c88:311:5)
-    at new Circle (Circle.svelte:21:49)
-    at chunk-G357VPZH.js?v=a7f39c88:284:26
-    at update_reaction (chunk-J5SW3AYT.js?v=a7f39c88:1798:23)
-    at update_effect (chunk-J5SW3AYT.js?v=a7f39c88:1908:21)
-    at create_effect (chunk-J5SW3AYT.js?v=a7f39c88:2307:7)
-    at branch (chunk-J5SW3AYT.js?v=a7f39c88:2452:10)
-    at chunk-G357VPZH.js?v=a7f39c88:278:17
-    at update_reaction (chunk-J5SW3AYT.js?v=a7f39c88:1798:23)
-client:756 WebSocket connection to 'wss://ominous-meme-5gjrg6pwqrp6f44jg-6001.app.github.dev:6001/?token=5zu0R3pM91N2' failed: 
+lockdown-install.js:1 SES Removing unpermitted intrinsics
+lockdown-install.js:1 SES Removing unpermitted intrinsics
+client:756 WebSocket connection to 'wss://ominous-meme-5gjrg6pwqrp6f44jg-6001.app.github.dev:6001/?token=XhUmh9rVFr_H' failed: 
 createConnection @ client:756
 client:795 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
 connect @ client:795
 client:444 Uncaught (in promise) Error: WebSocket closed without opened.
     at WebSocket.<anonymous> (client:444:22)
 (anonymous) @ client:444
+globals-runtime.js:37322 Avoid using `history.pushState(...)` and `history.replaceState(...)` as these will conflict with SvelteKit's router. Use the `pushState` and `replaceState` imports from `$app/navigation` instead.
+warn @ client.js?v=d0af3dd5:2891
+warn @ client.js?v=d0af3dd5:86
+history.replaceState @ client.js?v=d0af3dd5:99
+setQueryParams @ storybook_internal_preview_runtime.js?v=d0af3dd5:44013
+onUpdateQueryParams @ storybook_internal_preview_runtime.js?v=d0af3dd5:43745
+(anonymous) @ storybook_internal_preview_runtime.js?v=d0af3dd5:20016
+handleEvent @ storybook_internal_preview_runtime.js?v=d0af3dd5:20015
+(anonymous) @ storybook_internal_preview_runtime.js?v=d0af3dd5:19964
+handler @ storybook_internal_preview_runtime.js?v=d0af3dd5:21429
+handleEvent @ storybook_internal_preview_runtime.js?v=d0af3dd5:21527
+postMessage
+(anonymous) @ globals-runtime.js:37322
+send @ globals-runtime.js:37320
+(anonymous) @ globals-runtime.js:35999
+handler @ globals-runtime.js:35998
+emit @ globals-runtime.js:36002
+setQueryParams @ globals-runtime.js:51486
+(anonymous) @ globals-runtime.js:51512
+(anonymous) @ globals-runtime.js:36037
+handleEvent @ globals-runtime.js:36036
+(anonymous) @ globals-runtime.js:35985
+handler @ globals-runtime.js:37278
+handleEvent @ globals-runtime.js:37378
+postMessage
+(anonymous) @ storybook_internal_preview_runtime.js?v=d0af3dd5:21473
+send @ storybook_internal_preview_runtime.js?v=d0af3dd5:21471
+(anonymous) @ storybook_internal_preview_runtime.js?v=d0af3dd5:19978
+handler @ storybook_internal_preview_runtime.js?v=d0af3dd5:19977
+emit @ storybook_internal_preview_runtime.js?v=d0af3dd5:19981
+renderSelection @ storybook_internal_preview_runtime.js?v=d0af3dd5:43836
+InitialiseApplication.svelte:38 The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127
+_createDeviceAndAdaptor @ chunk-56PQPBCD.js?v=d0af3dd5:461
+init @ chunk-56PQPBCD.js?v=d0af3dd5:440
+init @ chunk-R5U2K7GU.js?v=d0af3dd5:317
+await in init
+autoDetectRenderer @ chunk-NVO3SAKV.js?v=d0af3dd5:6010
+await in autoDetectRenderer
+init @ chunk-NVO3SAKV.js?v=d0af3dd5:6028
+initialiseApplication @ InitialiseApplication.svelte:38
+await in initialiseApplication
+(anonymous) @ InitialiseApplication.svelte:65
+untrack @ chunk-J5SW3AYT.js?v=d0af3dd5:2194
+$effect @ chunk-G357VPZH.js?v=d0af3dd5:3705
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+chunk-R5U2K7GU.js?v=d0af3dd5:2313          PixiJS  v8.8.1 (webgpu) http://www.pixijs.com/
+InitialiseApplication.svelte:54 PixiJS renderer: WebGPU (antialias: false)
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_000
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_001
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_002
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_003
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_004
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_005
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_006
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_007
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_008
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_009
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_010
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_011
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_012
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_013
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_014
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+AssetsLoader.svelte:49 PixiJS Warning:  [Cache] already has key: poof_015
+warn @ client.js?v=d0af3dd5:2891
+warn @ chunk-4XPZJGK3.js?v=d0af3dd5:3711
+(anonymous) @ chunk-YTOKF43M.js?v=d0af3dd5:2155
+set @ chunk-YTOKF43M.js?v=d0af3dd5:2152
+(anonymous) @ chunk-NVO3SAKV.js?v=d0af3dd5:7696
+_mapLoadToResolve @ chunk-NVO3SAKV.js?v=d0af3dd5:7687
+await in _mapLoadToResolve
+load @ chunk-NVO3SAKV.js?v=d0af3dd5:7486
+(anonymous) @ AssetsLoader.svelte:49
+loadAssets @ AssetsLoader.svelte:44
+(anonymous) @ AssetsLoader.svelte:83
+$effect @ AssetsLoader.svelte:91
+update_reaction @ chunk-J5SW3AYT.js?v=d0af3dd5:1798
+update_effect @ chunk-J5SW3AYT.js?v=d0af3dd5:1908
+flush_queued_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:2005
+flush_queued_root_effects @ chunk-J5SW3AYT.js?v=d0af3dd5:1986
+BoardFrame.svelte:47 PixiJS Deprecation Warning: Texture.baseTexture is now Texture.sourceDeprecated since v8.0.0

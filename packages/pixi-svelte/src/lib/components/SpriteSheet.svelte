@@ -16,9 +16,8 @@
 	const isValid = $derived(textures && 'length' in textures);
 </script>
 
-{#if !isValid}
+{#if !isValid && false}
 	{console.error(`SpriteSheet: key "${key}" is not found in loadedAssets`)}
-	{console.log('loadedAssets', $state.snapshot(context).stateApp.loadedAssets)}
 {/if}
 
 <AnimatedSprite {...animateSpriteProps} textures={isValid ? textures : []} />

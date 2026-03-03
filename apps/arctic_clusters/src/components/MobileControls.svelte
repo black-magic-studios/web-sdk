@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateMeta, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -48,8 +48,17 @@
 	const balanceTween = new Tween(stateBet.balanceAmount);
 	const winTween = new Tween(stateBet.winBookEventAmount);
 
-	$effect(() => { balanceTween.set(stateBet.balanceAmount); });
-	$effect(() => { winTween.set(stateBet.winBookEventAmount); });
+	// Track currency so we can skip animation on currency switch
+	let prevCurrency = stateBet.currency;
+	$effect(() => {
+		const instant = stateBet.currency !== prevCurrency;
+		prevCurrency = stateBet.currency;
+		balanceTween.set(stateBet.balanceAmount, { duration: instant ? 0 : undefined });
+	});
+	$effect(() => {
+		const instant = stateBet.currency !== prevCurrency;
+		winTween.set(stateBet.winBookEventAmount, { duration: instant ? 0 : undefined });
+	});
 
 	const balanceText = $derived(numberToCurrencyString(balanceTween.current));
 	const winText = $derived(bookEventAmountToCurrencyString(winTween.current));
@@ -57,7 +66,15 @@
 	const showWin = $derived(stateBet.winBookEventAmount > 0);
 
 	// Bet disabled / idle state — bypass balance check in replay mode
-	const disabled = $derived(!stateBetDerived.isBetCostAvailable() && !stateUrlDerived.replay());
+	// Inline the computation so Svelte 5 tracks all reactive dependencies directly
+	const disabled = $derived.by(() => {
+		const mode = stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toUpperCase()]
+			?? stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toLowerCase()];
+		const costMult = mode?.type === 'activate' ? (mode.costMultiplier ?? 1) : 1;
+		const cost = stateBet.betAmount * costMult;
+		const available = cost > 0 && cost <= stateBet.balanceAmount;
+		return !available && !stateUrlDerived.replay();
+	});
 	const betIdle = $derived(context.stateXstateDerived.isIdle());
 
 	// Arrow disabled states
@@ -258,6 +275,7 @@
 
 		&.hidden {
 			opacity: 0;
+			visibility: hidden;
 			pointer-events: none;
 			transform: translateY(20px);
 		}
@@ -270,7 +288,9 @@
 		justify-content: center;
 		gap: clamp(4px, 2vw, 10px);
 		pointer-events: auto;
-		padding: 2px 0;
+		padding: 6px 0 4px;
+		background: linear-gradient(to bottom, transparent 0%, rgba(16, 22, 36, 0.7) 30%, rgba(16, 22, 36, 0.9) 100%);
+		width: 100%;
 	}
 
 	.ctrl-btn {
@@ -304,18 +324,36 @@
 	.auto-btn,
 	.fast-btn,
 	.buy-btn {
-		width: clamp(26px, 7vw, 36px);
-		height: clamp(26px, 7vw, 36px);
+		width: clamp(22px, 6vw, 34px);
+		height: clamp(22px, 6vw, 34px);
 	}
 
 	.spin-btn {
-		width: clamp(52px, 15.5vw, 76px);
-		height: clamp(52px, 15.5vw, 76px);
+		width: clamp(44px, 13vw, 70px);
+		height: clamp(44px, 13vw, 70px);
 		position: relative;
 
 		&.disabled {
 			opacity: 0.5;
 			cursor: not-allowed;
+		}
+	}
+
+	/* Scale down only on small portrait screens where controls overlap the board */
+	@media (max-height: 700px) and (max-width: 500px) {
+		.info-btn,
+		.auto-btn,
+		.fast-btn,
+		.buy-btn {
+			width: clamp(18px, 5vw, 28px);
+			height: clamp(18px, 5vw, 28px);
+		}
+		.spin-btn {
+			width: clamp(34px, 9vw, 50px);
+			height: clamp(34px, 9vw, 50px);
+		}
+		.button-row {
+			padding: 2px 0 1px;
 		}
 	}
 

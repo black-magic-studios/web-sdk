@@ -532,7 +532,7 @@
 
 						<h3>Standard</h3>
 						<div class="feature-block">
-							<p>Default gameplay at standard {isSocial ? 'play' : 'bet'} cost.</p>
+							<p>Default gameplay at the standard {isSocial ? 'play amount' : 'bet cost'}. All cell multipliers start at 1x. No additional modifiers are applied.</p>
 						</div>
 
 						<h3>Extra Chance</h3>
@@ -545,16 +545,16 @@
 							<p>{isSocial ? 'For' : 'Costs'} <strong>{bonusCostDisplay}</strong> the standard {isSocial ? 'play amount' : 'bet'}. A trigger spin is played with <strong>3 or more Bonus symbols guaranteed</strong> on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.</p>
 						</div>
 
-						<h3>Grid Multiplier Modes</h3>
+						<h3>Grid Multiplier Modes (M2X – M1024X)</h3>
 						<div class="feature-block">
-							<p>Sets a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the {isSocial ? 'play' : 'bet'} cost. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and continue accumulating from the selected starting level.</p>
+							<p>These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the {isSocial ? 'play' : 'bet'} {isSocial ? 'amount' : 'cost'}. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and accumulate from the selected starting level.</p>
 							<table class="info-table">
 								<thead>
-									<tr><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} Cost</th></tr>
+									<tr><th>Mode</th><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} {isSocial ? 'Amount' : 'Cost'}</th><th>Description</th></tr>
 								</thead>
 								<tbody>
 									{#each gridCostTable as row}
-										<tr><td>{row.label}</td><td>{row.cost}</td></tr>
+										<tr><td>M{row.label.replace('x','').toUpperCase()}X</td><td>{row.label}</td><td>{row.cost}</td><td>Every cell starts at {row.label} multiplier. All wins benefit from amplified multipliers from the first tumble.</td></tr>
 									{/each}
 								</tbody>
 							</table>
@@ -617,21 +617,26 @@
 		border-bottom: 1px solid rgba(100, 180, 255, 0.15);
 		background: rgba(0, 0, 0, 0.3);
 		flex-shrink: 0;
+		overflow: hidden;
 
 		button {
-			flex: 1;
-			padding: 12px 6px;
+			flex: 1 1 0;
+			min-width: 0;
+			padding: 12px 4px;
 			border: none;
 			background: transparent;
 			color: rgba(136, 204, 255, 0.6);
 			font-family: 'Montserrat', Arial, sans-serif;
-			font-size: 12px;
+			font-size: clamp(7px, 1.3vw, 11px);
 			font-weight: 600;
-			letter-spacing: 0.5px;
+			letter-spacing: 0.2px;
 			text-transform: uppercase;
 			cursor: pointer;
 			transition: all 0.2s;
 			border-bottom: 2px solid transparent;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 
 			&:hover {
 				color: rgba(136, 204, 255, 0.9);

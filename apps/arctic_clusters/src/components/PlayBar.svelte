@@ -5,7 +5,7 @@
 	import { Assets, Texture } from 'pixi.js';
 	import type * as PIXI from 'pixi.js';
 	import { OnHotkey } from 'components-shared';
-	import { stateBet, stateBetDerived, stateModal, stateConfig, stateUrlDerived, stateI18nDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateMeta, stateModal, stateConfig, stateUrlDerived, stateI18nDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -54,8 +54,17 @@
 	const balanceTween = new Tween(stateBet.balanceAmount);
 	const winTween = new Tween(stateBet.winBookEventAmount);
 
-	$effect(() => { balanceTween.set(stateBet.balanceAmount); });
-	$effect(() => { winTween.set(stateBet.winBookEventAmount); });
+	// Track currency so we can skip animation on currency switch
+	let prevCurrencyPB = stateBet.currency;
+	$effect(() => {
+		const instant = stateBet.currency !== prevCurrencyPB;
+		prevCurrencyPB = stateBet.currency;
+		balanceTween.set(stateBet.balanceAmount, { duration: instant ? 0 : undefined });
+	});
+	$effect(() => {
+		const instant = stateBet.currency !== prevCurrencyPB;
+		winTween.set(stateBet.winBookEventAmount, { duration: instant ? 0 : undefined });
+	});
 
 	const balanceText = $derived(numberToCurrencyString(balanceTween.current));
 	const winText = $derived(bookEventAmountToCurrencyString(winTween.current));
@@ -388,7 +397,15 @@
 	const fsCombinedValueFontSize = $derived(Math.round(Math.max(12, fsFSH * 0.45)));
 
 	// Bet disabled state — bypass balance check in replay mode
-	const disabled = $derived(!stateBetDerived.isBetCostAvailable() && !stateUrlDerived.replay());
+	// Inline the computation so Svelte 5 tracks all reactive dependencies directly
+	const disabled = $derived.by(() => {
+		const mode = stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toUpperCase()]
+			?? stateMeta.betModeMeta?.[stateBet.activeBetModeKey.toLowerCase()];
+		const costMult = mode?.type === 'activate' ? (mode.costMultiplier ?? 1) : 1;
+		const cost = stateBet.betAmount * costMult;
+		const available = cost > 0 && cost <= stateBet.balanceAmount;
+		return !available && !stateUrlDerived.replay();
+	});
 	const betIdle = $derived(context.stateXstateDerived.isIdle());
 
 	// Arrow disabled states — only grey out when at bet limits, NOT during spin  

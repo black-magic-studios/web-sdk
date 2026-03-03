@@ -51,7 +51,8 @@
 			resizeTo: window,
 		});
 
-		console.log(`PixiJS renderer: ${webGPUSupported ? 'WebGPU' : 'WebGL'} (antialias: ${!webGPUSupported})`);
+		// Renderer info logged only in dev mode
+		if (import.meta.env?.DEV) console.log(`PixiJS renderer: ${webGPUSupported ? 'WebGPU' : 'WebGL'} (antialias: ${!webGPUSupported})`);
 
 		wrap.appendChild(context.stateApp.pixiApplication.canvas);
 

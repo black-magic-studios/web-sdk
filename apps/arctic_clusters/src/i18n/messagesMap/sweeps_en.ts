@@ -33,7 +33,7 @@ export default {
 	'All pays are multiplied by total bet. Minimum cluster size: 5 symbols.':
 		'All wins are multiplied by total play. Minimum cluster size: 5 symbols.',
 	'Normal gameplay at 1x bet cost. All cell multipliers start at 1x.':
-		'Normal gameplay at 1x play cost. All cell multipliers start at 1x.',
+		'Normal gameplay at 1x play amount. All cell multipliers start at 1x.',
 	'Costs <strong>2.5x</strong> the standard bet. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.':
 		'For <strong>2.5x</strong> the standard play. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.',
 	'Costs <strong>100x</strong> the standard bet. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.':
@@ -41,7 +41,7 @@ export default {
 	'Maximum win per spin is capped at <strong>25,000x</strong> the bet. If the cap is reached, remaining tumbles are stopped.':
 		'Maximum win per spin is capped at <strong>25,000x</strong> the play. If the cap is reached, remaining tumbles are stopped.',
 	'Start every cell at a higher multiplier for an increased bet cost. All wins benefit from amplified multipliers from the very first tumble.':
-		'Start every cell at a higher multiplier for an increased play cost. All wins benefit from amplified multipliers from the very first tumble.',
+		'Start every cell at a higher multiplier for an increased play amount. All wins benefit from amplified multipliers from the very first tumble.',
 
 	// ── Buy bonus modal ──
 	'Extra chance to trigger the bonus each spin.':
@@ -52,8 +52,8 @@ export default {
 		'Trigger the enhanced free spins with higher multipliers.',
 
 	// ── Paytable ──
-	'Bet Cost': 'Play Cost',
-	'BET COST': 'PLAY COST',
+	'Bet Cost': 'Play Amount',
+	'BET COST': 'PLAY AMOUNT',
 
 	// ── Currency / money terms ──
 	CASH: 'COINS',
@@ -100,7 +100,7 @@ export default {
 	'Base Bet': 'Base Play',
 	'Cost Multiplier': 'Feature Multiplier',
 	'Payout Multiplier': 'Final Multiplier',
-	'Total Bet Cost': 'Total Play Cost',
+	'Total Bet Cost': 'Total Play Amount',
 	'WIN UP TO 25,000 X BET': 'WIN UP TO 25,000 X PLAY',
 
 	// ── Bonus purchase ──
@@ -115,5 +115,5 @@ export default {
 	'WIN FEATURE': 'PLAY FEATURE',
 	'PLACE YOUR BETS': 'COME AND PLAY / JOIN IN THE GAME',
 	'will be deducted from your balance': 'will be deducted from your balance',
-	'will be the cost per spin': 'will be the cost per spin',
+	'will be the cost per spin': 'will be the play amount per spin',
 };

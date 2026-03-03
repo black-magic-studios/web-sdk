@@ -93,7 +93,7 @@
 						<span class="info-value">{costMultiplier}x</span>
 					</div>
 					<div class="info-row highlight">
-						<span class="info-label">{isSocial ? 'Total Play Cost' : 'Total Bet Cost'}</span>
+						<span class="info-label">{isSocial ? 'Total Play Amount' : 'Total Bet Cost'}</span>
 						<span class="info-value cost-value">{numberToCurrencyString(totalBetCost)}</span>
 					</div>
 					<div class="info-divider"></div>
@@ -132,7 +132,7 @@
 					</div>
 					<div class="info-divider"></div>
 					<div class="info-row highlight">
-						<span class="info-label">{isSocial ? 'Total Play Cost' : 'Total Bet Cost'}</span>
+						<span class="info-label">{isSocial ? 'Total Play Amount' : 'Total Bet Cost'}</span>
 						<span class="info-value cost-value">{numberToCurrencyString(totalBetCost)}</span>
 					</div>
 					<div class="info-row highlight">

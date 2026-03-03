@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateBet, stateI18nDerived, stateConfig, stateBetDerived, stateMeta } from 'state-shared';
+	import { stateBet, stateI18nDerived, stateConfig, stateBetDerived, stateMeta, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { stateBonus } from 'components-ui-html/src/stateBonus.svelte';
 	import { getContextEventEmitter } from 'utils-event-emitter';
@@ -243,7 +243,7 @@
 						{confirmDesc}
 					</div>
 					<div class="confirm-cost">{numberToCurrencyString(confirmCost)}</div>
-					<div class="confirm-sub">{stateI18nDerived.translate(confirmIsBuy ? 'will be deducted from your balance' : 'will be the cost per spin')}</div>
+					<div class="confirm-sub">{confirmIsBuy ? stateI18nDerived.translate('will be deducted from your balance') : (stateUrlDerived.social() ? 'will be the play amount per spin' : 'will be the cost per spin')}</div>
 					<div class="confirm-actions">
 						<button class="confirm-btn cancel" onclick={cancelConfirm}>CANCEL</button>
 						<button class="confirm-btn accept" onclick={confirmAction}>CONFIRM</button>
