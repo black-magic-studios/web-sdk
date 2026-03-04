@@ -585,6 +585,8 @@
 	};
 
 	const handleAutoPlay = () => {
+		// Block autoplay activation during bonus/free spins
+		if (inFreeSpins && !stateBetDerived.hasAutoBetCounter()) return;
 		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		if (stateBetDerived.hasAutoBetCounter()) {
 			// Stop autoplay if running
@@ -603,6 +605,10 @@
 	};
 
 	const handleBuyBonus = () => {
+		// Block buy bonus while autoplay is active
+		if (stateBetDerived.hasAutoBetCounter()) return;
+		// Block buy bonus during bonus/free spins
+		if (inFreeSpins) return;
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
@@ -1030,6 +1036,7 @@
 					width={smallButtonSize}
 					height={smallButtonSize}
 					anchor={0.5}
+					tint={inFreeSpins && !isAutoplaying ? 0x666666 : 0xffffff}
 				/>
 				{#if isAutoplaying && autoSpinsText}
 					<Text
@@ -1093,6 +1100,7 @@
 					width={buyButtonSize}
 					height={buyButtonSize}
 					anchor={0.5}
+					tint={isAutoplaying || inFreeSpins ? 0x666666 : 0xffffff}
 				/>
 			</Container>
 			{/if}

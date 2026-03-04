@@ -76,6 +76,16 @@
 		}
 	});
 
+	// Reset frozen values when replay restarts (state goes back to 'ready')
+	let prevReplayState = props.replayState;
+	$effect(() => {
+		if (props.replayState === 'ready' && prevReplayState === 'done') {
+			frozenTotalWin = null;
+			frozenPayoutMultiplier = null;
+		}
+		prevReplayState = props.replayState;
+	});
+
 	// Use frozen values (survive state clearing), fall back to live if not yet frozen
 	const totalWin = $derived(frozenTotalWin ?? liveTotalWin);
 	const payoutMultiplier = $derived(frozenPayoutMultiplier ?? livePayoutMultiplier);
@@ -204,8 +214,14 @@
 		background: linear-gradient(180deg, #0d1830 0%, #121e3a 100%);
 		border: 1px solid rgba(100, 160, 255, 0.18);
 		box-shadow: 0 0 50px rgba(30, 80, 160, 0.25);
-		min-width: 300px;
+		min-width: min(300px, 85vw);
 		max-width: min(400px, 90vw);
+		max-height: 90vh;
+		max-height: 90dvh;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(100, 160, 255, 0.3) transparent;
 	}
 
 	/* ── Badge ── */

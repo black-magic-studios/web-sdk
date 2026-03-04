@@ -721,6 +721,7 @@
 	/* ── Scrollable content ── */
 	.content {
 		overflow-y: auto;
+		overflow-x: hidden;
 		padding: 20px 24px 28px;
 		scrollbar-width: thin;
 		scrollbar-color: rgba(136, 204, 255, 0.3) transparent;
@@ -1106,6 +1107,8 @@
 		width: 100%;
 		border-collapse: collapse;
 		margin: 10px 0;
+		table-layout: fixed;
+		word-wrap: break-word;
 
 		th {
 			font-size: 11px;
@@ -1125,6 +1128,15 @@
 			padding: 6px 10px;
 			text-align: center;
 			border-bottom: 1px solid rgba(100, 180, 255, 0.05);
+			overflow-wrap: break-word;
+		}
+
+		/* Allocate more space to the description column */
+		th:last-child, td:last-child {
+			width: 45%;
+		}
+		th:first-child, td:first-child {
+			width: 15%;
 		}
 
 		&.compact td, &.compact th {
@@ -1186,5 +1198,15 @@
 		}
 
 		.stats-grid { grid-template-columns: repeat(3, 1fr); }
+
+		.info-table {
+			th, td {
+				padding: 4px 4px;
+				font-size: 10px;
+			}
+			th:last-child, td:last-child {
+				width: 40%;
+			}
+		}
 	}
 </style>

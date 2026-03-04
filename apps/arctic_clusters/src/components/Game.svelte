@@ -9,9 +9,11 @@
 	import { GameVersion, Modals } from 'components-ui-html';
 	import ModalBuyBonus from './ModalBuyBonus.svelte';
 
+	import { requestReplay } from 'rgs-requests';
 	import { stateMeta, stateConfig, stateBet } from 'state-shared';
 	import { getContext } from '../game/context';
 	import config from '../game/config';
+	import { INITIAL_BOARD } from '../game/constants';
 	import EnableSound from './EnableSound.svelte';
 	import EnableGameActor from './EnableGameActor.svelte';
 	import ResumeBet from './ResumeBet.svelte';
@@ -170,8 +172,60 @@
 		context.eventEmitter.broadcast({ type: 'resumeBet' });
 	}
 
-	function restartReplay() {
-		window.location.reload();
+	async function restartReplay() {
+		// Reset game visual state
+		const { stateGame } = context;
+		stateGame.gameType = 'basegame';
+		stateGame.scatterCounter = 0;
+		stateGame.scatterPositionHistory = [];
+		stateGame.auroraPositions = [];
+		stateGame.auroraMeterTotal = 0;
+		stateGame.auroraWildPositions = [];
+		stateGame.auroraWildsConnected = 0;
+		stateGame.auroraWildsSessionTotal = 0;
+		stateGame.isWildRelease = false;
+		stateGame.wildReleaseRemaining = 0;
+		stateGame.spinActive = false;
+		stateGame.tumbleBoardAdding = [];
+		stateGame.tumbleBoardBase = [];
+		stateGame.multiplierBoard = [];
+		stateGame.pendingMultiplierGrid = null;
+
+		// Reset multiplier grid and animations
+		context.eventEmitter.broadcast({ type: 'multiplierGridClear' });
+
+		// Reset board to initial symbols
+		context.stateGameDerived.enhancedBoard.settle(INITIAL_BOARD);
+
+		// Reset bet state
+		stateBet.winBookEventAmount = 0;
+
+		// Re-fetch replay data from API
+		try {
+			const data = await requestReplay({
+				rgsUrl: stateUrlDerived.rgsUrl(),
+				game: stateUrlDerived.game(),
+				mode: stateUrlDerived.mode(),
+				version: stateUrlDerived.version(),
+				event: stateUrlDerived.event(),
+			});
+
+			if (data) {
+				// @ts-ignore
+				stateBet.betToResume = {
+					...data,
+					event: '0',
+					active: true,
+					mode: stateUrlDerived.mode(),
+				};
+			}
+		} catch (error) {
+			console.error('Failed to re-fetch replay data:', error);
+		}
+
+		// Reset replay tracking and go back to 'ready' state
+		replayWasPlaying = false;
+		replayState = 'ready';
 	}
 
 	// Replay waits for user to click "Start Replay" in ReplayOverlay
@@ -303,7 +357,7 @@
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
 
-{#if useMobileControls && !preGameMode && !stateUrlDerived.replay()}
+{#if useMobileControls && !preGameMode}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />
 {/if}
 

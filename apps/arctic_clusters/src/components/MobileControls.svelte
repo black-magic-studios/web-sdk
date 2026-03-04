@@ -11,6 +11,7 @@
 	const props: Props = $props();
 
 	const context = getContext();
+	const isReplay = $derived(stateUrlDerived.replay());
 
 	// ── Free spin state ──
 	let inFreeSpins = $state(false);
@@ -94,6 +95,8 @@
 	let autoplayMenuOpen = $state(false);
 
 	const handleAutoPlay = () => {
+		// Block autoplay activation during bonus/free spins
+		if (inFreeSpins && !stateBetDerived.hasAutoBetCounter()) return;
 		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		if (stateBetDerived.hasAutoBetCounter()) {
 			stateBet.autoSpinsCounter = 0;
@@ -115,6 +118,10 @@
 	};
 
 	const handleBuyBonus = () => {
+		// Block buy bonus while autoplay is active
+		if (stateBetDerived.hasAutoBetCounter()) return;
+		// Block buy bonus during bonus/free spins
+		if (inFreeSpins) return;
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
@@ -182,18 +189,21 @@
 				</div>
 			</div>
 
+			{#if !isReplay}
 			<button class="ctrl-btn fast-btn fs-turbo-btn" onclick={handleFastPlay}>
 				<img src={turboImg} alt="Fast" />
 			</button>
+			{/if}
 		</div>
 	{:else}
 		<!-- ═══ NORMAL MODE ═══ -->
+	{#if !isReplay}
 	<div class="button-row">
 		<button class="ctrl-btn info-btn" onclick={handleInfo}>
 			<span class="info-icon">i</span>
 		</button>
 
-		<button class="ctrl-btn auto-btn" onclick={handleAutoPlay}>
+		<button class="ctrl-btn auto-btn" class:btn-disabled={inFreeSpins && !stateBetDerived.hasAutoBetCounter()} onclick={handleAutoPlay}>
 			<img src="./assets/sprites/buttons_new/autoplay_base.png" alt="Auto" />
 			{#if stateBetDerived.hasAutoBetCounter()}
 				<span class="autoplay-counter">{stateBet.autoSpinsCounter === Infinity ? '∞' : stateBet.autoSpinsCounter}</span>
@@ -215,14 +225,15 @@
 			<img src={turboImg} alt="Fast" />
 		</button>
 
-		<button class="ctrl-btn buy-btn" onclick={handleBuyBonus}>
+		<button class="ctrl-btn buy-btn" class:btn-disabled={stateBetDerived.hasAutoBetCounter() || inFreeSpins} onclick={handleBuyBonus}>
 			<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt={stateI18nDerived.translate('BUY')} />
 		</button>
 	</div>
+	{/if}
 
 	<!-- ── Info bar ── -->
 	<div class="info-bar">
-		<button class="info-section balance-section" onclick={handleBetMenu}>
+		<button class="info-section balance-section" onclick={isReplay ? undefined : handleBetMenu}>
 			<span class="label">BALANCE</span>
 			<span class="value">{balanceText}</span>
 		</button>
@@ -236,6 +247,9 @@
 
 		<div class="info-section spin-section">
 			<span class="label">{betLabel}</span>
+			{#if isReplay}
+				<span class="value">{spinText}</span>
+			{:else}
 			<div class="bet-control">
 				<button
 					class="arrow-btn"
@@ -251,6 +265,7 @@
 					onclick={handleBetIncrease}
 				>▲</button>
 			</div>
+			{/if}
 			{#if hasActiveCostMode}
 				<span class="base-bet">{numberToCurrencyString(stateBet.betAmount)}</span>
 			{/if}
@@ -308,6 +323,11 @@
 
 		&:active {
 			transform: scale(0.92);
+		}
+
+		&.btn-disabled {
+			opacity: 0.35;
+			pointer-events: none;
 		}
 
 		img {

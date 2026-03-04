@@ -102,6 +102,12 @@
 	};
 
 	const confirmAction = () => {
+		// Block buy bonus confirmation while autoplay is active
+		if (stateBetDerived.hasAutoBetCounter()) {
+			confirmOpen = false;
+			props.onclose();
+			return;
+		}
 		stateBonus.selectedBetModeKey = confirmModeKey;
 		stateBet.activeBetModeKey = confirmModeKey;
 		if (confirmIsBuy) {
