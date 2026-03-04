@@ -57,10 +57,12 @@
 
 	const multUp = () => {
 		if (multIndex < MULT_MODES.length - 1) multIndex++;
+		if (isMultActive) deactivateMode();
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_1' });
 	};
 	const multDown = () => {
 		if (multIndex > 0) multIndex--;
+		if (isMultActive) deactivateMode();
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_2' });
 	};
 
@@ -652,4 +654,145 @@
 		to { opacity: 1; transform: scale(1); }
 	}
 
+	/* ── Popout / mini-player responsive overrides ── */
+	@media (max-height: 320px) {
+		.bet-bar {
+			padding: 4px 8px 0;
+			font-size: min(1.6vw, 10px);
+			gap: 0.3em;
+		}
+
+		.bet-label {
+			font-size: 8px;
+		}
+
+		.buy-modal {
+			--card-w: min(26vw, 120px);
+			--card-featured-w: min(30vw, 140px);
+			--gap: min(1vw, 6px);
+			padding: 0.3rem 0.5rem;
+		}
+
+		.card-body {
+			gap: 0.15em;
+			padding: 0.35em 0.35em;
+			font-size: min(1.6vw, 10px);
+		}
+
+		.card-title {
+			font-size: 1em;
+		}
+
+		.card-desc {
+			font-size: 0.75em;
+			line-height: 1.2;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.card-price {
+			font-size: 1em;
+		}
+
+		.card-action {
+			font-size: 0.75em;
+			padding: 0.2em 0.6em;
+		}
+
+		.feature-img {
+			width: 1.8em;
+			height: 1.8em;
+		}
+
+		.cell-preview {
+			width: 3em;
+			height: 3em;
+		}
+
+		.cell-label {
+			font-size: 1.1em;
+		}
+
+		.mult-pick-btn {
+			font-size: 0.9em;
+			width: 1.6em;
+			height: 1.6em;
+		}
+
+		.pick-label {
+			font-size: 1.4em;
+			min-width: 2.5em;
+		}
+
+		.pick-btn {
+			width: 1.4em;
+			height: 1.4em;
+		}
+
+		.card {
+			border-radius: 6px;
+		}
+
+		.confirm-dialog {
+			padding: 0.8em 1.2em;
+			max-width: 240px;
+		}
+
+		.confirm-title {
+			font-size: 1em;
+			margin-bottom: 0.3em;
+		}
+
+		.confirm-desc {
+			font-size: 0.8em;
+		}
+
+		.confirm-cost {
+			font-size: 1.1em;
+		}
+
+		.confirm-sub {
+			font-size: 0.65em;
+			margin-bottom: 0.5em;
+		}
+
+		.confirm-btn {
+			font-size: 0.75em;
+			padding: 0.35em 0.8em;
+		}
+	}
+
+	@media (max-height: 260px) {
+		.buy-modal {
+			--card-w: min(25vw, 100px);
+			--card-featured-w: min(28vw, 120px);
+			padding: 0.2rem 0.4rem;
+		}
+
+		.card-body {
+			gap: 0.1em;
+			padding: 0.25em 0.25em;
+			font-size: min(1.4vw, 9px);
+		}
+
+		.card-desc {
+			display: none;
+		}
+
+		.feature-img {
+			width: 1.4em;
+			height: 1.4em;
+		}
+
+		.cell-preview {
+			width: 2.4em;
+			height: 2.4em;
+		}
+
+		.bet-bar {
+			padding: 2px 6px 0;
+		}
+	}
 </style>

@@ -26,17 +26,20 @@
 	);
 	const totalBetCost = $derived(baseBet * costMultiplier);
 
-	// ── Total win: try API-level payout first, then compute from state events ──
-	const totalWin = $derived.by(() => {
+	// ── Freeze initial replay values so they survive state changes during playback ──
+	// These are captured once from betToResume before the replay starts playing.
+	let frozenTotalWin = $state<number | null>(null);
+	let frozenPayoutMultiplier = $state<number | null>(null);
+
+	// Compute live values from betToResume (works while state is still populated)
+	const liveTotalWin = $derived.by(() => {
 		const resume = stateBet.betToResume as any;
 		if (!resume) return 0;
 
-		// 1) API-level payout (from authenticate round or replay response)
 		if (resume.payout && resume.payout > 0) {
 			return resume.payout / API_AMOUNT_MULTIPLIER;
 		}
 
-		// 2) Compute from state events: find the last setTotalWin event
 		if (Array.isArray(resume.state)) {
 			let lastTotalWin = 0;
 			for (const evt of resume.state) {
@@ -45,7 +48,6 @@
 				}
 			}
 			if (lastTotalWin > 0) {
-				// Book event amounts use BOOK_AMOUNT_MULTIPLIER, scaled by bet
 				return (lastTotalWin / BOOK_AMOUNT_MULTIPLIER) * baseBet;
 			}
 		}
@@ -53,17 +55,30 @@
 		return 0;
 	});
 
-	// Payout multiplier: try API field, else compute from totalWin / totalBetCost
-	const payoutMultiplier = $derived.by(() => {
+	const livePayoutMultiplier = $derived.by(() => {
 		const resume = stateBet.betToResume as any;
 		if (resume?.payoutMultiplier && resume.payoutMultiplier > 0) {
 			return resume.payoutMultiplier;
 		}
-		if (totalBetCost > 0 && totalWin > 0) {
-			return Math.round((totalWin / totalBetCost) * 100) / 100;
+		if (totalBetCost > 0 && liveTotalWin > 0) {
+			return Math.round((liveTotalWin / totalBetCost) * 100) / 100;
 		}
 		return 0;
 	});
+
+	// Freeze values when we first get valid data (before replay consumes state)
+	$effect(() => {
+		if (frozenTotalWin === null && liveTotalWin > 0) {
+			frozenTotalWin = liveTotalWin;
+		}
+		if (frozenPayoutMultiplier === null && livePayoutMultiplier > 0) {
+			frozenPayoutMultiplier = livePayoutMultiplier;
+		}
+	});
+
+	// Use frozen values (survive state clearing), fall back to live if not yet frozen
+	const totalWin = $derived(frozenTotalWin ?? liveTotalWin);
+	const payoutMultiplier = $derived(frozenPayoutMultiplier ?? livePayoutMultiplier);
 </script>
 
 {#if isReplay && props.replayState !== 'playing'}
@@ -131,9 +146,24 @@
 						<span class="info-value mode-value">{modeKey}</span>
 					</div>
 					<div class="info-divider"></div>
+
+					<div class="info-row">
+						<span class="info-label">{isSocial ? 'Base Play' : 'Base Bet'}</span>
+						<span class="info-value">{numberToCurrencyString(baseBet)}</span>
+					</div>
+					<div class="info-row">
+						<span class="info-label">{isSocial ? 'Feature Multiplier' : 'Cost Multiplier'}</span>
+						<span class="info-value">{costMultiplier}x</span>
+					</div>
 					<div class="info-row highlight">
 						<span class="info-label">{isSocial ? 'Total Play Amount' : 'Total Bet Cost'}</span>
 						<span class="info-value cost-value">{numberToCurrencyString(totalBetCost)}</span>
+					</div>
+					<div class="info-divider"></div>
+
+					<div class="info-row">
+						<span class="info-label">{isSocial ? 'Final Multiplier' : 'Payout Multiplier'}</span>
+						<span class="info-value mult-value">{payoutMultiplier}x</span>
 					</div>
 					<div class="info-row highlight">
 						<span class="info-label">Total Win</span>

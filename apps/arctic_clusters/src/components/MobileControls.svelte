@@ -251,6 +251,9 @@
 					onclick={handleBetIncrease}
 				>▲</button>
 			</div>
+			{#if hasActiveCostMode}
+				<span class="base-bet">{numberToCurrencyString(stateBet.betAmount)}</span>
+			{/if}
 		</div>
 	</div>
 	{/if}
@@ -359,15 +362,15 @@
 
 	.deactivate-badge {
 		position: absolute;
-		top: -6px;
-		right: -6px;
-		width: clamp(18px, 5vw, 24px);
-		height: clamp(18px, 5vw, 24px);
+		top: -4px;
+		right: -10px;
+		width: clamp(14px, 4vw, 20px);
+		height: clamp(14px, 4vw, 20px);
 		border-radius: 50%;
 		background: rgba(200, 50, 50, 0.9);
 		border: 1.5px solid rgba(255, 100, 100, 0.6);
 		color: #ffffff;
-		font-size: clamp(9px, 2.5vw, 13px);
+		font-size: clamp(7px, 2vw, 11px);
 		font-weight: 700;
 		display: flex;
 		align-items: center;
@@ -511,6 +514,15 @@
 		padding: 0;
 		max-width: 100%;
 		min-width: 0;
+	}
+
+	.base-bet {
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: clamp(7px, 1.8vw, 11px);
+		font-weight: 500;
+		color: rgba(255, 255, 255, 0.35);
+		line-height: 1;
+		margin-top: -1px;
 	}
 
 	/* ── Free spins mode ── */

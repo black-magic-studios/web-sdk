@@ -1,13 +1,12 @@
 <script lang="ts">
 	import PopupLight from './PopupLight.svelte';
 	import { zIndex } from 'constants-shared/zIndex';
-	import { stateI18nDerived, stateUrlDerived, stateMeta, stateConfig } from 'state-shared';
+	import { stateI18nDerived, stateMeta, stateConfig } from 'state-shared';
 	import { getContext } from '../game/context';
 	import config from '../game/config';
 
 	const context = getContext();
 	const t = (key: string) => stateI18nDerived.translate(key);
-	const isSocial = $derived(stateUrlDerived.social());
 
 	// ── Dynamic values from RGS config (with local fallbacks) ──
 	const getRtp = () => stateConfig.betModes?.base?.rtp ?? config.rtp ?? 0.965;
@@ -91,12 +90,12 @@
 	let activeTab = $state<Tab>('paytable');
 	const tabs: Tab[] = ['paytable', 'features', 'controls', 'rules', 'modes', 'disclaimer'];
 	const tabLabels: Record<Tab, string> = $derived({
-		paytable: isSocial ? 'Win Table' : 'Paytable',
-		features: 'Features',
-		controls: 'Controls',
-		rules: 'Rules',
-		modes: isSocial ? 'Play Modes' : 'Bet Modes',
-		disclaimer: 'Disclaimer',
+		paytable: t('Paytable'),
+		features: t('Features'),
+		controls: t('Controls'),
+		rules: t('Rules'),
+		modes: t('Bet Modes'),
+		disclaimer: t('Disclaimer'),
 	});
 
 	// For mobile, swipe pages
@@ -142,10 +141,10 @@
 				<!-- ═══════════════════════════════════════════ -->
 				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
-						<h2>{isSocial ? 'Win Table' : 'Paytable'}</h2>
-						<p class="subtitle">{isSocial ? 'All values shown are multiplied by the total play amount.' : 'All values shown are multiplied by the total bet.'} A cluster must contain at least 5 matching symbols {isSocial ? 'to win' : 'to pay'}.</p>
+						<h2>{t('Paytable')}</h2>
+						<p class="subtitle">{t('All values shown are multiplied by the total bet.')} {t('A cluster must contain at least 5 matching symbols to pay.')}</p>
 
-						<h3>{isSocial ? 'High Win Symbols' : 'High Pay Symbols'}</h3>
+						<h3>{t('High Pay Symbols')}</h3>
 						{#each highPay as sym}
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
@@ -164,7 +163,7 @@
 							</div>
 						{/each}
 
-						<h3>{isSocial ? 'Low Win Symbols' : 'Low Pay Symbols'}</h3>
+						<h3>{t('Low Pay Symbols')}</h3>
 						{#each lowPay as sym}
 							<div class="pay-symbol-block">
 								<div class="pay-vertical-layout">
@@ -189,7 +188,7 @@
 								<img src={WILD_IMG} alt="Wild" class="special-icon" />
 								<div class="special-info">
 									<strong>Wild</strong>
-									<p>Substitutes for all {isSocial ? 'winning' : 'paying'} symbols. Does not replace Bonus or Super Bonus symbols. Wilds only appear through the Aurora Feature.</p>
+									<p>{t('Substitutes for all paying symbols. Does not replace Bonus or Super Bonus symbols. Wilds only appear through the Aurora Feature.')}</p>
 								</div>
 							</div>
 							<div class="special-row">
@@ -218,11 +217,11 @@
 						<h2>Tumble Feature</h2>
 						<div class="feature-block">
 							<div class="feature-steps">
-								<div class="step"><span class="step-num">1</span> All clusters on the grid are evaluated and {isSocial ? 'won' : 'paid'}.</div>
-								<div class="step"><span class="step-num">2</span> Symbols that formed part of a {isSocial ? 'winning' : 'paying'} cluster are removed.</div>
-								<div class="step"><span class="step-num">3</span> Remaining symbols fall downward to fill empty spaces.</div>
-								<div class="step"><span class="step-num">4</span> New symbols drop in from the top of each column.</div>
-								<div class="step"><span class="step-num">5</span> This repeats until no new {isSocial ? 'winning' : 'paying'} clusters are formed.</div>
+								<div class="step"><span class="step-num">1</span> {t('All clusters on the grid are evaluated and paid.')}</div>
+								<div class="step"><span class="step-num">2</span> {t('Symbols that formed part of a paying cluster are removed.')}</div>
+								<div class="step"><span class="step-num">3</span> {t('Remaining symbols fall downward to fill empty spaces.')}</div>
+								<div class="step"><span class="step-num">4</span> {t('New symbols drop in from the top of each column.')}</div>
+								<div class="step"><span class="step-num">5</span> {t('This repeats until no new paying clusters are formed.')}</div>
 							</div>
 						</div>
 					</div>
@@ -235,7 +234,7 @@
 								<li>When a cell is part of a winning cluster, it receives a <strong>2×</strong> multiplier. If the cell already has an active multiplier, it doubles with each additional winning tumble (<strong>2× → 4× → 8× → 16×</strong>, and so on, up to a maximum of <strong>1,024×</strong>).</li>
 								<li>Wild symbols are the only symbols that can belong to more than one cluster at a time. Even so, a Wild's cell multiplier only increases <strong>once</strong> per tumble step, regardless of how many clusters it helps complete.</li>
 								<li>Multipliers are <strong>positional</strong>. They stay at their cell location on the grid, not with the symbol.</li>
-								<li>When calculating a cluster's {isSocial ? 'win' : 'payout'}, the multipliers of all cells in that cluster with an active multiplier are added together, and the total is applied to the base {isSocial ? 'win' : 'pay'}. If no cells in the cluster have an active multiplier, only the base {isSocial ? 'win' : 'pay'} applies.</li>
+								<li>{t('When calculating a cluster\'s payout, the multipliers of all cells in that cluster with an active multiplier are added together, and the total is applied to the base pay. If no cells in the cluster have an active multiplier, only the base pay applies.')}</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Base Game:</strong> All cell multipliers reset to inactive at the start of each spin.<br />
@@ -249,9 +248,9 @@
 						<div class="feature-block">
 							<p>At the start of each spin, <strong>0 to 5 Aurora cells</strong> are randomly assigned to positions on the grid.</p>
 							<ul>
-								<li>When a {isSocial ? 'winning' : 'paying'} cluster forms on a cell marked as Aurora, the Aurora cell activates and generates <strong>1 to 3 Wild symbols</strong> as pending.</li>
+								<li>{t('When a paying cluster forms on a cell marked as Aurora, the Aurora cell activates and generates 1 to 3 Wild symbols as pending.')}</li>
 								<li>Once activated, the Aurora cell is removed from the grid. Each Aurora cell can only activate once.</li>
-								<li>Pending Wilds are not placed immediately. Tumbles continue until no further clusters form, at which point all pending Wilds are placed onto the board, replacing {isSocial ? 'winning' : 'paying'} symbols only.</li>
+								<li>{t('Pending Wilds are not placed immediately. Tumbles continue until no further clusters form, at which point all pending Wilds are placed onto the board, replacing paying symbols only.')}</li>
 								<li>After placement, the tumble sequence resumes. If the placed Wilds create new clusters that overlap remaining Aurora cells, the process repeats.</li>
 							</ul>
 						</div>
@@ -263,9 +262,9 @@
 						<div class="feature-block">
 							<p>During Bonus or Super Bonus Rounds, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
 							<ul>
-								<li>When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a <strong>{isSocial ? 'winning' : 'paying'} cluster</strong> is added to the collection.</li>
+								<li>{t('When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.')}</li>
 								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
-								<li>After all Bonus spins are completed, a <strong>Final Aurora Spin</strong> occurs: a fresh board is {isSocial ? 'generated' : 'dealt'} using only {isSocial ? 'winning' : 'paying'} symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.</li>
+								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.')}</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
@@ -339,7 +338,7 @@
 								<img src="./assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Spin</strong>
-									<p>Starts a spin using the current {isSocial ? 'play' : 'bet'} amount. Press again during a spin to skip animations.</p>
+									<p>{t('Starts a spin using the current bet amount. Press again during a spin to skip animations.')}</p>
 								</div>
 							</div>
 
@@ -349,8 +348,8 @@
 									<img src="./assets/sprites/buttons_new/decrease_base.png" alt="Decrease" class="control-btn-img-sm" />
 								</div>
 								<div class="control-info">
-									<strong>{isSocial ? 'Play' : 'Bet'} Adjust</strong>
-									<p>Increase or decrease the {isSocial ? 'play' : 'bet'} amount per spin. The total {isSocial ? 'amount' : 'cost'} is shown in the {isSocial ? 'play' : 'bet'} display.</p>
+									<strong>{t('Bet Adjust')}</strong>
+									<p>{t('Increase or decrease the bet amount per spin. The total cost is shown in the bet display.')}</p>
 								</div>
 							</div>
 
@@ -375,10 +374,10 @@
 							</div>
 
 							<div class="control-item">
-								<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{isSocial ? 'Play' : 'Buy'} Feature" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{t('Buy Feature')}" class="control-btn-img" />
 								<div class="control-info">
-									<strong>{isSocial ? 'Play' : 'Buy'} Feature</strong>
-									<p>Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or {isSocial ? 'play' : 'buy'} directly into a bonus round.</p>
+									<strong>{t('Buy Feature')}</strong>
+									<p>{t('Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.')}</p>
 								</div>
 							</div>
 
@@ -402,15 +401,15 @@
 								</div>
 							</div>
 							<div class="control-item">
-								<div class="control-label">{isSocial ? 'PLAY' : 'BET'}</div>
+								<div class="control-label">{t('BET')}</div>
 								<div class="control-info">
-									<p>Displays the total {isSocial ? 'amount' : 'cost'} of the current spin, including any active {isSocial ? 'play' : 'bet'} mode modifiers.</p>
+									<p>{t('Displays the total cost of the current spin, including any active bet mode modifiers.')}</p>
 								</div>
 							</div>
 							<div class="control-item">
 								<div class="control-label">WIN</div>
 								<div class="control-info">
-									<p>Shows the total win amount for the current spin, including all tumble {isSocial ? 'wins' : 'payouts'}.</p>
+									<p>{t('Shows the total win amount for the current spin, including all tumble payouts.')}</p>
 								</div>
 							</div>
 						</div>
@@ -431,7 +430,7 @@
 
 						<div class="cluster-example">
 							<p class="cluster-example-label">Winning Cluster Example</p>
-							<p class="cluster-example-desc">5 or more matching symbols connected horizontally or vertically form a {isSocial ? 'winning' : 'paying'} cluster. Diagonal connections do not count.</p>
+							<p class="cluster-example-desc">{t('5 or more matching symbols connected horizontally or vertically form a paying cluster. Diagonal connections do not count.')}</p>
 							<!-- svelte-ignore a11y_missing_attribute -->
 							<svg class="cluster-svg" viewBox="0 0 250 200" xmlns="http://www.w3.org/2000/svg">
 								<defs>
@@ -513,11 +512,11 @@
 						<h2>General Rules</h2>
 						<div class="feature-block">
 							<ul>
-								<li>Each {isSocial ? 'winning' : 'paying'} symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.</li>
-								<li>Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.</li>
-								<li>All {isSocial ? 'wins' : 'payouts'} from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.</li>
-								<li>The maximum {isSocial ? 'win' : 'payout'} per spin is capped at <strong>{maxWinDisplay}</strong> the total {isSocial ? 'play amount' : 'bet'}. If this cap is reached during tumbles, remaining tumbles are skipped.</li>
-								<li>Cluster {isSocial ? 'wins' : 'payouts'} use the {isSocial ? 'win table' : 'paytable'} value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.</li>
+								<li>{t('Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.')}</li>
+								<li>{t('Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.')}</li>
+								<li>{t('All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.')}</li>
+								<li>{t('The maximum payout per spin is capped at')} <strong>{maxWinDisplay}</strong> {t('the total bet. If this cap is reached during tumbles, remaining tumbles are skipped.')}</li>
+								<li>{t('Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.')}</li>
 							</ul>
 						</div>
 					</div>
@@ -528,29 +527,29 @@
 				<!-- ═══════════════════════════════════════════ -->
 				{#if (!isMobile && activeTab === 'modes') || (isMobile && currentTab === 'modes')}
 					<div class="section">
-						<h2>{isSocial ? 'Play' : 'Bet'} Modes</h2>
+						<h2>{t('Bet Modes')}</h2>
 
-						<h3>Standard</h3>
+						<h3>{t('Standard')}</h3>
 						<div class="feature-block">
-							<p>Default gameplay at the standard {isSocial ? 'play amount' : 'bet cost'}. All cell multipliers start at 1x. No additional modifiers are applied.</p>
+							<p>{t('Default gameplay at the standard bet cost. All cell multipliers start at 1x. No additional modifiers are applied.')}</p>
 						</div>
 
-						<h3>Extra Chance</h3>
+						<h3>{t('Extra Chance')}</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>{anteCostDisplay}</strong> the standard {isSocial ? 'play amount' : 'bet'}. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.</p>
+							<p>{t('Costs')} <strong>{anteCostDisplay}</strong> {t('the standard bet. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.')}</p>
 						</div>
 
-						<h3>{isSocial ? 'Get' : 'Buy'} Bonus</h3>
+						<h3>{t('Buy Bonus')}</h3>
 						<div class="feature-block">
-							<p>{isSocial ? 'For' : 'Costs'} <strong>{bonusCostDisplay}</strong> the standard {isSocial ? 'play amount' : 'bet'}. A trigger spin is played with <strong>3 or more Bonus symbols guaranteed</strong> on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.</p>
+							<p>{t('Costs')} <strong>{bonusCostDisplay}</strong> {t('the standard bet. A trigger spin is played with 3 or more Bonus symbols guaranteed on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.')}</p>
 						</div>
 
 						<h3>Grid Multiplier Modes (M2X – M1024X)</h3>
 						<div class="feature-block">
-							<p>These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the {isSocial ? 'play' : 'bet'} {isSocial ? 'amount' : 'cost'}. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and accumulate from the selected starting level.</p>
+							<p>{t('These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the bet cost. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and accumulate from the selected starting level.')}</p>
 							<table class="info-table">
 								<thead>
-									<tr><th>Mode</th><th>Starting Multiplier</th><th>{isSocial ? 'Play' : 'Bet'} {isSocial ? 'Amount' : 'Cost'}</th><th>Description</th></tr>
+									<tr><th>{t('Mode')}</th><th>{t('Starting Multiplier')}</th><th>{t('Bet Cost')}</th><th>{t('Description')}</th></tr>
 								</thead>
 								<tbody>
 									{#each gridCostTable as row}
@@ -569,7 +568,7 @@
 					<div class="section disclaimer-section">
 						<h2 class="disclaimer-title">General Disclaimer</h2>
 						<div class="disclaimer-block">
-							<p>Malfunction voids all wins and {isSocial ? 'plays' : 'bets'}. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds. The expected return is calculated over many {isSocial ? 'plays' : 'rounds'}. The game display is not representative of any physical device and is for illustrative purposes only. Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser. TM and &copy; 2026 Stake Engine.</p>
+							<p>{t('Malfunction voids all wins and bets. A consistent internet connection is required. In the event of a disconnection, reload the game to finish any uncompleted rounds. The expected return is calculated over many rounds. The game display is not representative of any physical device and is for illustrative purposes only. Winnings are settled according to the amount received from the Remote Game Server and not from events within the web browser.')} TM and &copy; 2026 Stake Engine.</p>
 						</div>
 					</div>
 				{/if}

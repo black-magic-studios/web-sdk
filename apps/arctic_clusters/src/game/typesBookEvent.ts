@@ -143,6 +143,12 @@ type BookEventAuroraWildPlace = {
 	meterAfter: number;
 };
 
+type BookEventAuroraSpinStart = {
+	index: number;
+	type: 'auroraSpinStart';
+	totalWildsCollected: number;
+};
+
 type BookEventWildRelease = {
 	index: number;
 	type: 'wildRelease';
@@ -199,6 +205,7 @@ export type BookEvent =
 	| BookEventAuroraMeterUpdate
 	| BookEventAuroraExplode
 	| BookEventAuroraWildPlace
+	| BookEventAuroraSpinStart
 	| BookEventWildRelease
 	// super bonus
 	| BookEventSuperBonusTrigger

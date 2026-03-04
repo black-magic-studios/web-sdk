@@ -558,6 +558,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// 5. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';
 	},
+	auroraSpinStart: async (bookEvent: BookEventOfType<'auroraSpinStart'>) => {
+		// Signal that the Final Aurora Spin is beginning — wilds collected during
+		// the bonus round will now be placed. Prepare wild release state.
+		stateGame.isWildRelease = true;
+		stateGame.wildReleaseRemaining = bookEvent.totalWildsCollected;
+		stateGame.spinActive = true;
+	},
 	wildRelease: async (bookEvent: BookEventOfType<'wildRelease'>) => {
 		// Enter wild release phase — the session total becomes the starting count
 		// and counts down as each wild is placed

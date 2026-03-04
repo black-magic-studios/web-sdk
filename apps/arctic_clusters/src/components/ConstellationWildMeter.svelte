@@ -42,17 +42,29 @@ const LINE_ANIM_MS = 900;
 
 // ── Positioning ────────────────────────────────────────
 // Desktop/landscape: right side of board
-// Mobile/portrait:   large, centered above the board filling the gap
-const meterSize = $derived(isStacked ? canvas.width * 0.45 : canvas.width * 0.18);
+// Mobile/portrait:   constellation on the right of the sky, WILDS count on the left
+const meterSize = $derived(isStacked ? canvas.width * 0.35 : canvas.width * 0.18);
 const meterX = $derived(
 isStacked
-	? boardLayout.x - meterSize * 0.5
+	? boardLayout.x + boardLayout.width * 0.15 - meterSize * 0.5
 	: boardLayout.x + boardLayout.width * 0.5 + meterSize * 0.15,
 );
 const meterY = $derived(
 isStacked
 	? (boardLayout.y - boardLayout.height * 0.5) * 0.5 - meterSize * 0.5
 	: boardLayout.y - boardLayout.height * 0.5 + meterSize * 0.1,
+);
+
+// WILDS count position — left side of sky in portrait, above constellation in landscape
+const wildsX = $derived(
+isStacked
+	? boardLayout.x - boardLayout.width * 0.5 + meterSize * 0.2
+	: meterX + meterSize * 0.5
+);
+const wildsY = $derived(
+isStacked
+	? (boardLayout.y - boardLayout.height * 0.5) * 0.5
+	: meterY - 10
 );
 
 // Title font size — larger on mobile so WILDS count is always readable
@@ -236,8 +248,29 @@ return { completed, animating };
 </script>
 
 <FadeContainer show={visible}>
+<!-- WILDS count — separate position in portrait (left side of sky) -->
+{#if isStacked}
+<Text
+x={wildsX}
+y={wildsY}
+anchor={{ x: 0, y: 0.5 }}
+text={`WILDS: ${count}`}
+style={{
+fill: 0xc8e0ff,
+fontSize: titleFontSize,
+fontFamily: 'Montserrat, Arial, sans-serif',
+fontWeight: '700',
+dropShadow: true,
+dropShadowColor: 0x000022,
+dropShadowBlur: 4,
+dropShadowDistance: 0,
+}}
+zIndex={5}
+/>
+{/if}
 <Container x={meterX} y={meterY} zIndex={5}>
-<!-- Title -->
+<!-- Title — only in landscape (in portrait, rendered separately above) -->
+{#if !isStacked}
 <Text
 x={meterSize * 0.5}
 y={-10}
@@ -254,6 +287,7 @@ dropShadowBlur: 4,
 dropShadowDistance: 0,
 }}
 />
+{/if}
 
 <!-- All graphics use additive blending for true-light compositing -->
 <Container blendMode={'add'}>

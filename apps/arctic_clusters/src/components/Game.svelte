@@ -138,8 +138,10 @@
 	const SKIP_PREGAME_KEY = 'arctic_clusters_skip_pregame';
 	const skipPreGame = typeof localStorage !== 'undefined' && localStorage.getItem(SKIP_PREGAME_KEY) === 'true';
 
-	let showStudioIntro = $state(true);
-	let preGameMode = $state(!skipPreGame);
+	// In replay mode, skip the studio intro and pre-game showcase entirely
+	const isReplayMode = stateUrlDerived.replay();
+	let showStudioIntro = $state(!isReplayMode);
+	let preGameMode = $state(!isReplayMode && !skipPreGame);
 	let dontShowAgain = $state(skipPreGame);
 	let showBuyBonus = $state(false);
 	let showGameInfo = $state(false);
@@ -171,6 +173,8 @@
 	function restartReplay() {
 		window.location.reload();
 	}
+
+	// Replay waits for user to click "Start Replay" in ReplayOverlay
 
 	// Scale UI elements (game name + logo) relative to canvas width.
 	// Reference width 1280px → scale 1.0.  Clamped so it never gets tiny or huge.
@@ -215,7 +219,7 @@
 </script>
 
 <div class="game-root" class:shake-light={shaking && shakeClass === 'shake-light'} class:shake-medium={shaking && shakeClass === 'shake-medium'} class:shake-heavy={shaking && shakeClass === 'shake-heavy'} onanimationend={() => (shaking = false)}>
-<App>
+<App typekitId={null}>
 	<EnableSound />
 	<EnableHotkey />
 	<EnableGameActor />
@@ -299,7 +303,7 @@
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
 
-{#if useMobileControls && !preGameMode}
+{#if useMobileControls && !preGameMode && !stateUrlDerived.replay()}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />
 {/if}
 

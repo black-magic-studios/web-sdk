@@ -6,7 +6,7 @@
 	import { getContextApp } from '../context.svelte';
 	import { preloadFont } from '../utils.svelte';
 
-	type Props = { children: Snippet };
+	type Props = { children: Snippet; typekitId?: string | null };
 
 	const props: Props = $props();
 	const context = getContextApp();
@@ -21,7 +21,7 @@
 		PIXI.TextureSource.defaultOptions.autoGenerateMipmaps = true;
 		PIXI.TextureSource.defaultOptions.scaleMode = 'linear';
 
-		await preloadFont();
+		await preloadFont({ typekitId: props.typekitId });
 		context.stateApp.pixiApplication = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>();
 
 		// Check WebGPU support before attempting to use it
@@ -38,14 +38,16 @@
 		await context.stateApp.pixiApplication.init({
 			autoDensity: true,
 			backgroundAlpha: 0,
-			hello: true,
+			hello: false,
 			multiView: false,
 			// WebGPU has stricter antialias requirements - disable if using WebGPU
 			antialias: !webGPUSupported,
 			clearBeforeRender: true,
 			// Prefer WebGPU but fall back to WebGL if not supported
 			preference: webGPUSupported ? 'webgpu' : 'webgl',
-			powerPreference: 'high-performance',
+			// Only set powerPreference for WebGL — Chrome logs a warning when
+			// this option is passed to WebGPU's requestAdapter() on Windows.
+			...(webGPUSupported ? {} : { powerPreference: 'high-performance' }),
 			// Cap resolution to avoid exceeding GPU texture limits with WebGPU
 			resolution: Math.min(devicePixelRatio.current ?? 1, 2),
 			resizeTo: window,

@@ -7,7 +7,7 @@
 	import InitialiseParent from './InitialiseParent.svelte';
 	import AssetsLoader from './AssetsLoader.svelte';
 
-	type Props = { children: Snippet };
+	type Props = { children: Snippet; typekitId?: string | null };
 
 	const props: Props = $props();
 	const context = getContextApp();
@@ -16,7 +16,7 @@
 	onDestroy(() => context.stateApp.reset());
 </script>
 
-<InitialiseApplication>
+<InitialiseApplication typekitId={props.typekitId}>
 	<InitialiseParent>
 		<AssetsLoader>
 			{@render props.children()}

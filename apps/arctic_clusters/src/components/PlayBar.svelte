@@ -77,6 +77,9 @@
 	// Social mode text overrides — uses sweeps_en language file when social=true
 	const betLabel = $derived(stateI18nDerived.translate('BET'));
 
+	// Replay mode — hide interactive controls
+	const isReplay = $derived(stateUrlDerived.replay());
+
 	// WIN section only visible when there's an actual win (hides when win resets to 0 at spin start)
 	const showWin = $derived(stateBet.winBookEventAmount > 0);
 
@@ -388,13 +391,20 @@
 	const fsTopBoxCenterY  = $derived(Math.round(fsStackTop + fsFSH / 2));           // Free Spins center
 	const fsBotBoxCenterY  = $derived(Math.round(fsStackTop + fsFSH + fsTWH / 2));  // Total Win center
 	// Text Y positions inside each box
-	const fsTopLabelY    = $derived(Math.round(fsStackTop + fsFSH * 0.28));          // Free Spins label
-	const fsTopValueY    = $derived(Math.round(fsStackTop + fsFSH * 0.70));          // Free Spins value
-	const fsBottomLabelY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.28)); // Total Win label
-	const fsBottomValueY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.70)); // Total Win value
-	// Font sizes relative to box heights
-	const fsCombinedLabelFontSize = $derived(Math.round(Math.max(10, fsFSH * 0.32)));
-	const fsCombinedValueFontSize = $derived(Math.round(Math.max(12, fsFSH * 0.45)));
+	const fsTopLabelY    = $derived(Math.round(fsStackTop + fsFSH * 0.32));          // Free Spins label
+	const fsTopValueY    = $derived(Math.round(fsStackTop + fsFSH * 0.65));          // Free Spins value
+	const fsBottomLabelY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.32)); // Total Win label
+	const fsBottomValueY = $derived(Math.round(fsStackTop + fsFSH + fsTWH * 0.65)); // Total Win value
+	// Font sizes relative to box heights — constrained by box width so text never overflows
+	const fsCombinedBoxWidth = $derived(Math.min(fsFSW, fsTWW));
+	const fsCombinedLabelFontSizeBase = $derived(Math.round(Math.max(4, fsFSH * 0.32)));
+	const fsCombinedValueFontSizeBase = $derived(Math.round(Math.max(4, fsFSH * 0.45)));
+	const fsCombinedLabelFontSize = $derived(dynamicFontSize('FREE SPINS', fsCombinedLabelFontSizeBase, fsCombinedBoxWidth * 0.88));
+	const fsCombinedValueFontSize = $derived(fsCombinedValueFontSizeBase);
+	// Per-text dynamic sizes for the combined section values
+	const fsCombinedFsValueFontSize = $derived(dynamicFontSize(`${Math.max(0, fsTotal - fsCurrent)}`, fsCombinedValueFontSizeBase, fsCombinedBoxWidth * 0.88));
+	const fsCombinedTwLabelFontSize = $derived(dynamicFontSize('TOTAL WIN', fsCombinedLabelFontSizeBase, fsCombinedBoxWidth * 0.88));
+	const fsCombinedTwValueFontSize = $derived(dynamicFontSize(totalWinText, fsCombinedValueFontSizeBase, fsCombinedBoxWidth * 0.88));
 
 	// Bet disabled state — bypass balance check in replay mode
 	// Inline the computation so Svelte 5 tracks all reactive dependencies directly
@@ -774,7 +784,7 @@
 					y={fsTopValueY}
 					resolution={TEXT_RESOLUTION}
 					text={`${fsRemaining}`}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedFsValueFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<!-- TOTAL WIN row (bottom box) -->
@@ -783,7 +793,7 @@
 					y={fsBottomLabelY}
 					resolution={TEXT_RESOLUTION}
 					text="TOTAL WIN"
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<Text
@@ -791,7 +801,7 @@
 					y={fsBottomValueY}
 					resolution={TEXT_RESOLUTION}
 					text={totalWinText}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 			</Container>
@@ -898,7 +908,7 @@
 				/>
 		</Container>
 
-		{#if assetsLoaded}
+		{#if assetsLoaded && !isReplay}
 			<!-- INCREASE BUTTON (sprite, above decrease) -->
 			<Container x={increaseX} y={increaseY} zIndex={3}>
 				<Graphics
@@ -975,6 +985,7 @@
 			{/if}
 
 			<!-- SPIN BUTTON -->
+			{#if !isReplay}
 			<Container x={spinButtonX} y={0} zIndex={3}>
 				<OnHotkey hotkey="Space" {disabled} onpress={handleSpin} />
 				<Circle
@@ -997,8 +1008,10 @@
 					{...(disabled ? { tint: 0xaaaaaa } : {})}
 				/>
 			</Container>
+			{/if}
 
 			<!-- AUTOPLAY BUTTON (right of spin) -->
+			{#if !isReplay}
 			<Container x={autoplayX} y={0} zIndex={3}>
 				<Circle
 					diameter={smallButtonSize}
@@ -1034,8 +1047,10 @@
 					/>
 				{/if}
 			</Container>
+			{/if}
 
 			<!-- TURBO / SPEED BUTTON (right of autoplay) -->
+			{#if !isReplay}
 			<Container x={fastPlayX} y={0} zIndex={3}>
 				<Circle
 					diameter={smallButtonSize}
@@ -1056,8 +1071,10 @@
 					anchor={0.5}
 				/>
 			</Container>
+			{/if}
 
 			<!-- BUY BONUS BUTTON (outside bar, to the left) -->
+			{#if !isReplay}
 			<Container x={buyButtonX} y={0} zIndex={3}>
 				<Circle
 					diameter={buyButtonSize}
@@ -1078,6 +1095,7 @@
 					anchor={0.5}
 				/>
 			</Container>
+			{/if}
 		{/if}
 		{/if}
 

@@ -58,12 +58,16 @@ export function detectWebGL() {
 	return -1;
 }
 
-export const preloadFont = () =>
+export const preloadFont = ({ typekitId = 'aba0ebl' }: { typekitId?: string | null } = {}) =>
 	new Promise<void>((resolve) => {
+		if (!typekitId) {
+			resolve();
+			return;
+		}
 		try {
 			WebFont.load({
 				typekit: {
-					id: 'aba0ebl',
+					id: typekitId,
 				},
 				active: () => {
 					resolve();
