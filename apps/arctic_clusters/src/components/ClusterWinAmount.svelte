@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	export type RawWin = {
+		id: number;
 		win: number;
 		mult: number;
 		result: number;

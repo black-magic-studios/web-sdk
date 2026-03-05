@@ -16,6 +16,7 @@
 	const context = getContext();
 
 	let wins: Win[] = $state([]);
+	let winIdCounter = 0;
 
 	context.eventEmitter.subscribeOnMount({
 		showClusterWinAmounts: async (emitterEvent) => {
@@ -25,7 +26,8 @@
 			const cy = rawWins.reduce((s, w) => s + w.row, 0) / rawWins.length;
 
 			// Give each win a direction vector pointing outward from center
-			wins = rawWins.map((rawWin) => {
+			// Append to existing wins so re-entrant calls don't destroy in-flight animations
+			const newWins: Win[] = rawWins.map((rawWin) => {
 				let dx = rawWin.reel - cx;
 				let dy = rawWin.row - cy;
 				const mag = Math.sqrt(dx * dx + dy * dy);
@@ -38,20 +40,23 @@
 					dx = 0;
 					dy = -1;
 				}
-				return { ...rawWin, dirX: dx, dirY: dy, oncomplete: () => {} };
+				return { ...rawWin, id: winIdCounter++, dirX: dx, dirY: dy, oncomplete: () => {} };
 			});
-			const gerPromises = () =>
-				wins.map(async (win) => {
+			wins = [...wins, ...newWins];
+			const getPromises = () =>
+				newWins.map(async (win) => {
 					await waitForResolve((resolve) => (win.oncomplete = resolve));
 				});
-			await Promise.all(gerPromises());
-			wins = [];
+			await Promise.all(getPromises());
+			// Remove only the wins from this batch
+			const newWinIds = new Set(newWins.map((w) => w.id));
+			wins = wins.filter((w) => !newWinIds.has(w.id));
 		},
 	});
 </script>
 
-<BoardContainer zIndex={200}>
-	{#each wins as win}
+<BoardContainer zIndex={999}>
+	{#each wins as win (win.id)}
 		<ClusterWinAmount {win} />
 	{/each}
 </BoardContainer>

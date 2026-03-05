@@ -120,7 +120,7 @@
 	});
 </script>
 
-<BoardContainer zIndex={150}>
+<BoardContainer zIndex={998}>
 	{#each flyOuts as item (item.id)}
 		<Container x={item.x.current} y={item.y.current} scale={item.scale.current} alpha={item.alpha.current}>
 			<BitmapText

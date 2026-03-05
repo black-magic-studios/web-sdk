@@ -142,7 +142,7 @@
 				{#if (!isMobile && activeTab === 'paytable') || (isMobile && currentTab === 'paytable')}
 					<div class="section">
 						<h2>{t('Paytable')}</h2>
-						<p class="subtitle">{t('All values shown are multiplied by the total bet.')} {t('A cluster must contain at least 5 matching symbols to pay.')}</p>
+						<p class="subtitle">{t('All values shown are multiplied by the base bet.')} {t('A cluster must contain at least 5 matching symbols to pay.')}</p>
 
 						<h3>{t('High Pay Symbols')}</h3>
 						{#each highPay as sym}
@@ -246,6 +246,19 @@
 					<div class="section">
 						<h2>Aurora Feature</h2>
 						<div class="feature-block">
+							<div class="feature-visual">
+								<svg viewBox="0 0 64 64" width="72" height="72" xmlns="http://www.w3.org/2000/svg">
+									<defs>
+										<filter id="auroraGlow" x="-50%" y="-50%" width="200%" height="200%">
+											<feGaussianBlur stdDeviation="3" />
+											<feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+										</filter>
+									</defs>
+									<polygon points="32,2 37,20 53.2,10.8 44,27 62,32 44,37 53.2,53.2 37,44 32,62 27,44 10.8,53.2 20,37 2,32 20,27 10.8,10.8 27,20" fill="#b44dff" stroke="#aa44ee" stroke-width="1.5" filter="url(#auroraGlow)" />
+									<circle cx="32" cy="32" r="4" fill="#d4aaff" />
+								</svg>
+								<span class="feature-visual-label">Aurora Cell</span>
+							</div>
 							<p>At the start of each spin, <strong>0 to 5 Aurora cells</strong> are randomly assigned to positions on the grid.</p>
 							<ul>
 								<li>{t('When a paying cluster forms on a cell marked as Aurora, the Aurora cell activates and generates 1 to 3 Wild symbols as pending.')}</li>
@@ -260,11 +273,44 @@
 						<h2>Aurora Collection</h2>
 						<p class="subtitle">Active during Bonus &amp; Super Bonus only</p>
 						<div class="feature-block">
+							<div class="feature-visual">
+								<svg viewBox="0 0 80 95" width="88" height="104" xmlns="http://www.w3.org/2000/svg">
+									<defs>
+										<filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+											<feGaussianBlur stdDeviation="2" />
+											<feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+										</filter>
+									</defs>
+									<g opacity="0.85">
+										<polygon points="40,12 44.2,29.8 59.8,20.2 50.2,35.8 68,40 50.2,44.2 59.8,59.8 44.2,50.2 40,68 35.8,50.2 20.2,59.8 29.8,44.2 12,40 29.8,35.8 20.2,20.2 35.8,29.8" fill="none" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<polygon points="40,21 53.4,26.6 59,40 53.4,53.4 40,59 26.6,53.4 21,40 26.6,26.6" fill="none" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="40" y1="12" x2="40" y2="21" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="59.8" y1="20.2" x2="53.4" y2="26.6" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="68" y1="40" x2="59" y2="40" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="59.8" y1="59.8" x2="53.4" y2="53.4" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="40" y1="68" x2="40" y2="59" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="20.2" y1="59.8" x2="26.6" y2="53.4" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="12" y1="40" x2="21" y2="40" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<line x1="20.2" y1="20.2" x2="26.6" y2="26.6" stroke="#4de8ff" stroke-width="1" opacity="0.5" />
+										<circle cx="40" cy="12" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="59.8" cy="20.2" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="68" cy="40" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="59.8" cy="59.8" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="40" cy="68" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="20.2" cy="59.8" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="12" cy="40" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="20.2" cy="20.2" r="2.5" fill="#4de8ff" filter="url(#nodeGlow)" />
+										<circle cx="40" cy="40" r="2" fill="white" />
+									</g>
+									<text x="40" y="88" text-anchor="middle" fill="#4de8ff" font-family="Montserrat, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1">WILDS: 0</text>
+								</svg>
+								<span class="feature-visual-label">Wild Meter</span>
+							</div>
 							<p>During Bonus or Super Bonus Rounds, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
 							<ul>
 								<li>{t('When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.')}</li>
 								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
-								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.')}</li>
+								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.')}</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
@@ -891,6 +937,25 @@
 				strong { color: #88ccff; }
 			}
 		}
+	}
+
+	.feature-visual {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 14px;
+		padding: 10px 0;
+		border-radius: 8px;
+		background: rgba(0, 0, 0, 0.2);
+	}
+
+	.feature-visual-label {
+		font-size: 11px;
+		font-weight: 600;
+		color: rgba(136, 204, 255, 0.6);
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
 	}
 
 	.feature-steps {

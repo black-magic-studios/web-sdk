@@ -31,7 +31,7 @@ export default {
 
 	// ── Game info / rules ──
 	'All pays are multiplied by total bet. Minimum cluster size: 5 symbols.':
-		'All wins are multiplied by total play. Minimum cluster size: 5 symbols.',
+		'All wins are multiplied by base play amount. Minimum cluster size: 5 symbols.',
 	'Normal gameplay at 1x bet cost. All cell multipliers start at 1x.':
 		'Normal gameplay at 1x play amount. All cell multipliers start at 1x.',
 	'Costs <strong>2.5x</strong> the standard bet. Significantly increases the chance of triggering Free Spins. One Scatter is guaranteed on the grid each spin.':
@@ -57,8 +57,8 @@ export default {
 	'Extra Chance': 'Extra Chance',
 
 	// ── Game info page — paytable section ──
-	'All values shown are multiplied by the total bet.':
-		'All values shown are multiplied by the total play amount.',
+	'All values shown are multiplied by the base bet.':
+		'All values shown are multiplied by the base play amount.',
 	'A cluster must contain at least 5 matching symbols to pay.':
 		'A cluster must contain at least 5 matching symbols to win.',
 
@@ -91,8 +91,8 @@ export default {
 	// ── Game info page — aurora collection ──
 	'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.':
 		'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a winning cluster is added to the collection.',
-	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.':
-		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is generated using only winning symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
+	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.':
+		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is generated using only winning symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
 
 	// ── Game info page — controls section ──
 	'Starts a spin using the current bet amount. Press again during a spin to skip animations.':

@@ -37,8 +37,8 @@ export default {
 	Costs: 'Costs',
 
 	// ── Game info page — paytable ──
-	'All values shown are multiplied by the total bet.':
-		'All values shown are multiplied by the total bet.',
+	'All values shown are multiplied by the base bet.':
+		'All values shown are multiplied by the base bet.',
 	'A cluster must contain at least 5 matching symbols to pay.':
 		'A cluster must contain at least 5 matching symbols to pay.',
 
@@ -71,8 +71,8 @@ export default {
 	// ── Game info page — aurora collection ──
 	'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.':
 		'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.',
-	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.':
-		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). All collected Wilds are then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
+	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.':
+		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
 
 	// ── Game info page — controls section ──
 	'Starts a spin using the current bet amount. Press again during a spin to skip animations.':

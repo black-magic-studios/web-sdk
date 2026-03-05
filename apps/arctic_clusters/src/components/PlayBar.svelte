@@ -782,7 +782,7 @@
 					y={fsTopLabelY}
 					resolution={TEXT_RESOLUTION}
 					text="FREE SPINS"
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: LABEL_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedLabelFontSize, fill: 0x000000, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<Text
@@ -790,7 +790,7 @@
 					y={fsTopValueY}
 					resolution={TEXT_RESOLUTION}
 					text={`${fsRemaining}`}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedFsValueFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedFsValueFontSize, fill: 0x000000, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<!-- TOTAL WIN row (bottom box) -->
@@ -799,7 +799,7 @@
 					y={fsBottomLabelY}
 					resolution={TEXT_RESOLUTION}
 					text="TOTAL WIN"
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwLabelFontSize, fill: 0x00e6cc, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwLabelFontSize, fill: 0x000000, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 				<Text
@@ -807,7 +807,7 @@
 					y={fsBottomValueY}
 					resolution={TEXT_RESOLUTION}
 					text={totalWinText}
-					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwValueFontSize, fill: WIN_COLOR, fontWeight: 'bold' }}
+					style={{ fontFamily: 'Arial', fontSize: fsCombinedTwValueFontSize, fill: 0x000000, fontWeight: 'bold' }}
 					zIndex={1}
 				/>
 			</Container>
