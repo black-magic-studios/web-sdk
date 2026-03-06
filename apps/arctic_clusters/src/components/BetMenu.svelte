@@ -12,6 +12,17 @@
 	let { show = $bindable(), onclose }: Props = $props();
 
 	const context = getContext();
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const menuScale = $derived(Math.min(1, Math.max(0.55, (boardLayout.width * 1.25) / 500)));
+	const isPortrait = $derived(window.innerHeight > window.innerWidth);
+	const menuStyle = $derived.by(() => {
+		if (isPortrait) {
+			return `left: 50%; right: auto; transform: translateX(-50%) scale(${menuScale}); transform-origin: bottom center;`;
+		}
+		// Center the menu on the playbar
+		const playbarCenterX = boardLayout.x;
+		return `left: ${playbarCenterX}px; transform: translateX(-50%) scale(${menuScale}); transform-origin: bottom center;`;
+	});
 
 	const betOptions = $derived(stateConfig.betAmountOptions);
 	const currentBetIndex = $derived(betOptions.indexOf(stateBet.betAmount));
@@ -77,7 +88,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="backdrop" onclick={onclose}></div>
 
-	<div class="menu">
+	<div class="menu" style="{menuStyle}">
 		<!-- HEADER -->
 		<div class="header">
 			<div class="title">{stateI18nDerived.translate('SELECT YOUR BET')}</div>
@@ -134,7 +145,6 @@
 		z-index: 999;
 		/* Anchor to bottom-right but stay within viewport */
 		bottom: calc(env(safe-area-inset-bottom, 0px) + 12%);
-		right: 72px;
 		display: flex;
 		flex-direction: column;
 		gap: 0;
@@ -146,7 +156,7 @@
 		overflow: hidden;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 		min-width: 180px;
-		max-width: min(280px, calc(100vw - 20px));
+		max-width: min(280px, calc(100vw - 16px));
 		/* Constrain height so it never overflows top of viewport */
 		max-height: min(460px, calc(88vh - 20px));
 		overflow-y: auto;
@@ -155,8 +165,8 @@
 	}
 
 	@keyframes menuSlideIn {
-		from { opacity: 0; transform: translateY(10px) scale(0.96); }
-		to { opacity: 1; transform: translateY(0) scale(1); }
+		from { opacity: 0; }
+		to { opacity: 1; }
 	}
 
 	/* ── Header ── */

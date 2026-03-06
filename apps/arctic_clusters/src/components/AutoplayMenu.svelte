@@ -14,6 +14,16 @@
 	let { show = $bindable(), onclose }: Props = $props();
 
 	const context = getContext();
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const menuScale = $derived(Math.min(1, Math.max(0.55, (boardLayout.width * 1.25) / 500)));
+	const isPortrait = $derived(window.innerHeight > window.innerWidth);
+	const menuStyle = $derived.by(() => {
+		if (isPortrait) {
+			return `left: 50%; right: auto; transform: translateX(-50%) scale(${menuScale}); transform-origin: bottom center;`;
+		}
+		const playbarRight = Math.max(0, window.innerWidth - (boardLayout.x + (boardLayout.width * 1.25) / 2));
+		return `right: ${playbarRight}px; transform: scale(${menuScale}); transform-origin: bottom right;`;
+	});
 
 	// Custom limit options: 5×, 20×, 50×, No Limit
 	const LOCAL_LIMIT_OPTIONS = ['5×', '20×', '50×', 'No Limit'] as const;
@@ -56,7 +66,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="backdrop" onclick={onclose}></div>
 
-	<div class="menu">
+	<div class="menu" style="{menuStyle}">
 		<!-- TAB BAR -->
 		<div class="tab-bar">
 			<button
@@ -139,7 +149,7 @@
 		position: fixed;
 		z-index: 999;
 		bottom: calc(env(safe-area-inset-bottom, 0px) + 12%);
-		right: 72px;
+		right: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0;
@@ -152,7 +162,7 @@
 		overflow-y: auto;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 		min-width: 220px;
-		max-width: 280px;
+		max-width: min(280px, calc(100vw - 16px));
 		max-height: calc(100vh - env(safe-area-inset-bottom, 0px) - 14%);
 		max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 14%);
 		animation: menuSlideIn 0.2s ease-out;
@@ -162,13 +172,9 @@
 	/* Portrait mobile: center the menu */
 	@media (orientation: portrait) {
 		.menu {
-			right: auto;
-			left: 50%;
-			transform: translateX(-50%);
 			bottom: calc(env(safe-area-inset-bottom, 0px) + 18%);
 			max-height: calc(100vh - env(safe-area-inset-bottom, 0px) - 20%);
 			max-height: calc(100dvh - env(safe-area-inset-bottom, 0px) - 20%);
-			animation: menuSlideInPortrait 0.2s ease-out;
 		}
 	}
 
@@ -190,13 +196,8 @@
 	}
 
 	@keyframes menuSlideIn {
-		from { opacity: 0; transform: translateY(10px) scale(0.96); }
-		to { opacity: 1; transform: translateY(0) scale(1); }
-	}
-
-	@keyframes menuSlideInPortrait {
-		from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.96); }
-		to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+		from { opacity: 0; }
+		to { opacity: 1; }
 	}
 
 	/* ── Tab bar ── */
@@ -277,6 +278,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 8px;
 		padding: 8px 14px;
 		border-top: 1px solid rgba(120, 180, 220, 0.12);
 	}
@@ -287,12 +289,16 @@
 		font-weight: 700;
 		letter-spacing: 1px;
 		color: #d0e8f8;
+		flex: 1;
+		min-width: 0;
 	}
 
 	.toggle-switch {
 		position: relative;
 		width: 40px;
+		min-width: 40px;
 		height: 22px;
+		flex-shrink: 0;
 		border-radius: 11px;
 		border: 1.5px solid rgba(120, 180, 220, 0.3);
 		background: rgba(40, 50, 70, 0.6);

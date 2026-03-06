@@ -6,6 +6,16 @@
 	let { show = $bindable(), onclose }: Props = $props();
 
 	const context = getContext();
+	const boardLayout = $derived(context.stateGameDerived.boardLayout());
+	const menuScale = $derived(Math.min(1, Math.max(0.55, (boardLayout.width * 1.25) / 500)));
+	const isPortrait = $derived(window.innerHeight > window.innerWidth);
+	const menuStyle = $derived.by(() => {
+		if (isPortrait) {
+			return `left: 50%; right: auto; transform: translateX(-50%) scale(${menuScale}); transform-origin: bottom center;`;
+		}
+		const playbarLeft = Math.max(0, boardLayout.x - (boardLayout.width * 1.25) / 2);
+		return `left: ${playbarLeft}px; transform: scale(${menuScale}); transform-origin: bottom left;`;
+	});
 
 	const handleInfo = () => {
 		context.eventEmitter.broadcast({ type: 'gameInfoOpen' } as any);
@@ -26,7 +36,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="backdrop" onclick={onclose}></div>
 
-	<div class="menu">
+	<div class="menu" style="{menuStyle}">
 		<!-- INFO row -->
 		<button class="menu-row info-row" onclick={handleInfo}>
 			<span class="icon-circle">
@@ -95,7 +105,7 @@
 		position: fixed;
 		z-index: 999;
 		bottom: calc(env(safe-area-inset-bottom, 0px) + 12%);
-		left: 72px;
+		left: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 0;
@@ -107,12 +117,13 @@
 		overflow: hidden;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 		min-width: 180px;
+		max-width: calc(100vw - 16px);
 		animation: menuSlideIn 0.2s ease-out;
 	}
 
 	@keyframes menuSlideIn {
-		from { opacity: 0; transform: translateY(10px) scale(0.96); }
-		to { opacity: 1; transform: translateY(0) scale(1); }
+		from { opacity: 0; }
+		to { opacity: 1; }
 	}
 
 	.menu-row {

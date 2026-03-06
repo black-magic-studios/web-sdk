@@ -26,7 +26,7 @@
 		x:
 			context.stateGameDerived.boardLayout().width *
 			(!isFreegameType(context.stateGame.gameType) ? 0.5 : 0.37),
-		y: -SYMBOL_HEIGHT * 0.8 * 0.68,
+		y: Math.max(-SYMBOL_HEIGHT * 0.8 * 0.68, 0),
 	});
 
 	const position = $derived(

@@ -30,8 +30,11 @@
 		y: -SYMBOL_HEIGHT * 0.47,
 	});
 	const portraitPosition = $derived({
-		x: context.stateGameDerived.boardLayout().width - PANEL_WIDTH * 1.5,
-		y: -SYMBOL_HEIGHT * 0.55,
+		x: Math.min(
+			context.stateGameDerived.boardLayout().width - PANEL_WIDTH * 1.5,
+			context.stateGameDerived.boardLayout().width - PANEL_WIDTH / 2,
+		),
+		y: Math.max(-SYMBOL_HEIGHT * 0.55, PANEL_HEIGHT / 2),
 	});
 	const position = $derived(
 		context.stateLayoutDerived.isStacked() ? portraitPosition : desktopPosition,

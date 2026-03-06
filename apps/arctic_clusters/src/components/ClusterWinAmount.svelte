@@ -27,6 +27,8 @@
 	import { getContext } from '../game/context';
 	import { FONT_FAMILY } from '../game/constants';
 
+	const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
 	type Props = { win: Win };
 
 	const props: Props = $props();
@@ -34,6 +36,8 @@
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
 	const symbolHeight = $derived(context.stateGameDerived.symbolHeight());
 	const symbolSize = $derived((symbolWidth + symbolHeight) / 2);
+	const boardWidth = $derived(context.stateGameDerived.boardLayout().width);
+	const boardHeight = $derived(context.stateGameDerived.boardLayout().height);
 
 	// Spread offset: float outward from center of winning cluster group
 	const spreadDistance = $derived(symbolHeight * 0.8);
@@ -83,9 +87,10 @@
 	{@const textContent = showMultiplier
 		? `${bookEventAmountToCurrencyString(props.win.win)} X ${props.win.mult}`
 		: bookEventAmountToCurrencyString(props.win.result)}
-	{@const textX = getSymbolXDynamic(props.win.reel, symbolWidth) + offsetX.current}
-	{@const textY = getSymbolYDynamic(props.win.row - 1, symbolHeight) + offsetY.current}
 	{@const fs = symbolSize * 0.5}
+	{@const pad = fs * 0.5}
+	{@const textX = clamp(getSymbolXDynamic(props.win.reel, symbolWidth) + offsetX.current, pad, boardWidth - pad)}
+	{@const textY = clamp(getSymbolYDynamic(props.win.row - 1, symbolHeight) + offsetY.current, pad, boardHeight - pad)}
 	{@const textStyle = { fontFamily: FONT_FAMILY, fontSize: fs }}
 	{@const sc = scale.current}
 	{@const ex = Math.max(1, Math.round(fs * 0.03))}

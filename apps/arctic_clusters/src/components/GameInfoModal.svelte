@@ -195,14 +195,14 @@
 								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
 								<div class="special-info">
 									<strong>Bonus</strong>
-									<p>Landing 3 or more Bonus symbols anywhere on the grid triggers the Bonus Round. Bonus symbols do not need to form a cluster.</p>
+									<p>Landing 3 or more Bonus symbols anywhere on the grid triggers the Bonus. Bonus symbols do not need to form a cluster.</p>
 								</div>
 							</div>
 							<div class="special-row">
 								<img src={SUPER_IMG} alt="Super Bonus" class="special-icon" />
 								<div class="special-info">
 									<strong>Super Bonus</strong>
-									<p>Counts as a Bonus symbol. When at least 1 Super Bonus symbol appears alongside 3 or more Bonus symbols, the Super Bonus Round is triggered instead of the standard Bonus Round.</p>
+									<p>Landing 3 or more Super Bonus symbols anywhere on the grid triggers the Super Bonus. If both 3 or more Super Bonus symbols and 3 or more Bonus symbols land on the same spin, the Super Bonus is triggered with the standard Super Bonus starting spins.</p>
 								</div>
 							</div>
 						</div>
@@ -306,11 +306,11 @@
 								</svg>
 								<span class="feature-visual-label">Wild Meter</span>
 							</div>
-							<p>During Bonus or Super Bonus Rounds, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
+							<p>During Bonus or Super Bonus, an <strong>Aurora Collection</strong> tracker is displayed on screen.</p>
 							<ul>
 								<li>{t('When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.')}</li>
 								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
-								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.')}</li>
+								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus carry into this spin, and a full tumble sequence plays out.')}</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
@@ -319,18 +319,26 @@
 					</div>
 
 					<div class="section">
-						<h2>Bonus Round</h2>
+						<h2>Bonus</h2>
 						<div class="feature-block">
-							<p>Landing <strong>3 or more Bonus symbols</strong> anywhere on the grid triggers the Bonus Round.</p>
+							<div class="special-row">
+								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
+								<p>Landing <strong>3 or more Bonus symbols</strong> anywhere on the grid triggers the Bonus.</p>
+							</div>
 							<table class="info-table">
 								<thead><tr><th>Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
 									<tr><td>3</td><td>8</td></tr>
 									<tr><td>4</td><td>11</td></tr>
-									<tr><td>5+</td><td>14</td></tr>
+									<tr><td>5</td><td>14</td></tr>
+									<tr><td>6</td><td>17</td></tr>
+									<tr><td>7</td><td>20</td></tr>
 								</tbody>
 							</table>
-							<p>Bonus symbols that land during the Bonus Round award additional spins (retrigger):</p>
+							<div class="special-row">
+								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
+								<p>Only regular Bonus symbols are required to retrigger. Landing 3 or more Bonus symbols during the Bonus awards additional spins:</p>
+							</div>
 							<table class="info-table compact">
 								<thead><tr><th>Bonus Symbols</th><th>Extra Spins</th></tr></thead>
 								<tbody>
@@ -349,24 +357,40 @@
 					</div>
 
 					<div class="section">
-						<h2>Super Bonus Round</h2>
+						<h2>Super Bonus</h2>
 						<div class="feature-block">
-							<p>Landing <strong>3 or more Bonus symbols</strong> plus at least <strong>1 Super Bonus symbol</strong> on the same spin triggers the Super Bonus Round. Spins awarded equal the base Free Spin award plus a Super Bonus bonus: <strong>+2</strong> for 1 Super Bonus symbol, <strong>+4</strong> for 2 or more.</p>
+							<div class="special-row">
+								<img src={SUPER_IMG} alt="Super Bonus" class="special-icon" />
+								<p>Landing <strong>3 or more Super Bonus symbols</strong> anywhere on the grid triggers the Super Bonus. If both 3 or more Super Bonus symbols and 3 or more Bonus symbols land on the same spin, the Super Bonus is triggered with the standard Super Bonus starting spins.</p>
+							</div>
 							<table class="info-table">
-								<thead><tr><th>Bonus Symbols</th><th>Super Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
+								<thead><tr><th>Super Bonus Symbols</th><th>Spins Awarded</th></tr></thead>
 								<tbody>
-									<tr><td>3</td><td>1</td><td>10</td></tr>
-									<tr><td>3</td><td>2+</td><td>12</td></tr>
-									<tr><td>4</td><td>1</td><td>13</td></tr>
-									<tr><td>4</td><td>2+</td><td>15</td></tr>
-									<tr><td>5+</td><td>1</td><td>16</td></tr>
-									<tr><td>5+</td><td>2+</td><td>18</td></tr>
+									<tr><td>3</td><td>10</td></tr>
+									<tr><td>4</td><td>13</td></tr>
+									<tr><td>5</td><td>16</td></tr>
+									<tr><td>6</td><td>19</td></tr>
+									<tr><td>7</td><td>22</td></tr>
+								</tbody>
+							</table>
+							<div class="special-row">
+								<img src={SCATTER_IMG} alt="Bonus" class="special-icon" />
+								<p>Only regular Bonus symbols are required to retrigger during the Super Bonus. Super Bonus symbols do not appear during the round. Retriggers use the same table as the standard Bonus:</p>
+							</div>
+							<table class="info-table compact">
+								<thead><tr><th>Bonus Symbols</th><th>Extra Spins</th></tr></thead>
+								<tbody>
+									<tr><td>3</td><td>+5</td></tr>
+									<tr><td>4</td><td>+8</td></tr>
+									<tr><td>5</td><td>+11</td></tr>
+									<tr><td>6</td><td>+14</td></tr>
+									<tr><td>7</td><td>+17</td></tr>
+									<tr><td>8+</td><td>+20</td></tr>
 								</tbody>
 							</table>
 							<ul>
 								<li>Aurora places <strong>2 to 7</strong> cells per spin.</li>
 								<li>Aurora Collection is active. Collected Wilds are placed during the Final Aurora Spin at the end of the round.</li>
-								<li>Bonus symbols that land during the Super Bonus Round award extra spins using the same retrigger table as the standard Bonus Round.</li>
 							</ul>
 						</div>
 					</div>
@@ -420,10 +444,10 @@
 							</div>
 
 							<div class="control-item">
-								<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button.png" alt="{t('Buy Feature')}" class="control-btn-img" />
+								<img src="./assets/sprites/buttons_new/black_magic_studios_buy_button_hover.png" alt="{t('Buy Feature')}" class="control-btn-img" />
 								<div class="control-info">
 									<strong>{t('Buy Feature')}</strong>
-									<p>{t('Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.')}</p>
+									<p>{t('Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a Bonus.')}</p>
 								</div>
 							</div>
 
@@ -560,7 +584,7 @@
 							<ul>
 								<li>{t('Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.')}</li>
 								<li>{t('Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.')}</li>
-								<li>{t('All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.')}</li>
+								<li>{t('All payouts from a single spin, including tumbles and any triggered Bonus, are combined into one total amount.')}</li>
 								<li>{t('The maximum payout per spin is capped at')} <strong>{maxWinDisplay}</strong> {t('the total bet. If this cap is reached during tumbles, remaining tumbles are skipped.')}</li>
 								<li>{t('Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.')}</li>
 							</ul>
@@ -582,17 +606,17 @@
 
 						<h3>{t('Extra Chance')}</h3>
 						<div class="feature-block">
-							<p>{t('Costs')} <strong>{anteCostDisplay}</strong> {t('the standard bet. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.')}</p>
+							<p>{t('Costs')} <strong>{anteCostDisplay}</strong> {t('the standard bet. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus.')}</p>
 						</div>
 
 						<h3>{t('Buy Bonus')}</h3>
 						<div class="feature-block">
-							<p>{t('Costs')} <strong>{bonusCostDisplay}</strong> {t('the standard bet. A trigger spin is played with 3 or more Bonus symbols guaranteed on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.')}</p>
+							<p>{t('Costs')} <strong>{bonusCostDisplay}</strong> {t('the standard bet. A trigger spin is played with 3 or more Bonus symbols guaranteed on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus. Spins awarded are determined by the standard trigger tables.')}</p>
 						</div>
 
 						<h3>Grid Multiplier Modes (M2X – M1024X)</h3>
 						<div class="feature-block">
-							<p>{t('These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the bet cost. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and accumulate from the selected starting level.')}</p>
+							<p>{t('These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the bet cost. In the base game, multipliers reset to the selected level at the start of each spin. During Bonus and Super Bonus, multipliers persist and accumulate from the selected starting level.')}</p>
 							<table class="info-table">
 								<thead>
 									<tr><th>{t('Mode')}</th><th>{t('Starting Multiplier')}</th><th>{t('Bet Cost')}</th><th>{t('Description')}</th></tr>
