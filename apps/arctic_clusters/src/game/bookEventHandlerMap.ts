@@ -537,6 +537,9 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// Track aurora wild position for connected-wild counting
 		stateGame.auroraWildPositions = [...stateGame.auroraWildPositions, { reel, row }];
 
+		// Clear any pending skip from previous placement
+		stateGame.auroraWildSkipRequested = false;
+
 		// 1. Play border-trace + flash animation on the target cell (async — waits for full anim)
 		eventEmitter.broadcast({ type: 'soundOnceWithRate', name: 'wild_placement', rate: 1.0, volume: 0.4 });
 		await eventEmitter.broadcastAsync({ type: 'wildPlacementAnimate', position: { reel, row } });
@@ -560,10 +563,25 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		// 4. Brief pause to let player see the wild in place + constellation decrement
-		await new Promise((r) => setTimeout(r, 450 / stateBetDerived.timeScale()));
+		//    Skip immediately if player clicked/pressed space
+		if (!stateGame.auroraWildSkipRequested) {
+			await new Promise<void>((r) => {
+				const timeout = setTimeout(r, 450 / stateBetDerived.timeScale());
+				const checkSkip = () => {
+					if (stateGame.auroraWildSkipRequested) {
+						clearTimeout(timeout);
+						r();
+					} else {
+						rafId = requestAnimationFrame(checkSkip);
+					}
+				};
+				let rafId = requestAnimationFrame(checkSkip);
+			});
+		}
 
 		// 5. Settle to static so the next winInfo can transition to 'win' and trigger oncomplete
 		reelSymbol.symbolState = 'static';
+		stateGame.auroraWildSkipRequested = false;
 	},
 	auroraSpinStart: async (bookEvent: BookEventOfType<'auroraSpinStart'>) => {
 		// Signal that the Final Aurora Spin is beginning — wilds collected during

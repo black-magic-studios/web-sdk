@@ -145,6 +145,8 @@ export const stateGame = $state({
 	isWildRelease: false,
 	// Number of wilds still to place during wild release (counts down)
 	wildReleaseRemaining: 0,
+	// Signal to speed up the current aurora wild placement animation
+	auroraWildSkipRequested: false,
 	// Whether a spin is currently active (show wild counter)
 	spinActive: false,
 });

@@ -6,12 +6,13 @@
 </script>
 
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { Container, Graphics } from 'pixi-svelte';
 
 	import { stateBetDerived } from 'state-shared';
 	import { getContext } from '../game/context';
 	import { getSymbolXDynamic, getSymbolYDynamic } from '../game/utils';
+	import { stateGame } from '../game/stateGame.svelte';
 
 	const context = getContext();
 	const symbolWidth = $derived(context.stateGameDerived.symbolWidth());
@@ -106,6 +107,31 @@
 	}
 
 	onDestroy(() => stopAnimLoop());
+
+	// ── Skip handler: click or spacebar fast-completes the current wild placement ──
+	function handleSkipInput(e: Event) {
+		if (e instanceof KeyboardEvent && e.key !== ' ') return;
+		if (effects.length === 0) return;
+		// Immediately complete the oldest in-flight effect
+		const fx = effects[0];
+		if (fx && fx.phase !== 'done') {
+			fx.phase = 'done';
+			fx.resolve();
+			effects = effects.filter((f) => f.phase !== 'done');
+		}
+		// Signal the handler to skip the post-placement pause
+		stateGame.auroraWildSkipRequested = true;
+	}
+
+	onMount(() => {
+		window.addEventListener('click', handleSkipInput);
+		window.addEventListener('keydown', handleSkipInput);
+	});
+
+	onDestroy(() => {
+		window.removeEventListener('click', handleSkipInput);
+		window.removeEventListener('keydown', handleSkipInput);
+	});
 
 	// ── Event listener: start wild animation ──
 	context.eventEmitter.subscribeOnMount({
