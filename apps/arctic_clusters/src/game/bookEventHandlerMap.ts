@@ -188,6 +188,16 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 
 		stateGame.gameType = bookEvent.gameType;
 
+		// Show aurora spin notification before the wild release board drops
+		const isWildRelease = bookEvent.gameType === 'freegame_wild_release' || bookEvent.gameType === 'super_wild_release';
+		if (isWildRelease && stateGame.auroraWildsSessionTotal > 0) {
+			await eventEmitter.broadcastAsync({
+				type: 'auroraSpinShow',
+				wildsToPlace: stateGame.auroraWildsSessionTotal,
+			});
+			eventEmitter.broadcast({ type: 'auroraSpinHide' });
+		}
+
 		// Filter anticipation: Only slow down reels if 2+ scatters have already
 		// landed on preceding reels.  The server marks *all* potential anticipation
 		// reels, but the game should only anticipate when a 3rd scatter could
@@ -403,7 +413,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		winLevelSoundsPlay({ winLevelData });
 		await eventEmitter.broadcastAsync({
 			type: 'freeSpinOutroCountUp',
-			amount: bookEvent.amount,
+			amount: stateBet.winBookEventAmount,
 			winLevelData,
 		});
 		winLevelSoundsStop();
@@ -596,13 +606,6 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.isWildRelease = true;
 		stateGame.wildReleaseRemaining = bookEvent.wildsToPlace;
 		stateGame.spinActive = true;
-
-		// Show aurora spin announcement — auto-dismisses after brief display before wilds are placed
-		await eventEmitter.broadcastAsync({
-			type: 'auroraSpinShow',
-			wildsToPlace: bookEvent.wildsToPlace,
-		});
-		eventEmitter.broadcast({ type: 'auroraSpinHide' });
 	},
 	wildMeterUpdate: async (bookEvent: BookEventOfType<'wildMeterUpdate'>) => {
 		// Update session total from the server-authoritative meterAfter value

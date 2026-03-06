@@ -25,21 +25,43 @@
 			const cx = rawWins.reduce((s, w) => s + w.reel, 0) / rawWins.length;
 			const cy = rawWins.reduce((s, w) => s + w.row, 0) / rawWins.length;
 
+			// Group wins by cell position so same-cell wins get unique spread angles
+			const cellCounts = new Map<string, number>();
+			const cellIndices = new Map<string, number>();
+			for (const w of rawWins) {
+				const key = `${w.reel},${w.row}`;
+				cellCounts.set(key, (cellCounts.get(key) ?? 0) + 1);
+			}
+
 			// Give each win a direction vector pointing outward from center
 			// Append to existing wins so re-entrant calls don't destroy in-flight animations
 			const newWins: Win[] = rawWins.map((rawWin) => {
+				const key = `${rawWin.reel},${rawWin.row}`;
+				const idx = cellIndices.get(key) ?? 0;
+				cellIndices.set(key, idx + 1);
+				const count = cellCounts.get(key) ?? 1;
+
 				let dx = rawWin.reel - cx;
 				let dy = rawWin.row - cy;
 				const mag = Math.sqrt(dx * dx + dy * dy);
 				if (mag > 0.01) {
-					// Normalize to unit length
 					dx /= mag;
 					dy /= mag;
 				} else {
-					// Single win or perfectly centered — default to floating up
 					dx = 0;
 					dy = -1;
 				}
+
+				// Fan same-cell wins into unique angles
+				if (count > 1) {
+					const baseAngle = Math.atan2(dy, dx);
+					const spread = Math.PI * 0.5; // 90° total fan
+					const offset = -spread / 2 + (spread / (count - 1)) * idx;
+					const angle = baseAngle + offset;
+					dx = Math.cos(angle);
+					dy = Math.sin(angle);
+				}
+
 				return { ...rawWin, id: winIdCounter++, dirX: dx, dirY: dy, oncomplete: () => {} };
 			});
 			wins = [...wins, ...newWins];

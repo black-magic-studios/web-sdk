@@ -44,8 +44,10 @@
 	const dirX = props.win.dirX ?? 0;
 	const dirY = props.win.dirY ?? -1; // default: float up if no direction given
 
-	const offsetX = new Tween(0);
-	const offsetY = new Tween(0);
+	// Start with a small initial offset so labels are separated from frame 1
+	const initialOffset = $derived(spreadDistance * 0.2);
+	const offsetX = new Tween(dirX * initialOffset);
+	const offsetY = new Tween(dirY * initialOffset);
 	const scale = new Tween(1);
 	let show = $state(true);
 

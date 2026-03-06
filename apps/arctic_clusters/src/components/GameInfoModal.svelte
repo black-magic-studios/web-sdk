@@ -310,7 +310,7 @@
 							<ul>
 								<li>{t('When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.')}</li>
 								<li>Wilds that do <strong>not</strong> form part of any cluster are <strong>not collected</strong> and are removed during the next tumble.</li>
-								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus carry into this spin, and a full tumble sequence plays out.')}</li>
+								<li>{t('After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). Any natural winning clusters on this board are evaluated and the full tumble sequence plays out first. Once all tumbles have settled, the collected Wilds are then placed onto the board and a new tumble sequence begins. Cell multipliers from the Bonus carry into this spin.')}</li>
 							</ul>
 							<div class="highlight-box">
 								<strong>Super Bonus:</strong> Aurora places 2 to 7 cells per spin instead of the standard 0 to 5.
