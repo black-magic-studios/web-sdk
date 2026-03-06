@@ -457,6 +457,13 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		const winLevel = (bookEvent.winLevel || 1) as WinLevel;
 		const winLevelData = winLevelMap[winLevel] ?? winLevelMap[1];
 
+		// Skip win presentation entirely when there's nothing to show (e.g. winLevel 0/1).
+		// This avoids a dead-state lag between tumble-end and a subsequent trigger event
+		// (freeSpinTrigger/superBonusTrigger) that now appears after setWin in the new math flow.
+		if (!winLevelData.presentDuration) {
+			return;
+		}
+
 		eventEmitter.broadcast({ type: 'winShow' });
 		winLevelSoundsPlay({ winLevelData });
 		await eventEmitter.broadcastAsync({
