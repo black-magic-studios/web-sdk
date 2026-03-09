@@ -226,13 +226,13 @@
 						<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
 						<img src={BONUS_IMG} alt="Bonus" class="feature-img" />
 					</div>
-					<div class="card-desc">Starts a Bonus round with 8 spins.</div>
+					<div class="card-desc">Starts a Bonus round with at least 8 spins.</div>
 					<div class="card-price">{numberToCurrencyString(bonusCost)}</div>
 					<button
 						class="card-action"
 						class:disabled={!canAfford(bonusCost)}
 						disabled={!canAfford(bonusCost)}
-						onclick={() => requestConfirm('BONUS', bonusCost, 'BUY BONUS', 'Starts a Bonus round with 8 Free Spins.', true)}
+						onclick={() => requestConfirm('BONUS', bonusCost, 'BUY BONUS', 'Starts a Bonus round with at least 8 spins.', true)}
 					>{stateI18nDerived.translate('BUY')}</button>
 				</div>
 			</div>

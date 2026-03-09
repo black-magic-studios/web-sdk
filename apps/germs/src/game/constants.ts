@@ -22,7 +22,10 @@ export const INITIAL_BOARD: RawSymbol[][] = [
 			name: 'L4',
 		},
 		{
-			name: 'L4',
+			name: 'L3',
+		},
+		{
+			name: 'H2',
 		},
 	],
 	[
@@ -41,6 +44,9 @@ export const INITIAL_BOARD: RawSymbol[][] = [
 		{
 			name: 'H3',
 		},
+		{
+			name: 'L2',
+		},
 	],
 	[
 		{
@@ -58,22 +64,8 @@ export const INITIAL_BOARD: RawSymbol[][] = [
 		{
 			name: 'H2',
 		},
-	],
-	[
 		{
-			name: 'L3',
-		},
-		{
-			name: 'H2',
-		},
-		{
-			name: 'H2',
-		},
-		{
-			name: 'H5',
-		},
-		{
-			name: 'H5',
+			name: 'H4',
 		},
 	],
 	[
@@ -87,10 +79,13 @@ export const INITIAL_BOARD: RawSymbol[][] = [
 			name: 'H2',
 		},
 		{
-			name: 'L2',
+			name: 'H4',
 		},
 		{
-			name: 'L2',
+			name: 'L1',
+		},
+		{
+			name: 'H3',
 		},
 	],
 ];
@@ -173,16 +168,16 @@ const explosion = {
 	sizeRatios: { width: 1, height: 1 },
 };
 
-const h1Static = { type: 'sprite', assetKey: 'h1.webp', sizeRatios: { width: 1, height: 1 } };
-const h2Static = { type: 'sprite', assetKey: 'h2.webp', sizeRatios: { width: 1, height: 1 } };
-const h3Static = { type: 'sprite', assetKey: 'h3.webp', sizeRatios: { width: 1, height: 1 } };
-const h4Static = { type: 'sprite', assetKey: 'h4.webp', sizeRatios: { width: 1, height: 1 } };
-const h5Static = { type: 'sprite', assetKey: 'h5.webp', sizeRatios: { width: 1, height: 1 } };
+const h1Static = { type: 'sprite', assetKey: 'germ_0', sizeRatios: { width: 1, height: 1 } };
+const h2Static = { type: 'sprite', assetKey: 'germ_1', sizeRatios: { width: 1, height: 1 } };
+const h3Static = { type: 'sprite', assetKey: 'germ_2', sizeRatios: { width: 1, height: 1 } };
+const h4Static = { type: 'sprite', assetKey: 'germ_3', sizeRatios: { width: 1, height: 1 } };
+const h5Static = { type: 'sprite', assetKey: 'germ_4', sizeRatios: { width: 1, height: 1 } };
 
-const l1Static = { type: 'sprite', assetKey: 'l1.webp', sizeRatios: { width: 1, height: 1 } };
-const l2Static = { type: 'sprite', assetKey: 'l2.webp', sizeRatios: { width: 1, height: 1 } };
-const l3Static = { type: 'sprite', assetKey: 'l3.webp', sizeRatios: { width: 1, height: 1 } };
-const l4Static = { type: 'sprite', assetKey: 'l4.webp', sizeRatios: { width: 1, height: 1 } };
+const l1Static = { type: 'sprite', assetKey: 'germ_5', sizeRatios: { width: 1, height: 1 } };
+const l2Static = { type: 'sprite', assetKey: 'germ_6', sizeRatios: { width: 1, height: 1 } };
+const l3Static = { type: 'sprite', assetKey: 'germ_7', sizeRatios: { width: 1, height: 1 } };
+const l4Static = { type: 'sprite', assetKey: 'germ_0', sizeRatios: { width: 1, height: 1 } };
 const l5Static = {
 	type: 'spine',
 	assetKey: 'M',
@@ -361,6 +356,32 @@ export const SYMBOL_INFO_MAP = {
 			animationName: 'scatter_land',
 			sizeRatios: sSizeRatios,
 		},
+	},
+	SC: {
+		explosion,
+		postWinStatic: sStatic,
+		static: sStatic,
+		spin: {
+			type: 'spine',
+			assetKey: 'S',
+			animationName: 'scatter_spin',
+			sizeRatios: sSizeRatios,
+		},
+		win: { type: 'spine', assetKey: 'S', animationName: 'scatter_win', sizeRatios: sSizeRatios },
+		land: {
+			type: 'spine',
+			assetKey: 'S',
+			animationName: 'scatter_land',
+			sizeRatios: sSizeRatios,
+		},
+	},
+	BL: {
+		explosion,
+		postWinStatic: l4Static,
+		static: l4Static,
+		spin: l4Static,
+		win: l4Static,
+		land: l4Static,
 	},
 } as const;
 

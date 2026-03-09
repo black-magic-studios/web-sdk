@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'MODE_BASE/book',
+		title: 'MODE_GERMS/book',
 	});
 </script>
 
@@ -13,11 +13,12 @@
 		type TemplateArgs,
 		templateArgs,
 	} from 'components-storybook';
+	import { randomInteger } from 'utils-shared/random';
 
 	import Game from '../components/Game.svelte';
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
-	import biggestWinBook from '../../.storybook/biggest_win_book';
+	import books from './data/germs_books';
 
 	setContext();
 </script>
@@ -36,13 +37,30 @@
 {/snippet}
 
 <Story
-	name="biggest_win"
+	name="random"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			console.log('Running biggest win book', biggestWinBook.id);
-			await playBet({ ...biggestWinBook, state: biggestWinBook.events });
+			const index = randomInteger({ min: 0, max: books.length - 1 });
+			const data = books[index];
+			console.log('Running germs book at index', index, data);
+			await playBet({ ...data, state: data.events });
+		},
+	})}
+	{template}
+/>
+
+<Story
+	name="sequential"
+	args={templateArgs({
+		skipLoadingScreen: true,
+		data: { currentIndex: 0 },
+		action: async (data) => {
+			const book = books[data.currentIndex % books.length];
+			console.log('Running germs book', data.currentIndex, book);
+			await playBet({ ...book, state: book.events });
+			data.currentIndex++;
 		},
 	})}
 	{template}

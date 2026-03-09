@@ -8,7 +8,8 @@ export type RawSymbol = {
   multiplier?: number;
   scatter?: boolean;
   wild?: boolean;
-  density?: number; // <--- ADD THIS LINE (Optional, defaults to 1)
+  density?: number;
+  germs?: number;
 };
 
 export type BetMode = keyof typeof config.betModes;

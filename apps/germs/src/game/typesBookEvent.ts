@@ -7,9 +7,19 @@ type BookEventReveal = {
 	index: number;
 	type: 'reveal';
 	board: RawSymbol[][];
-	paddingPositions: number[];
+	paddingPositions?: number[];
+	reelPositions?: number[];
 	anticipation: number[];
 	gameType: GameType;
+	hostCell?: Position;
+};
+
+type BookEventHostInfection = {
+	index: number;
+	type: 'hostInfection';
+	hostPosition: Position;
+	infectedCells: Position[];
+	germs: number[][];
 };
 
 type BookEventSetTotalWin = {
@@ -27,6 +37,13 @@ type BookEventFinalWin = {
 type BookEventFreeSpinTrigger = {
 	index: number;
 	type: 'freeSpinTrigger';
+	totalFs: number;
+	positions: Position[];
+};
+
+type BookEventFreeSpinRetrigger = {
+	index: number;
+	type: 'freeSpinRetrigger';
 	totalFs: number;
 	positions: Position[];
 };
@@ -50,6 +67,7 @@ type BookEventFreeSpinEnd = {
 	type: 'freeSpinEnd';
 	amount: number;
 	winLevel: number;
+	maxMitosisReached?: boolean;
 };
 
 type BookEventWinInfo = {
@@ -58,17 +76,75 @@ type BookEventWinInfo = {
 	totalWin: number;
 	wins: {
 		symbol: SymbolName;
-		kind: number;
+		matchingReels?: number;
+		kind?: number;
 		win: number;
 		positions: Position[];
 		meta: {
-			lineIndex: number;
-			multiplier: number;
-			winWithoutMult: number;
-			globalMult: number;
-			lineMultiplier: number;
+			basePay?: number;
+			germMultiplier?: number;
+			wayCount?: number;
+			lineIndex?: number;
+			multiplier?: number;
+			winWithoutMult?: number;
+			globalMult?: number;
+			lineMultiplier?: number;
 		};
 	}[];
+};
+
+type BookEventUpdateGerms = {
+	index: number;
+	type: 'updateGerms';
+	germs: number[][];
+};
+
+type BookEventMitosisRespin = {
+	index: number;
+	type: 'mitosisRespin';
+	mitosisPositions: {
+		reel: number;
+		row: number;
+		germsBefore: number;
+		germsAfter: number;
+		newSymbol: SymbolName;
+	}[];
+	boardAfter: RawSymbol[][];
+};
+
+type BookEventUpdateRespinWin = {
+	index: number;
+	type: 'updateRespinWin';
+	amount: number;
+};
+
+type BookEventMitosis = {
+	index: number;
+	type: 'mitosis';
+	mitosisPositions: {
+		reel: number;
+		row: number;
+		germsBefore: number;
+		germsAfter: number;
+	}[];
+	germs: number[][];
+};
+
+type BookEventRespin = {
+	index: number;
+	type: 'respin';
+	respinPositions: {
+		reel: number;
+		row: number;
+		newSymbol: SymbolName;
+	}[];
+	boardAfter: RawSymbol[][];
+};
+
+type BookEventWinCapReached = {
+	index: number;
+	type: 'winCapReached';
+	cappedAmount: number;
 };
 
 // customised
@@ -83,12 +159,18 @@ export type BookEvent =
 	| BookEventWinInfo
 	| BookEventSetTotalWin
 	| BookEventFreeSpinTrigger
+	| BookEventFreeSpinRetrigger
 	| BookEventUpdateFreeSpin
-	| BookEventCreateBonusSnapshot
 	| BookEventFinalWin
 	| BookEventSetWin
 	| BookEventFreeSpinEnd
-	// customised
+	| BookEventUpdateGerms
+	| BookEventMitosisRespin
+	| BookEventUpdateRespinWin
+	| BookEventWinCapReached
+	| BookEventHostInfection
+	| BookEventMitosis
+	| BookEventRespin
 	| BookEventCreateBonusSnapshot;
 
 export type Bet = BetType<BookEvent>;

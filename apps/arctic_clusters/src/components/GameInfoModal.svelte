@@ -408,7 +408,7 @@
 								<img src="./assets/sprites/buttons_new/play_button.png" alt="Spin" class="control-btn-img" />
 								<div class="control-info">
 									<strong>Spin</strong>
-									<p>{t('Starts a spin using the current bet amount. Press again during a spin to skip animations.')}</p>
+									<p>{t('Starts a spin using the current bet amount.')}</p>
 								</div>
 							</div>
 
@@ -583,9 +583,9 @@
 						<div class="feature-block">
 							<ul>
 								<li>{t('Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.')}</li>
-								<li>{t('Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.')}</li>
+								<li>{t('Bonus and Super Bonus symbols are counted whenever they land on the grid, including during tumbles. They do not need to form a cluster.')}</li>
 								<li>{t('All payouts from a single spin, including tumbles and any triggered Bonus, are combined into one total amount.')}</li>
-								<li>{t('The maximum payout per spin is capped at')} <strong>{maxWinDisplay}</strong> {t('the total bet. If this cap is reached during tumbles, remaining tumbles are skipped.')}</li>
+								<li>{t('The maximum payout per spin is capped at')} <strong>{maxWinDisplay}</strong> {t('the base bet amount. If this cap is reached during tumbles, remaining tumbles are skipped.')}</li>
 								<li>{t('Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.')}</li>
 							</ul>
 						</div>
@@ -606,17 +606,17 @@
 
 						<h3>{t('Extra Chance')}</h3>
 						<div class="feature-block">
-							<p>{t('Costs')} <strong>{anteCostDisplay}</strong> {t('the standard bet. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus.')}</p>
+							<p>{t('Costs')} <strong>{anteCostDisplay}</strong> {t('the standard bet. Bonus symbols appear more frequently, and a Bonus symbol is guaranteed on the last reel each spin. This significantly increases the chance of triggering a Bonus Round.')}</p>
 						</div>
 
 						<h3>{t('Buy Bonus')}</h3>
 						<div class="feature-block">
-							<p>{t('Costs')} <strong>{bonusCostDisplay}</strong> {t('the standard bet. A trigger spin is played with 3 or more Bonus symbols guaranteed on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus. Spins awarded are determined by the standard trigger tables.')}</p>
+							<p>{t('Costs')} <strong>{bonusCostDisplay}</strong> {t('the standard bet. A trigger spin is played with 3 or more Bonus symbols guaranteed on the grid. The trigger spin plays out fully, including all tumbles, before entering the Bonus or Super Bonus Round. Spins awarded are determined by the standard trigger tables.')}</p>
 						</div>
 
 						<h3>Grid Multiplier Modes (M2X – M1024X)</h3>
 						<div class="feature-block">
-							<p>{t('These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the bet cost. In the base game, multipliers reset to the selected level at the start of each spin. During Bonus and Super Bonus, multipliers persist and accumulate from the selected starting level.')}</p>
+							<p>{t('These modes set a starting multiplier for every cell on the grid. The higher the starting multiplier, the higher the bet cost. In the base game, multipliers reset to the selected level at the start of each spin. In Bonus and Super Bonus Rounds, multipliers persist and accumulate from the selected starting level.')}</p>
 							<table class="info-table">
 								<thead>
 									<tr><th>{t('Mode')}</th><th>{t('Starting Multiplier')}</th><th>{t('Bet Cost')}</th><th>{t('Description')}</th></tr>

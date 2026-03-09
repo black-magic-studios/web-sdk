@@ -5,7 +5,7 @@
 	import { Assets, Texture } from 'pixi.js';
 	import type * as PIXI from 'pixi.js';
 	import { OnHotkey } from 'components-shared';
-	import { stateBet, stateBetDerived, stateMeta, stateModal, stateConfig, stateUrlDerived, stateI18nDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateMeta, stateConfig, stateUrlDerived, stateI18nDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -197,7 +197,7 @@
 
 	// Derived active textures based on hover/pressed state
 	const activePlayTexture = $derived(
-		disabled ? playTexture : spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
+		spinBlocked ? playTexture : spinPressed ? playPressedTexture : spinHovered ? playHoverTexture : playTexture
 	);
 
 	// Autoplay: if autoplaying, show spinning frame; otherwise hover/pressed logic
@@ -416,6 +416,8 @@
 		const available = cost > 0 && cost <= stateBet.balanceAmount;
 		return !available && !stateUrlDerived.replay();
 	});
+	// Block spin when info page or buy bonus modal is open
+	const spinBlocked = $derived(disabled || context.stateGame.popupOpen);
 	const betIdle = $derived(context.stateXstateDerived.isIdle());
 
 	// Arrow disabled states — only grey out when at bet limits, NOT during spin  
@@ -578,8 +580,30 @@
 	// ============================================================
 	// BUTTON HANDLERS
 	// ============================================================
+	let spaceBlockedTimeout: ReturnType<typeof setTimeout> | null = null;
+	const showSpaceBlockedNotice = () => {
+		if (spaceBlockedTimeout) clearTimeout(spaceBlockedTimeout);
+		context.stateGame.spaceBlockedNotice = true;
+		spaceBlockedTimeout = setTimeout(() => { context.stateGame.spaceBlockedNotice = false; }, 2500);
+	};
+
+	let insufficientBalanceTimeout: ReturnType<typeof setTimeout> | null = null;
+	const showInsufficientBalanceNotice = () => {
+		if (insufficientBalanceTimeout) clearTimeout(insufficientBalanceTimeout);
+		context.stateGame.insufficientBalanceNotice = true;
+		insufficientBalanceTimeout = setTimeout(() => { context.stateGame.insufficientBalanceNotice = false; }, 2500);
+	};
+
 	const handleSpin = () => {
 		if (stateUrlDerived.replay()) return;
+		if (context.stateGame.popupOpen || hamburgerOpen || autoplayMenuOpen || betMenuOpen) {
+			showSpaceBlockedNotice();
+			return;
+		}
+		if (disabled) {
+			showInsufficientBalanceNotice();
+			return;
+		}
 		context.eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_btn_click_3' });
 		context.eventEmitter.broadcast({ type: 'bet' });
 	};
@@ -592,7 +616,8 @@
 			// Stop autoplay if running
 			stateBet.autoSpinsCounter = 0;
 		} else {
-			// Open inline autoplay popup
+			// Block opening autoplay menu mid-spin
+			if (!betIdle) return;
 			autoplayMenuOpen = !autoplayMenuOpen;
 		}
 	};
@@ -609,6 +634,8 @@
 		if (stateBetDerived.hasAutoBetCounter()) return;
 		// Block buy bonus during bonus/free spins
 		if (inFreeSpins) return;
+		// Block buy bonus mid-spin
+		if (!betIdle) return;
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
@@ -993,25 +1020,25 @@
 			<!-- SPIN BUTTON -->
 			{#if !isReplay}
 			<Container x={spinButtonX} y={0} zIndex={3}>
-				<OnHotkey hotkey="Space" {disabled} onpress={handleSpin} />
+				<OnHotkey hotkey="Space" onpress={handleSpin} />
 				<Circle
 					diameter={spinButtonSize}
 					anchor={0.5}
 					alpha={0}
 					backgroundColor={0xffffff}
 					eventMode="static"
-					cursor={disabled ? 'not-allowed' : 'pointer'}
+					cursor={spinBlocked ? 'not-allowed' : 'pointer'}
 					onpointerover={() => { spinHovered = true; }}
 					onpointerout={() => { spinHovered = false; spinPressed = false; }}
-					onpointerdown={() => { if (!disabled) spinPressed = true; }}
-					onpointerup={() => { spinPressed = false; if (!disabled) handleSpin(); }}
+					onpointerdown={() => { if (!spinBlocked) spinPressed = true; }}
+					onpointerup={() => { spinPressed = false; if (!spinBlocked) handleSpin(); }}
 				/>
 				<BaseSprite
 					texture={activePlayTexture}
 					width={spinButtonSize}
 					height={spinButtonSize}
 					anchor={0.5}
-					{...(disabled ? { tint: 0xaaaaaa } : {})}
+					tint={spinBlocked ? 0xaaaaaa : 0xffffff}
 				/>
 			</Container>
 			{/if}

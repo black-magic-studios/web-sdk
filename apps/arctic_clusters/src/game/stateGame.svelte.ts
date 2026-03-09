@@ -149,6 +149,12 @@ export const stateGame = $state({
 	auroraWildSkipRequested: false,
 	// Whether a spin is currently active (show wild counter)
 	spinActive: false,
+	// Whether a popup/dialog is open (blocks Space key, etc.)
+	popupOpen: false,
+	// Brief notification when Space is pressed while a menu/popup is open
+	spaceBlockedNotice: false,
+	// Brief notification when Space is pressed with insufficient balance
+	insufficientBalanceNotice: false,
 });
 
 // ============================================================

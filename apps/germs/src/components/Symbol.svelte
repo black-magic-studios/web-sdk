@@ -1,6 +1,7 @@
 <script lang="ts">
 	import SymbolSpine from './SymbolSpine.svelte';
 	import SymbolSprite from './SymbolSprite.svelte';
+	import SymbolMitosis from './SymbolMitosis.svelte';
 	import { getSymbolInfo } from '../game/utils';
 	import type { SymbolState, RawSymbol } from '../game/types';
 	import { getContext } from '../game/context';
@@ -18,21 +19,16 @@
 	const props: Props = $props();
 	const context = getContext();
 	const symbolInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: props.state }));
+	const staticInfo = $derived(getSymbolInfo({ rawSymbol: props.rawSymbol, state: 'static' }));
 	const isSprite = $derived(symbolInfo.type === 'sprite');
-    
-    // EXTRACT DENSITY (Defaults to 1 if your backend doesn't send it yet)
-    // You might need to add 'density' to your RawSymbol type definition later
-    const density = $derived(props.rawSymbol.density || 1); 
+	const SPECIAL_SYMBOLS = ['S', 'SC', 'W', 'M', 'BL'];
+	const isMitosis = $derived(props.state === 'win' && !SPECIAL_SYMBOLS.includes(props.rawSymbol.name));
 </script>
 
-{#if isSprite}
-    <SymbolSprite 
-        {symbolInfo} 
-        x={props.x} 
-        y={props.y} 
-        density={density} 
-        oncomplete={props.oncomplete} 
-    />
+{#if isMitosis}
+	<SymbolMitosis symbolInfo={staticInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
+{:else if isSprite}
+	<SymbolSprite {symbolInfo} x={props.x} y={props.y} oncomplete={props.oncomplete} />
 {:else}
     <SymbolSpine
 		loop={props.loop}
@@ -64,16 +60,3 @@
 	/>
 {/if}
 
-{#if density > 1}
-    <BitmapText
-		anchor={0.5}
-		x={(props.x || 0) + 40} 
-		y={(props.y || 0) - 40}
-		text={`x${density}`}
-		style={{
-			fontFamily: 'gold', // Using your existing font
-			fontSize: 30,
-            align: 'right'
-		}}
-	/>
-{/if}

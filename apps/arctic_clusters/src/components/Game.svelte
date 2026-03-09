@@ -162,6 +162,11 @@
 		}
 	});
 
+	// Keep popupOpen in sync so PlayBar / MobileControls can disable Space key
+	$effect(() => {
+		context.stateGame.popupOpen = showBuyBonus || showGameInfo;
+	});
+
 	// ── Replay mode state ──
 	let replayState = $state<'ready' | 'playing' | 'done'>(
 		stateUrlDerived.replay() ? 'ready' : 'playing'
@@ -357,6 +362,14 @@
 <ModalBuyBonus show={showBuyBonus} onclose={() => (showBuyBonus = false)} />
 <GameInfoModal show={showGameInfo} onclose={() => (showGameInfo = false)} />
 
+{#if context.stateGame.spaceBlockedNotice}
+	<div class="space-blocked-notice">Please close the open window to resume play.</div>
+{/if}
+
+{#if context.stateGame.insufficientBalanceNotice}
+	<div class="space-blocked-notice insufficient">INSUFFICIENT BALANCE</div>
+{/if}
+
 {#if useMobileControls && !preGameMode}
 	<MobileControls hidden={showGameInfo || showBuyBonus} />
 {/if}
@@ -421,6 +434,32 @@
 		font-weight: 700;
 		letter-spacing: 0.12em;
 		color: rgba(255, 255, 255, 0.88);
+	}
+
+	.space-blocked-notice {
+		position: fixed;
+		top: 18px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 9999;
+		background: rgba(180, 30, 30, 0.92);
+		color: #fff;
+		font-family: 'Montserrat', Arial, sans-serif;
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		padding: 10px 24px;
+		border-radius: 8px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+		pointer-events: none;
+		text-align: center;
+		white-space: nowrap;
+
+		&.insufficient {
+			background: rgba(255, 60, 60, 0.15);
+			color: #ff6b6b;
+			border: 1.5px solid rgba(255, 100, 100, 0.5);
+		}
 	}
 
 	.shake-light {

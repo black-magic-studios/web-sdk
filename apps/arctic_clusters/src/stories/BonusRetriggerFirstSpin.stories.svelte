@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'MODE_BASE/book',
+		title: 'BONUS_RETRIGGER_FIRST_SPIN/book',
 	});
 </script>
 
@@ -17,9 +17,11 @@
 	import Game from '../components/Game.svelte';
 	import { setContext } from '../game/context';
 	import { playBet } from '../game/utils';
-	import biggestWinBook from '../../.storybook/biggest_win_book';
+	import bonusRetriggerData from './data/bonus_retrigger_first_spin';
 
 	setContext();
+
+	const book = bonusRetriggerData[0];
 </script>
 
 {#snippet template(args: TemplateArgs<any>)}
@@ -36,13 +38,12 @@
 {/snippet}
 
 <Story
-	name="biggest_win"
+	name="play"
 	args={templateArgs({
 		skipLoadingScreen: true,
 		data: {},
 		action: async () => {
-			console.log('Running biggest win book', biggestWinBook.id);
-			await playBet({ ...biggestWinBook, state: biggestWinBook.events });
+			await playBet({ ...book, state: book.events });
 		},
 	})}
 	{template}

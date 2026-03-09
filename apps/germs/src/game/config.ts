@@ -33,6 +33,14 @@ export default {
       paytable: null,
       special_properties: ['scatter'], // The "Biohazard"
     },
+    SC: {
+      paytable: null,
+      special_properties: ['scatter'], // Alias for S in storybook data
+    },
+    BL: {
+      paytable: null,
+      special_properties: ['blank'],
+    },
     
     // --- LOW PAYS (The Culture) ---
     // Note: Values are tiny (0.002) because they get multiplied by Density (Ways)

@@ -264,6 +264,38 @@ export default {
 		type: 'sprites',
 		src: new URL('../../assets/sprites/symbolsStatic/symbolsStatic.json', import.meta.url).href,
 	},
+	germ_0: {
+		type: 'sprite',
+		src: new URL('../../germ_0.png', import.meta.url).href,
+	},
+	germ_1: {
+		type: 'sprite',
+		src: new URL('../../germ_1.png', import.meta.url).href,
+	},
+	germ_2: {
+		type: 'sprite',
+		src: new URL('../../germ_2.png', import.meta.url).href,
+	},
+	germ_3: {
+		type: 'sprite',
+		src: new URL('../../germ_3.png', import.meta.url).href,
+	},
+	germ_4: {
+		type: 'sprite',
+		src: new URL('../../germ_4.png', import.meta.url).href,
+	},
+	germ_5: {
+		type: 'sprite',
+		src: new URL('../../germ_5.png', import.meta.url).href,
+	},
+	germ_6: {
+		type: 'sprite',
+		src: new URL('../../germ_6.png', import.meta.url).href,
+	},
+	germ_7: {
+		type: 'sprite',
+		src: new URL('../../germ_7.png', import.meta.url).href,
+	},
 	coins: {
 		type: 'spriteSheet',
 		src: new URL('../../assets/sprites/coin/SD2_Coin.json', import.meta.url).href,

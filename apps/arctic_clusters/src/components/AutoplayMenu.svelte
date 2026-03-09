@@ -45,6 +45,9 @@
 	let activeSection = $state<'spins' | 'limits'>('spins');
 
 	const startAutoplay = () => {
+		// Block starting autoplay if a spin is already active
+		if (context.stateGame.spinActive) return;
+
 		// Sync spin selection to shared state
 		stateUi.autoSpinsText = selectedSpins;
 		stateBet.stopOnBonus = stopOnBonus;

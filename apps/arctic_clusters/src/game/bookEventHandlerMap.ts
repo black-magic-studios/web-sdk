@@ -13,6 +13,10 @@ import type { BookEvent, BookEventOfType, BookEventContext } from './typesBookEv
 import { isFreegameType } from './types';
 import type { RawSymbol, Position } from './types';
 
+// Tracks the current free spin total across trigger + retrigger events.
+// Updated by freeSpinTrigger / superBonusTrigger (reset) and freeSpinRetrigger (accumulate).
+let _freeSpinTotalSpins = 0;
+
 /**
  * Compute win level from the win amount (in book event units).
  * Thresholds are win-to-bet multiplier cutoffs:
@@ -64,6 +68,20 @@ const animateSymbols = async ({ positions }: { positions: Position[] }) => {
 		type: 'boardWithAnimateSymbols',
 		symbolPositions: positions,
 	});
+};
+
+/** Scan the current settled board for a specific scatter symbol and return their positions. */
+const getScatterPositionsFromBoard = (scatterName: 'S' | 'SS'): Position[] => {
+	const positions: Position[] = [];
+	const boardRaw = stateGameDerived.boardRaw();
+	boardRaw.forEach((reel, reelIndex) => {
+		reel.forEach((symbol, row) => {
+			if (symbol.name === scatterName) {
+				positions.push({ reel: reelIndex, row });
+			}
+		});
+	});
+	return positions;
 };
 
 /**
@@ -293,15 +311,17 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		stateGame.wildReleaseRemaining = 0;
 	},
 	freeSpinTrigger: async (bookEvent: BookEventOfType<'freeSpinTrigger'>) => {
+		// Track the awarded total — retriggers will add to this
+		_freeSpinTotalSpins = bookEvent.totalFs;
 		// Reset session-wide wild tracking for new bonus
 		stateGame.auroraWildsSessionTotal = 0;
 		stateGame.isWildRelease = false;
 		stateGame.wildReleaseRemaining = 0;
 		// Store scatter tumble history for gravity animation during tumble sequence
 		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
-		// Animate scatters at their final post-tumble positions (backend now sends correct coords)
+		// Animate scatters at their actual positions on the settled board
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
-		await animateSymbols({ positions: bookEvent.positions });
+		await animateSymbols({ positions: getScatterPositionsFromBoard('S') });
 		// show free spin intro — crossfade base music → bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
 		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
@@ -334,12 +354,14 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({ type: 'drawerFold' });
 	},
 	freeSpinRetrigger: async (bookEvent: BookEventOfType<'freeSpinRetrigger'>) => {
+		// Accumulate retrigger spins onto the running total
+		_freeSpinTotalSpins += bookEvent.totalFs;
 		// Do NOT reset session total on retrigger — wilds continue accumulating
 		// Store scatter tumble history for gravity animation during tumble sequence
 		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
-		// Animate scatters at their final post-tumble positions
+		// Animate scatters at their actual positions on the settled board
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
-		await animateSymbols({ positions: bookEvent.positions });
+		await animateSymbols({ positions: getScatterPositionsFromBoard('S') });
 		// show free spin retrigger intro — crossfade to bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
 		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
@@ -365,7 +387,7 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({
 			type: 'freeSpinCounterUpdate',
 			current: undefined,
-			total: bookEvent.totalFs,
+			total: _freeSpinTotalSpins,
 		});
 		await eventEmitter.broadcastAsync({ type: 'uiShow' });
 	},
@@ -374,7 +396,11 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		eventEmitter.broadcast({
 			type: 'freeSpinCounterUpdate',
 			current: bookEvent.amount,
-			total: bookEvent.total,
+			// Don't update total here — total is set exclusively by
+			// freeSpinTrigger / freeSpinRetrigger / superBonusTrigger.
+			// The server may send the retrigger-updated total in updateFreeSpin
+			// before freeSpinRetrigger fires, which would leak the new total
+			// into the counter before the retrigger presentation.
 		});
 	},
 	updateGlobalMult: async (bookEvent: BookEventOfType<'updateGlobalMult'>) => {
@@ -620,15 +646,17 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		// the normal setWin / freeSpinEnd flow that follows.
 	},
 	superBonusTrigger: async (bookEvent: BookEventOfType<'superBonusTrigger'>) => {
+		// Track the awarded total — retriggers will add to this
+		_freeSpinTotalSpins = bookEvent.totalFs;
 		// Reset session-wide wild tracking for new bonus
 		stateGame.auroraWildsSessionTotal = 0;
 		stateGame.isWildRelease = false;
 		stateGame.wildReleaseRemaining = 0;
 		// Store scatter tumble history for gravity animation during tumble sequence
 		stateGame.scatterPositionHistory = bookEvent.positionHistory ?? [];
-		// Animate scatters at their final post-tumble positions
+		// Animate scatters at their actual positions on the settled board
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_scatter_win_v2' });
-		await animateSymbols({ positions: bookEvent.positions });
+		await animateSymbols({ positions: getScatterPositionsFromBoard('SS') });
 		// Crossfade base music → bonus intro
 		eventEmitter.broadcast({ type: 'soundOnce', name: 'sfx_superfreespin' });
 		eventEmitter.broadcast({ type: 'soundMusicCrossfade', name: 'bgm_bonus_intro', duration: 500 });
@@ -671,12 +699,25 @@ export const bookEventHandlerMap: BookEventHandlerMap<BookEvent, BookEventContex
 		}
 
 		const lastFreeSpinTriggerEvent = findLastBookEvent('freeSpinTrigger' as const);
+		const lastSuperBonusTriggerEvent = findLastBookEvent('superBonusTrigger' as const);
 		const lastUpdateFreeSpinEvent = findLastBookEvent('updateFreeSpin' as const);
 		const lastSetTotalWinEvent = findLastBookEvent('setTotalWin' as const);
 		const lastUpdateGlobalMultEvent = findLastBookEvent('updateGlobalMult' as const);
 
+		// Replay the trigger event to set up free spin UI (intro, counter total, gameType, etc.)
 		if (lastFreeSpinTriggerEvent) await playBookEvent(lastFreeSpinTriggerEvent, { bookEvents });
-		if (lastUpdateFreeSpinEvent) playBookEvent(lastUpdateFreeSpinEvent, { bookEvents });
+		else if (lastSuperBonusTriggerEvent) await playBookEvent(lastSuperBonusTriggerEvent, { bookEvents });
+
+		// Restore the counter with the authoritative total from updateFreeSpin
+		// (includes all retrigger spins) and the current spin number.
+		if (lastUpdateFreeSpinEvent) {
+			_freeSpinTotalSpins = lastUpdateFreeSpinEvent.total;
+			eventEmitter.broadcast({
+				type: 'freeSpinCounterUpdate',
+				current: lastUpdateFreeSpinEvent.amount,
+				total: lastUpdateFreeSpinEvent.total,
+			});
+		}
 		if (lastSetTotalWinEvent) playBookEvent(lastSetTotalWinEvent, { bookEvents });
 		if (lastUpdateGlobalMultEvent) playBookEvent(lastUpdateGlobalMultEvent, { bookEvents });
 	},

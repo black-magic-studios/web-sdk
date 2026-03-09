@@ -21,7 +21,7 @@ import {
 } from './constants';
 
 const onSymbolLand = ({ rawSymbol }: { rawSymbol: RawSymbol }) => {
-	if (rawSymbol.name === 'S') {
+	if (rawSymbol.name === 'S' || rawSymbol.name === 'SC') {
 		eventEmitter.broadcast({ type: 'soundScatterCounterIncrease' });
 		eventEmitter.broadcast({
 			type: 'soundOnce',

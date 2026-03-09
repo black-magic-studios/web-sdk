@@ -75,8 +75,8 @@ export default {
 		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
 
 	// ── Game info page — controls section ──
-	'Starts a spin using the current bet amount. Press again during a spin to skip animations.':
-		'Starts a spin using the current bet amount. Press again during a spin to skip animations.',
+	'Starts a spin using the current bet amount.':
+		'Starts a spin using the current bet amount.',
 	'Increase or decrease the bet amount per spin. The total cost is shown in the bet display.':
 		'Increase or decrease the bet amount per spin. The total cost is shown in the bet display.',
 	'Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.':
@@ -91,8 +91,8 @@ export default {
 		'5 or more matching symbols connected horizontally or vertically form a paying cluster. Diagonal connections do not count.',
 	'Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.':
 		'Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.',
-	'Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.':
-		'Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.',
+	'Bonus and Super Bonus symbols are counted whenever they land on the grid, including during tumbles. They do not need to form a cluster.':
+		'Bonus and Super Bonus symbols are counted whenever they land on the grid, including during tumbles. They do not need to form a cluster.',
 	'All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.':
 		'All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.',
 	'The maximum payout per spin is capped at':

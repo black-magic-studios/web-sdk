@@ -39,7 +39,7 @@ export default {
 	'Costs <strong>100x</strong> the standard bet. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.':
 		'For <strong>100x</strong> the standard play. Instantly triggers <strong>8 Free Spins</strong>, skipping the base game entirely.',
 	'Maximum win per spin is capped at <strong>25,000x</strong> the bet. If the cap is reached, remaining tumbles are stopped.':
-		'Maximum win per spin is capped at <strong>25,000x</strong> the play. If the cap is reached, remaining tumbles are stopped.',
+		'Maximum win per spin is capped at <strong>25,000x</strong> the base play amount. If the cap is reached, remaining tumbles are stopped.',
 	'Start every cell at a higher multiplier for an increased bet cost. All wins benefit from amplified multipliers from the very first tumble.':
 		'Start every cell at a higher multiplier for an increased play amount. All wins benefit from amplified multipliers from the very first tumble.',
 
@@ -92,15 +92,19 @@ export default {
 	'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a paying cluster is added to the collection.':
 		'When Aurora cells activate and place Wilds on the grid, any placed Wild that becomes part of a winning cluster is added to the collection.',
 	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.':
-		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is generated using only winning symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
+		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is generated using only regular symbols (no Bonus, Super Bonus, or Wild symbols can appear). The total number of wilds collected is then placed onto this board. Cell multipliers from the Bonus Round carry into this spin, and a full tumble sequence plays out.',
+	'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is dealt using only paying symbols (no Bonus, Super Bonus, or Wild symbols can appear). Any natural winning clusters on this board are evaluated and the full tumble sequence plays out first. Once all tumbles have settled, the collected Wilds are then placed onto the board and a new tumble sequence begins. Cell multipliers from the Bonus carry into this spin.':
+		'After all Bonus spins are completed, a Final Aurora Spin occurs: a fresh board is generated using only regular symbols (no Bonus, Super Bonus, or Wild symbols can appear). Any natural winning clusters on this board are evaluated and the full tumble sequence plays out first. Once all tumbles have settled, the collected Wilds are then placed onto the board and a new tumble sequence begins. Cell multipliers from the Bonus carry into this spin.',
 
 	// ── Game info page — controls section ──
-	'Starts a spin using the current bet amount. Press again during a spin to skip animations.':
-		'Starts a spin using the current play amount. Press again during a spin to skip animations.',
+	'Starts a spin using the current bet amount.':
+		'Starts a spin using the current play amount.',
 	'Increase or decrease the bet amount per spin. The total cost is shown in the bet display.':
 		'Increase or decrease the play amount per spin. The total amount is shown in the play display.',
 	'Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a bonus round.':
 		'Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or play directly into a bonus round.',
+	'Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or buy directly into a Bonus.':
+		'Opens the feature menu where you can activate Extra Chance, select a grid multiplier, or play directly into a Bonus.',
 	'Displays the total cost of the current spin, including any active bet mode modifiers.':
 		'Displays the total amount of the current spin, including any active play mode modifiers.',
 	'Shows the total win amount for the current spin, including all tumble payouts.':
@@ -111,14 +115,16 @@ export default {
 		'5 or more matching symbols connected horizontally or vertically form a winning cluster. Diagonal connections do not count.',
 	'Each paying symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.':
 		'Each winning symbol can only belong to one cluster. Wilds are the exception and can be shared across all adjacent clusters they connect.',
-	'Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.':
-		'Bonus and Super Bonus symbols are evaluated before tumbles begin. They do not need to form a cluster.',
+	'Bonus and Super Bonus symbols are counted whenever they land on the grid, including during tumbles. They do not need to form a cluster.':
+		'Bonus and Super Bonus symbols are counted whenever they land on the grid, including during tumbles. They do not need to form a cluster.',
 	'All payouts from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.':
 		'All wins from a single spin, including tumbles and any triggered Bonus Round, are combined into one total amount.',
+	'All payouts from a single spin, including tumbles and any triggered Bonus, are combined into one total amount.':
+		'All wins from a single spin, including tumbles and any triggered Bonus, are combined into one total amount.',
 	'The maximum payout per spin is capped at':
 		'The maximum win per spin is capped at',
-	'the total bet. If this cap is reached during tumbles, remaining tumbles are skipped.':
-		'the total play amount. If this cap is reached during tumbles, remaining tumbles are skipped.',
+	'the base bet amount. If this cap is reached during tumbles, remaining tumbles are skipped.':
+		'the base play amount. If this cap is reached during tumbles, remaining tumbles are skipped.',
 	'Cluster payouts use the paytable value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.':
 		'Cluster wins use the win table value for sizes up to 20. Clusters larger than 20 symbols use the same value as 20.',
 

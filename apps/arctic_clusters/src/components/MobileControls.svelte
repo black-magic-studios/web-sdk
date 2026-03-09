@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Tween } from 'svelte/motion';
-	import { stateBet, stateBetDerived, stateMeta, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
+	import { stateBet, stateBetDerived, stateMeta, stateModal, stateConfig, stateI18nDerived, stateUrlDerived } from 'state-shared';
 	import { numberToCurrencyString } from 'utils-shared/amount';
 	import { bookEventAmountToCurrencyString } from 'utils-shared/amount';
 	import { getContext } from '../game/context';
@@ -89,7 +89,12 @@
 
 	// ── Handlers ──
 	const handleSpin = () => {
-		if (!disabled && !stateUrlDerived.replay()) context.eventEmitter.broadcast({ type: 'bet' });
+		if (stateUrlDerived.replay()) return;
+		if (disabled) {
+			stateModal.modal = { name: 'autoSpinMessage', message: 'insufficientFunds' };
+			return;
+		}
+		context.eventEmitter.broadcast({ type: 'bet' });
 	};
 
 	let autoplayMenuOpen = $state(false);
@@ -101,6 +106,8 @@
 		if (stateBetDerived.hasAutoBetCounter()) {
 			stateBet.autoSpinsCounter = 0;
 		} else {
+			// Block opening autoplay menu mid-spin
+			if (!betIdle) return;
 			autoplayMenuOpen = !autoplayMenuOpen;
 		}
 	};
@@ -122,6 +129,8 @@
 		if (stateBetDerived.hasAutoBetCounter()) return;
 		// Block buy bonus during bonus/free spins
 		if (inFreeSpins) return;
+		// Block buy bonus mid-spin
+		if (!betIdle) return;
 		context.eventEmitter.broadcast({ type: 'buyBonusConfirm' });
 	};
 
